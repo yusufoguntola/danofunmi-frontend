@@ -1,0 +1,62 @@
+.install-prompt {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--green-900);
+  color: var(--cream);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.install-prompt__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.9rem;
+}
+
+.install-prompt__text strong {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1rem;
+}
+
+.install-prompt__text span {
+  color: var(--green-100);
+}
+
+.install-prompt__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.install-prompt__dismiss {
+  color: var(--cream);
+  border-color: var(--green-600);
+}
+
+.install-prompt__dismiss:hover {
+  background: var(--green-800);
+}
+
+@media (max-width: 480px) {
+  .install-prompt {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .install-prompt__actions {
+    justify-content: center;
+  }
+}

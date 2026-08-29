@@ -1,0 +1,95 @@
+.order-status__hero {
+  background: var(--green-900);
+  padding: 20px 0;
+}
+
+.order-status__logo {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  color: #fff;
+  text-decoration: none;
+}
+
+.order-status__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.order-status__back:hover {
+  color: #fff;
+}
+
+.order-status__body {
+  padding: 40px 24px 96px;
+  max-width: 760px;
+}
+
+.status-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.status-track__step {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--green-50);
+  color: var(--muted);
+}
+
+.status-track__step.is-done {
+  background: var(--green-700);
+  color: #fff;
+}
+
+.order-status__grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 32px;
+}
+
+.payment-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: var(--green-50);
+  border: 1px dashed var(--green-500);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+.payment-details div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.9rem;
+}
+
+.payment-details span.muted {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 640px) {
+  .order-status__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-details {
+    grid-template-columns: 1fr;
+  }
+}
