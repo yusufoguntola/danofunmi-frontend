@@ -75,7 +75,10 @@
 
 .order-builder {
   display: grid;
-  grid-template-columns: 1.5fr 1fr;
+  /* minmax(0, ...) prevents a track from growing to fit the widest
+     un-wrapped content (e.g. a menu item's pill row) instead of shrinking
+     to the available width — the classic CSS grid overflow trap. */
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   gap: 40px;
   align-items: start;
 }
@@ -152,12 +155,17 @@
 
 .cart-list__item {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--line);
   font-size: 0.88rem;
+}
+
+.cart-list__item > div:first-child {
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .cart-list__qty {
@@ -200,7 +208,7 @@
 
 @media (max-width: 900px) {
   .order-builder {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .order-builder__summary {

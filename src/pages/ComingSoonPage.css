@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--green-900);
+  background: radial-gradient(circle at 50% 18%, var(--green-700) 0%, var(--green-800) 45%, var(--green-900) 100%);
   overflow: hidden;
   padding: 24px;
 }
@@ -17,54 +17,220 @@
 }
 
 .coming-soon .doodle {
-  opacity: 0.22;
+  opacity: 0.18;
+}
+
+/* Burning party pot with rising smoke, sitting low in the background
+   behind the panel — an illustrated cauldron-over-firewood scene, a nod
+   to the big pots used for cooking in bulk. */
+.coming-soon__fire-pot {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+.fire-pot-svg {
+  display: block;
+  width: 220px;
+  height: 260px;
+}
+
+.pot {
+  transform-origin: 110px 190px;
+  transform-box: fill-box;
+  animation: potWobble 3.4s ease-in-out infinite;
+}
+
+.pot-body { fill: #26211d; }
+.pot-body-hi { fill: #3a322c; opacity: 0.5; }
+.pot-rim { fill: #171310; }
+.pot-rim-inner { fill: #0f0d0b; }
+.pot-handle { fill: none; stroke: #171310; stroke-width: 7; stroke-linecap: round; }
+.pot-shadow { fill: rgba(0, 0, 0, 0.35); }
+
+.log { fill: #5a3a22; }
+.log--top { fill: #7a5232; }
+
+.flame {
+  fill: url(#flameGrad);
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: flicker 0.5s ease-in-out infinite alternate;
+}
+
+.flame--b { animation-delay: 0.12s; }
+.flame--c { animation-delay: 0.24s; }
+
+.smoke-wisp {
+  fill: none;
+  stroke: rgba(250, 246, 236, 0.55);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transform-box: fill-box;
+  animation: smokeRise 4s ease-in-out infinite;
+}
+
+.smoke-wisp--1 { animation-delay: 0s; }
+.smoke-wisp--2 { stroke-width: 4; animation-delay: 1.6s; }
+
+@keyframes potWobble {
+  0%, 100% { transform: rotate(-1.2deg); }
+  50% { transform: rotate(1.2deg); }
+}
+
+@keyframes flicker {
+  from { transform: scaleY(1) scaleX(1); opacity: 1; }
+  to { transform: scaleY(1.12) scaleX(0.92); opacity: 0.8; }
+}
+
+@keyframes smokeRise {
+  0% { transform: translateY(10px); opacity: 0; }
+  25% { opacity: 0.7; }
+  80% { opacity: 0.2; }
+  100% { transform: translateY(-16px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pot,
+  .flame,
+  .smoke-wisp {
+    animation: none;
+  }
 }
 
 .coming-soon__panel {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 520px;
+  max-width: 560px;
   text-align: center;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius);
-  padding: 56px 40px;
+  padding: 48px 40px;
   backdrop-filter: blur(6px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.coming-soon__eyebrow {
-  display: inline-block;
+.coming-soon__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.1);
-  color: var(--cream);
-  font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 7px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  padding: 9px 20px;
   border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cream);
   margin-bottom: 22px;
+}
+
+.coming-soon__badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  box-shadow: 0 0 0 5px rgba(196, 101, 47, 0.28);
 }
 
 .coming-soon__logo {
-  font-size: 3rem;
+  font-size: 2.6rem;
   font-style: italic;
   color: #fff;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
-.coming-soon__meaning {
-  color: var(--green-100);
-  font-style: italic;
+.coming-soon__tagline {
+  display: block;
   font-size: 0.95rem;
-  margin-bottom: 22px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 30px;
+}
+
+.coming-soon__headline {
+  font-style: italic;
+  font-size: 2.6rem;
+  line-height: 1.05;
+  color: #fff;
+  margin: 0 0 16px;
+}
+
+.coming-soon__headline span {
+  color: var(--terracotta);
 }
 
 .coming-soon__body {
-  color: rgba(255, 255, 255, 0.75);
   font-size: 1.02rem;
-  max-width: 40ch;
-  margin: 0 auto;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 34ch;
+  margin: 0 0 32px;
+  line-height: 1.5;
+}
+
+.coming-soon__details {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  margin-bottom: 28px;
+}
+
+.coming-soon__detail {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 16px 18px;
+  text-align: left;
+}
+
+.coming-soon__detail-icon {
+  font-size: 1.7rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.coming-soon__detail-text {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.coming-soon__detail-text small {
+  display: block;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.72);
+  margin-top: 3px;
+}
+
+.coming-soon__meaning {
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.68);
+  margin: 0;
+}
+
+.coming-soon__meaning strong {
+  font-style: normal;
+  font-weight: 800;
+  color: var(--cream);
 }
 
 @media (max-width: 480px) {
@@ -73,6 +239,10 @@
   }
 
   .coming-soon__logo {
-    font-size: 2.4rem;
+    font-size: 2.2rem;
+  }
+
+  .coming-soon__headline {
+    font-size: 2.2rem;
   }
 }

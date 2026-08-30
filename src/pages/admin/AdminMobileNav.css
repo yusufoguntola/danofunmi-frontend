@@ -1,0 +1,127 @@
+.admin-mobile-nav {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .admin-mobile-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 85;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+    height: var(--mobile-nav-h);
+    padding-bottom: env(safe-area-inset-bottom);
+    background: #fff;
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -8px 20px -14px rgba(22, 50, 31, 0.35);
+  }
+
+  .admin-mobile-nav__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding-top: 6px;
+    border: none;
+    background: none;
+    font: inherit;
+    color: var(--green-800);
+    min-width: 0;
+    cursor: pointer;
+  }
+
+  .admin-mobile-nav__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 26px;
+    border-radius: 999px;
+    color: var(--green-600);
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  }
+
+  .admin-mobile-nav__icon svg {
+    width: 21px;
+    height: 21px;
+  }
+
+  .admin-mobile-nav__label {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    transition: color 0.15s ease;
+  }
+
+  .admin-mobile-nav__chevron {
+    display: inline-flex;
+    transition: transform 0.15s ease;
+  }
+
+  .admin-mobile-nav__item.is-open .admin-mobile-nav__chevron {
+    transform: rotate(180deg);
+  }
+
+  .admin-mobile-nav__item.is-active .admin-mobile-nav__icon {
+    background: var(--green-100);
+    color: var(--green-700);
+    transform: translateY(-1px);
+  }
+
+  .admin-mobile-nav__item.is-active .admin-mobile-nav__label {
+    color: var(--green-800);
+  }
+
+  .admin-mobile-nav__sheet {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom) + 10px);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .admin-mobile-nav__sheet-item {
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .admin-mobile-nav__sheet-item.is-active {
+    background: var(--green-100);
+    color: var(--green-800);
+  }
+}
+
+/* Reserve space so page content and the footer never sit underneath the
+   fixed bottom nav, and hide the desktop link row it replaces. */
+@media (max-width: 900px) {
+  .admin-layout__body {
+    padding-bottom: calc(var(--mobile-nav-h) + 24px + env(safe-area-inset-bottom));
+  }
+
+  .admin-layout__nav {
+    display: none;
+  }
+}

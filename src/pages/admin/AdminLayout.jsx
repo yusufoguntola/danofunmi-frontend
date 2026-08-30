@@ -1,5 +1,6 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
+import AdminMobileNav from './AdminMobileNav';
 
 export default function AdminLayout() {
   const { session, logout } = useAdminAuth();
@@ -33,6 +34,7 @@ export default function AdminLayout() {
       <main className="wrap admin-layout__body">
         <Outlet />
       </main>
+      <AdminMobileNav />
     </div>
   );
 }
