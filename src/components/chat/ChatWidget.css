@@ -163,9 +163,18 @@
   outline-offset: 1px;
 }
 
+@media (max-width: 900px) {
+  .chat-widget {
+    bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom) + 12px);
+  }
+}
+
 @media (max-width: 480px) {
   .chat-widget {
     right: 12px;
-    bottom: 12px;
+  }
+
+  .chat-widget__panel {
+    max-height: min(65vh, 560px);
   }
 }

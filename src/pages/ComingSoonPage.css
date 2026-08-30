@@ -1,0 +1,78 @@
+.coming-soon {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--green-900);
+  overflow: hidden;
+  padding: 24px;
+}
+
+.coming-soon__doodles {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.coming-soon .doodle {
+  opacity: 0.22;
+}
+
+.coming-soon__panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius);
+  padding: 56px 40px;
+  backdrop-filter: blur(6px);
+}
+
+.coming-soon__eyebrow {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--cream);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 7px 16px;
+  border-radius: 999px;
+  margin-bottom: 22px;
+}
+
+.coming-soon__logo {
+  font-size: 3rem;
+  font-style: italic;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.coming-soon__meaning {
+  color: var(--green-100);
+  font-style: italic;
+  font-size: 0.95rem;
+  margin-bottom: 22px;
+}
+
+.coming-soon__body {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 1.02rem;
+  max-width: 40ch;
+  margin: 0 auto;
+}
+
+@media (max-width: 480px) {
+  .coming-soon__panel {
+    padding: 40px 24px;
+  }
+
+  .coming-soon__logo {
+    font-size: 2.4rem;
+  }
+}

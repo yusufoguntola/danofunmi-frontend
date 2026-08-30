@@ -43,10 +43,14 @@ export default function GoogleSignInButton({ onCredential }) {
         client_id: CLIENT_ID,
         callback: (response) => onCredentialRef.current(response.credential),
       });
+      // Google's button has a fixed pixel width rather than a fluid one, so
+      // size it to whatever space its container actually has (clamped to
+      // Google's supported range) instead of overflowing narrow screens.
+      const width = Math.max(200, Math.min(320, ref.current.clientWidth || 320));
       window.google.accounts.id.renderButton(ref.current, {
         theme: 'outline',
         size: 'large',
-        width: 320,
+        width,
       });
     });
 

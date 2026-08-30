@@ -8,6 +8,7 @@ import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import './ChatWidget.css';
 
 const RECEIPT_UPLOADABLE_STATUSES = ['PENDING_PAYMENT', 'PAYMENT_SUBMITTED'];
+const AUTO_OPEN_KEY = 'dfm-chat-auto-opened';
 
 /** Pulls out the plain text a message should render as, or '' if it's a
  * tool-only turn (tool_use / tool_result) that shouldn't show a bubble. */
@@ -19,6 +20,13 @@ function messageText(content) {
     .map((b) => b.text)
     .join('\n')
     .trim();
+}
+
+function timeOfDay() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'morning';
+  if (hour < 18) return 'afternoon';
+  return 'evening';
 }
 
 export default function ChatWidget() {
@@ -77,6 +85,18 @@ export default function ChatWidget() {
     if (!hydrated) return;
     db.chat.put({ id: 'default', messages, meta });
   }, [messages, meta, hydrated]);
+
+  // Greet first-time visitors by popping the chat open on its own, once —
+  // returning visitors (an existing conversation, or a prior auto-open)
+  // aren't interrupted.
+  useEffect(() => {
+    if (!hydrated || messages.length > 0 || localStorage.getItem(AUTO_OPEN_KEY)) return;
+    const timer = setTimeout(() => {
+      setOpen(true);
+      localStorage.setItem(AUTO_OPEN_KEY, '1');
+    }, 900);
+    return () => clearTimeout(timer);
+  }, [hydrated, messages.length]);
 
   useEffect(() => {
     if (open && listRef.current) {
@@ -256,10 +276,15 @@ export default function ChatWidget() {
 
           <div className="chat-widget__messages" ref={listRef}>
             {messages.length === 0 && (
-              <div className="chat-bubble chat-bubble--assistant">
-                Hi! I'm the dánọ́fúnmi assistant 🍲 — ask me about this month's menu, place an
-                order, track one, or leave feedback.
-              </div>
+              <>
+                <div className="chat-bubble chat-bubble--assistant">
+                  👋 Welcome to dánọ́fúnmi! I'm your ordering assistant.
+                </div>
+                <div className="chat-bubble chat-bubble--assistant">
+                  Good {timeOfDay()}! What can I help you with today? Ask about this month's
+                  menu, place an order, track one, or leave feedback. 🍲
+                </div>
+              </>
             )}
             {messages.map((m, i) => {
               const text = messageText(m.content);

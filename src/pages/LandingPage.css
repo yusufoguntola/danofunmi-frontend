@@ -30,6 +30,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 10px;
   padding-top: 16px;
   padding-bottom: 16px;
 }
@@ -394,13 +396,19 @@
   }
 }
 
+.landing .nav__links {
+  display: none;
+}
+
+@media (min-width: 901px) {
+  .landing .nav__links {
+    display: flex;
+  }
+}
+
 @media (max-width: 560px) {
   .landing .hero h1 {
     font-size: 2.3rem;
-  }
-
-  .landing .nav__links {
-    display: none;
   }
 
   .landing .steps {

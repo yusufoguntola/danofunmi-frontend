@@ -15,6 +15,7 @@
   --line: #dfe8db;
   --radius: 18px;
   --shadow: 0 12px 30px -12px rgba(22, 50, 31, 0.25);
+  --mobile-nav-h: 60px;
 }
 
 * {
@@ -375,8 +376,8 @@ button, input, select, textarea {
 
 /* Layout helpers */
 .stack { display: flex; flex-direction: column; gap: 16px; }
-.row { display: flex; align-items: center; gap: 12px; }
-.row--between { display: flex; align-items: center; justify-content: space-between; }
+.row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.row--between { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
 .muted { color: var(--muted); }
 .section-title { font-size: 1.6rem; }
 
@@ -484,7 +485,8 @@ button, input, select, textarea {
 
 .admin-layout__nav {
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 8px 20px;
 }
 
 .admin-layout__nav a {
@@ -552,5 +554,14 @@ button, input, select, textarea {
 @media (max-width: 640px) {
   .report-stats {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Space for the fixed mobile bottom nav (see MobileNav.css) so page
+   content and the footer never sit underneath it. Admin pages don't
+   render MobileNav, so scope this to the customer app shell. */
+@media (max-width: 900px) {
+  body:has(.mobile-nav) {
+    padding-bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom));
   }
 }

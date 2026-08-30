@@ -49,6 +49,12 @@
   background: var(--green-800);
 }
 
+@media (max-width: 900px) {
+  .install-prompt {
+    bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom) + 12px);
+  }
+}
+
 @media (max-width: 480px) {
   .install-prompt {
     flex-direction: column;
