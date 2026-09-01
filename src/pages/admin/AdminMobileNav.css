@@ -36,6 +36,7 @@
   }
 
   .admin-mobile-nav__icon {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -44,6 +45,17 @@
     border-radius: 999px;
     color: var(--green-600);
     transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  }
+
+  .admin-mobile-nav__dot {
+    position: absolute;
+    top: 0;
+    right: 4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+    border: 1.5px solid #fff;
   }
 
   .admin-mobile-nav__icon svg {

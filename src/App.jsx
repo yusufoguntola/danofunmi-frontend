@@ -19,10 +19,13 @@ import AdminLayout from './pages/admin/AdminLayout';
 import AdminOrders from './pages/admin/AdminOrders';
 import AdminMenu from './pages/admin/AdminMenu';
 import AdminMenuItemEdit from './pages/admin/AdminMenuItemEdit';
+import AdminMenuGroups from './pages/admin/AdminMenuGroups';
+import AdminMenuGroupEdit from './pages/admin/AdminMenuGroupEdit';
 import AdminLocations from './pages/admin/AdminLocations';
 import AdminCosts from './pages/admin/AdminCosts';
 import AdminReports from './pages/admin/AdminReports';
 import AdminFeedback from './pages/admin/AdminFeedback';
+import AdminRequests from './pages/admin/AdminRequests';
 import AdminNotifications from './pages/admin/AdminNotifications';
 
 // Gates the whole customer-facing site behind a "coming soon" page while
@@ -56,11 +59,14 @@ const adminRoutes = (
     >
       <Route index element={<AdminOrders />} />
       <Route path="menu" element={<AdminMenu />} />
+      <Route path="menu/groups" element={<AdminMenuGroups />} />
+      <Route path="menu/groups/:id" element={<AdminMenuGroupEdit />} />
       <Route path="menu/:id" element={<AdminMenuItemEdit />} />
       <Route path="locations" element={<AdminLocations />} />
       <Route path="costs" element={<AdminCosts />} />
       <Route path="reports" element={<AdminReports />} />
       <Route path="feedback" element={<AdminFeedback />} />
+      <Route path="requests" element={<AdminRequests />} />
       <Route path="notifications" element={<AdminNotifications />} />
     </Route>
   </>

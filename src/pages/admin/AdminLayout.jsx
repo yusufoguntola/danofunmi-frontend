@@ -1,10 +1,28 @@
+import { useCallback, useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
+import { api } from '../../lib/api';
 import AdminMobileNav from './AdminMobileNav';
+
+// How often the "unread requests" badge refreshes on its own — a visit to
+// /admin/requests (which marks everything read) also triggers an immediate
+// refresh via the refreshUnreadRequests() passed down through Outlet context.
+const UNREAD_POLL_MS = 30000;
 
 export default function AdminLayout() {
   const { session, logout } = useAdminAuth();
   const navigate = useNavigate();
+  const [unreadRequests, setUnreadRequests] = useState(0);
+
+  const refreshUnreadRequests = useCallback(() => {
+    api.adminRequestsUnreadCount(session.token).then((d) => setUnreadRequests(d.count)).catch(() => {});
+  }, [session.token]);
+
+  useEffect(() => {
+    refreshUnreadRequests();
+    const timer = setInterval(refreshUnreadRequests, UNREAD_POLL_MS);
+    return () => clearInterval(timer);
+  }, [refreshUnreadRequests]);
 
   function handleLogout() {
     logout();
@@ -23,6 +41,10 @@ export default function AdminLayout() {
             <NavLink to="/admin/costs">Costs</NavLink>
             <NavLink to="/admin/reports">Reports</NavLink>
             <NavLink to="/admin/feedback">Feedback</NavLink>
+            <NavLink to="/admin/requests">
+              Requests
+              {unreadRequests > 0 && <span className="admin-layout__nav-badge">{unreadRequests}</span>}
+            </NavLink>
             <NavLink to="/admin/notifications">Notifications</NavLink>
           </nav>
           <div className="row">
@@ -32,9 +54,9 @@ export default function AdminLayout() {
         </div>
       </header>
       <main className="wrap admin-layout__body">
-        <Outlet />
+        <Outlet context={{ refreshUnreadRequests }} />
       </main>
-      <AdminMobileNav />
+      <AdminMobileNav unreadRequests={unreadRequests} />
     </div>
   );
 }

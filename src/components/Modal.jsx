@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import './Modal.css';
 
-export default function Modal({ title, onClose, children }) {
+export default function Modal({ title, onClose, children, panelClassName }) {
   useEffect(() => {
     function handleKey(e) {
       if (e.key === 'Escape') onClose();
@@ -12,7 +12,7 @@ export default function Modal({ title, onClose, children }) {
 
   return (
     <div className="modal__backdrop" onClick={onClose}>
-      <div className="modal__panel" onClick={(e) => e.stopPropagation()}>
+      <div className={`modal__panel${panelClassName ? ` ${panelClassName}` : ''}`} onClick={(e) => e.stopPropagation()}>
         <div className="modal__header">
           <h3 style={{ margin: 0 }}>{title}</h3>
           <button type="button" className="modal__close" onClick={onClose} aria-label="Close">

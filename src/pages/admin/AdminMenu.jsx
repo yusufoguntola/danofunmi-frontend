@@ -182,6 +182,9 @@ export default function AdminMenu() {
       <div className="row--between">
         <h2 className="section-title" style={{ margin: 0 }}>Menu</h2>
         <div className="row">
+          <button className="btn btn--ghost btn--small" onClick={() => navigate('/admin/menu/groups')}>
+            Combos
+          </button>
           <button className="btn btn--ghost btn--small" onClick={() => setShowCategoryModal(true)}>
             + Add category
           </button>

@@ -81,6 +81,20 @@ export const api = {
   adminDeleteCategory: (token, id) =>
     request(`/api/menu/admin/categories/${id}`, { method: 'DELETE', token }),
 
+  adminListGroups: (token) => request('/api/menu/admin/groups/all', { token }),
+  adminGetGroup: (token, id) => request(`/api/menu/admin/groups/${id}`, { token }),
+  adminCreateGroup: (token, payload) =>
+    request('/api/menu/admin/groups', { method: 'POST', body: payload, token }),
+  adminUpdateGroup: (token, id, payload) =>
+    request(`/api/menu/admin/groups/${id}`, { method: 'PATCH', body: payload, token }),
+  adminDeleteGroup: (token, id) => request(`/api/menu/admin/groups/${id}`, { method: 'DELETE', token }),
+  adminAddGroupItem: (token, groupId, payload) =>
+    request(`/api/menu/admin/groups/${groupId}/items`, { method: 'POST', body: payload, token }),
+  adminUpdateGroupItem: (token, itemId, payload) =>
+    request(`/api/menu/admin/groups/items/${itemId}`, { method: 'PATCH', body: payload, token }),
+  adminDeleteGroupItem: (token, itemId) =>
+    request(`/api/menu/admin/groups/items/${itemId}`, { method: 'DELETE', token }),
+
   adminUploadMenuIcon: (token, file) => {
     const form = new FormData();
     form.append('icon', file);
@@ -109,6 +123,12 @@ export const api = {
   },
 
   adminListFeedback: (token) => request('/api/admin/feedback', { token }),
+
+  adminListRequests: (token) => request('/api/admin/requests', { token }),
+  adminRequestsUnreadCount: (token) => request('/api/admin/requests/unread-count', { token }),
+  adminMarkAllRequestsRead: (token) => request('/api/admin/requests/read-all', { method: 'PATCH', token }),
+  adminMarkRequestRead: (token, id, read = true) =>
+    request(`/api/admin/requests/${id}`, { method: 'PATCH', body: { read }, token }),
 
   sendChatMessage: (messages, token) => request('/api/chat', { method: 'POST', body: { messages }, token }),
 

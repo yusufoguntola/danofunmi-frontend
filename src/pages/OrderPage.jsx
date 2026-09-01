@@ -6,6 +6,7 @@ import { db } from '../lib/db';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { getRecaptchaToken } from '../lib/recaptcha';
 import SiteFooter from '../components/SiteFooter';
+import GroupDetailsModal from '../components/GroupDetailsModal';
 import './OrderPage.css';
 
 export default function OrderPage() {
@@ -26,6 +27,8 @@ export default function OrderPage() {
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+
+  const [viewingGroup, setViewingGroup] = useState(null);
 
   const [draftRestored, setDraftRestored] = useState(false);
   // Captured once at mount — a draft or hand-typed value always wins over the
@@ -97,11 +100,39 @@ export default function OrderPage() {
     });
   }
 
-  function setQty(optionId, quantity) {
+  function addGroup(group) {
+    setCart((prev) => {
+      const idx = prev.findIndex((l) => l.groupId === group.id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = { ...next[idx], quantity: next[idx].quantity + 1 };
+        return next;
+      }
+      return [
+        ...prev,
+        {
+          groupId: group.id,
+          itemName: group.name,
+          icon: group.icon,
+          size: 'Combo',
+          unitPrice: group.total,
+          quantity: 1,
+        },
+      ];
+    });
+  }
+
+  // A cart line is either an individual item (keyed by optionId) or a combo
+  // bundle (keyed by groupId) — exactly one is set per line.
+  function lineKey(line) {
+    return line.optionId || line.groupId;
+  }
+
+  function setQty(key, quantity) {
     setCart((prev) =>
       quantity < 1
-        ? prev.filter((l) => l.optionId !== optionId)
-        : prev.map((l) => (l.optionId === optionId ? { ...l, quantity } : l))
+        ? prev.filter((l) => lineKey(l) !== key)
+        : prev.map((l) => (lineKey(l) === key ? { ...l, quantity } : l))
     );
   }
 
@@ -133,7 +164,11 @@ export default function OrderPage() {
           deliveryAddress: form.deliveryAddress,
           locationId: form.locationId,
           notes: form.notes.trim() || undefined,
-          items: cart.map((l) => ({ menuItemOptionId: l.optionId, quantity: l.quantity })),
+          items: cart.map((l) =>
+            l.groupId
+              ? { menuGroupId: l.groupId, quantity: l.quantity }
+              : { menuItemOptionId: l.optionId, quantity: l.quantity }
+          ),
           recaptchaToken,
         },
         session?.token
@@ -191,27 +226,49 @@ export default function OrderPage() {
                   <h3>{category}</h3>
                   {menu
                     .filter((m) => m.category === category)
-                    .map((item) => (
-                      <div className="menu-item-card" key={item.id}>
-                        <span className="menu-item-card__icon">{item.icon}</span>
-                        <div className="menu-item-card__body">
-                          <h4>{item.name}</h4>
-                          {item.description && <p>{item.description}</p>}
-                          <div className="menu-item-card__options">
-                            {item.options.map((option) => (
+                    .map((entry) =>
+                      entry.type === 'group' ? (
+                        <div className="menu-item-card menu-item-card--group" key={entry.id}>
+                          <span className="menu-item-card__icon">{entry.icon}</span>
+                          <div className="menu-item-card__body">
+                            <h4>{entry.name}</h4>
+                            {entry.description && <p>{entry.description}</p>}
+                            <div className="menu-item-card__options">
+                              <button type="button" className="pill" onClick={() => addGroup(entry)}>
+                                Add combo &middot; {formatNaira(entry.total)}
+                              </button>
                               <button
                                 type="button"
-                                key={option.id}
-                                className="pill"
-                                onClick={() => addItem(item, option)}
+                                className="link-btn"
+                                onClick={() => setViewingGroup(entry)}
                               >
-                                {option.size} &middot; {formatNaira(option.price)}
+                                View details
                               </button>
-                            ))}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ) : (
+                        <div className="menu-item-card" key={entry.id}>
+                          <span className="menu-item-card__icon">{entry.icon}</span>
+                          <div className="menu-item-card__body">
+                            <h4>{entry.name}</h4>
+                            {entry.description && <p>{entry.description}</p>}
+                            <div className="menu-item-card__options">
+                              {entry.options.map((option) => (
+                                <button
+                                  type="button"
+                                  key={option.id}
+                                  className="pill"
+                                  onClick={() => addItem(entry, option)}
+                                >
+                                  {option.size} &middot; {formatNaira(option.price)}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    )}
                 </section>
               ))}
             </div>
@@ -225,17 +282,17 @@ export default function OrderPage() {
                 {cart.length > 0 && (
                   <ul className="cart-list">
                     {cart.map((line) => (
-                      <li key={line.optionId} className="cart-list__item">
+                      <li key={lineKey(line)} className="cart-list__item">
                         <div>
                           <strong>{line.icon} {line.itemName}</strong>
                           <span className="muted"> &middot; {line.size}</span>
                         </div>
                         <div className="cart-list__qty">
-                          <button type="button" onClick={() => setQty(line.optionId, line.quantity - 1)}>
+                          <button type="button" onClick={() => setQty(lineKey(line), line.quantity - 1)}>
                             &minus;
                           </button>
                           <span>{line.quantity}</span>
-                          <button type="button" onClick={() => setQty(line.optionId, line.quantity + 1)}>
+                          <button type="button" onClick={() => setQty(lineKey(line), line.quantity + 1)}>
                             +
                           </button>
                         </div>
@@ -318,6 +375,25 @@ export default function OrderPage() {
       </main>
 
       <SiteFooter />
+
+      {viewingGroup && (
+        <GroupDetailsModal
+          group={viewingGroup}
+          onClose={() => setViewingGroup(null)}
+          footer={
+            <button
+              type="button"
+              className="btn btn--primary btn--block"
+              onClick={() => {
+                addGroup(viewingGroup);
+                setViewingGroup(null);
+              }}
+            >
+              Add to order
+            </button>
+          }
+        />
+      )}
     </div>
   );
 }

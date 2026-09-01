@@ -57,6 +57,15 @@ function FeedbackIcon() {
   );
 }
 
+function RequestsIcon() {
+  return (
+    <svg {...ICON_PROPS}>
+      <path d="M12 4a7 7 0 0 0-7 7c0 3.6-1 5.4-1.5 6.2-.2.3 0 .8.4.8h16.2c.4 0 .6-.5.4-.8C19.9 16.4 19 14.6 19 11a7 7 0 0 0-7-7Z" />
+      <path d="M10 19.5a2 2 0 0 0 4 0" />
+    </svg>
+  );
+}
+
 const CHEVRON = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" aria-hidden="true">
     <path d="M6 15l6-6 6 6" />
@@ -68,7 +77,15 @@ const CHEVRON = (
 // appear in a small sheet on tap, mirroring the customer MobileNav pattern.
 const GROUPS = [
   { key: 'orders', label: 'Orders', Icon: OrdersIcon, items: [{ to: '/admin', label: 'Orders', end: true }] },
-  { key: 'menu', label: 'Menu', Icon: MenuIcon, items: [{ to: '/admin/menu', label: 'Menu' }] },
+  {
+    key: 'menu',
+    label: 'Menu',
+    Icon: MenuIcon,
+    items: [
+      { to: '/admin/menu', label: 'Menu' },
+      { to: '/admin/menu/groups', label: 'Combos' },
+    ],
+  },
   {
     key: 'money',
     label: 'Money',
@@ -88,9 +105,10 @@ const GROUPS = [
     ],
   },
   { key: 'feedback', label: 'Feedback', Icon: FeedbackIcon, items: [{ to: '/admin/feedback', label: 'Feedback' }] },
+  { key: 'requests', label: 'Requests', Icon: RequestsIcon, items: [{ to: '/admin/requests', label: 'Requests' }] },
 ];
 
-export default function AdminMobileNav() {
+export default function AdminMobileNav({ unreadRequests = 0 }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [openGroup, setOpenGroup] = useState(null);
@@ -148,6 +166,9 @@ export default function AdminMobileNav() {
           >
             <span className="admin-mobile-nav__icon">
               <group.Icon />
+              {group.key === 'requests' && unreadRequests > 0 && (
+                <span className="admin-mobile-nav__dot" aria-label={`${unreadRequests} unread`} />
+              )}
             </span>
             <span className="admin-mobile-nav__label">
               {group.label}

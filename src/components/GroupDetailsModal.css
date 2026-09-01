@@ -1,0 +1,38 @@
+/* Narrower than the default modal — a combo's breakdown is a short list of
+   name/price pairs, and the default 520px panel left a wide gap between the
+   two on the (usually short) rows. */
+.modal__panel.group-details-modal__panel {
+  max-width: 400px;
+}
+
+.group-details__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.group-details__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.92rem;
+}
+
+.group-details__item-name {
+  min-width: 0;
+}
+
+.tag--bonus {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--green-700);
+  background: var(--green-50);
+  border: 1px solid var(--green-100);
+  padding: 4px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}

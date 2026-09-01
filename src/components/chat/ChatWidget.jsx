@@ -137,7 +137,8 @@ export default function ChatWidget() {
   // OrderPage reads/writes, so "continue on web" just means visiting /order.
   async function syncCartFromChat(cart) {
     const items = (cart.items || []).map((i) => ({
-      optionId: i.menuItemOptionId,
+      optionId: i.menuItemOptionId || undefined,
+      groupId: i.menuGroupId || undefined,
       itemName: i.itemName,
       icon: i.icon,
       size: i.size,
