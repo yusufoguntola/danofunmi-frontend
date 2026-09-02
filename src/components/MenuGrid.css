@@ -34,6 +34,14 @@
   line-height: 1;
 }
 
+.menu-item__icon-img {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
 .menu-item h4 {
   margin-bottom: 2px;
   font-size: 1.05rem;

@@ -26,6 +26,14 @@
   min-width: 0;
 }
 
+.group-details__item-icon-img {
+  width: 18px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
 .tag--bonus {
   font-size: 0.72rem;
   font-weight: 700;

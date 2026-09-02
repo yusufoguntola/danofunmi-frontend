@@ -7,6 +7,7 @@ import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { getRecaptchaToken } from '../lib/recaptcha';
 import SiteFooter from '../components/SiteFooter';
 import GroupDetailsModal from '../components/GroupDetailsModal';
+import MenuIcon from '../components/MenuIcon';
 import './OrderPage.css';
 
 export default function OrderPage() {
@@ -229,7 +230,7 @@ export default function OrderPage() {
                     .map((entry) =>
                       entry.type === 'group' ? (
                         <div className="menu-item-card menu-item-card--group" key={entry.id}>
-                          <span className="menu-item-card__icon">{entry.icon}</span>
+                          <MenuIcon icon={entry.icon} className="menu-item-card__icon" imgClassName="menu-item-card__icon-img" />
                           <div className="menu-item-card__body">
                             <h4>{entry.name}</h4>
                             {entry.description && <p>{entry.description}</p>}
@@ -249,7 +250,7 @@ export default function OrderPage() {
                         </div>
                       ) : (
                         <div className="menu-item-card" key={entry.id}>
-                          <span className="menu-item-card__icon">{entry.icon}</span>
+                          <MenuIcon icon={entry.icon} className="menu-item-card__icon" imgClassName="menu-item-card__icon-img" />
                           <div className="menu-item-card__body">
                             <h4>{entry.name}</h4>
                             {entry.description && <p>{entry.description}</p>}
@@ -284,7 +285,10 @@ export default function OrderPage() {
                     {cart.map((line) => (
                       <li key={lineKey(line)} className="cart-list__item">
                         <div>
-                          <strong>{line.icon} {line.itemName}</strong>
+                          <strong>
+                            <MenuIcon icon={line.icon} className="cart-list__icon" imgClassName="cart-list__icon-img" />{' '}
+                            {line.itemName}
+                          </strong>
                           <span className="muted"> &middot; {line.size}</span>
                         </div>
                         <div className="cart-list__qty">

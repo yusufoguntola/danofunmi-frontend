@@ -1,5 +1,6 @@
 import Modal from './Modal';
 import { formatNaira } from '../lib/format';
+import MenuIcon from './MenuIcon';
 import './GroupDetailsModal.css';
 
 /** Shared "what's in this combo" breakdown — used by the read-only menu grid and the order builder. */
@@ -13,7 +14,8 @@ export default function GroupDetailsModal({ group, onClose, footer }) {
           {group.items.map((item) => (
             <li key={item.id} className="group-details__item">
               <span className="group-details__item-name">
-                {item.icon} {item.name}
+                <MenuIcon icon={item.icon} className="group-details__item-icon" imgClassName="group-details__item-icon-img" />{' '}
+                {item.name}
                 <span className="muted"> &middot; {item.size}{item.quantity > 1 ? ` &times;${item.quantity}` : ''}</span>
               </span>
               {item.isBonus ? (
