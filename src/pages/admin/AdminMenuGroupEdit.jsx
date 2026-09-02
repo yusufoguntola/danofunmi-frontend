@@ -4,6 +4,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api, ApiError } from '../../lib/api';
 import { formatNaira } from '../../lib/format';
 import IconPicker from '../../components/IconPicker';
+import MenuIcon from '../../components/MenuIcon';
 import { confirmAction, confirmDelete } from '../../lib/confirm';
 
 export default function AdminMenuGroupEdit() {
@@ -275,8 +276,9 @@ export default function AdminMenuGroupEdit() {
             const dirty = itemDrafts[groupItem.id] != null;
             return (
               <div className="row" key={groupItem.id} style={{ gap: 10, flexWrap: 'wrap' }}>
-                <span style={{ minWidth: 160, fontWeight: 700, fontSize: '0.9rem' }}>
-                  {groupItem.icon} {groupItem.name} <span className="muted">&middot; {groupItem.size}</span>
+                <span style={{ minWidth: 160, fontWeight: 700, fontSize: '0.9rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <MenuIcon icon={groupItem.icon} imgClassName="menu-table__icon-img" />
+                  {groupItem.name} <span className="muted">&middot; {groupItem.size}</span>
                 </span>
                 <span className="muted" style={{ fontSize: '0.85rem' }}>{formatNaira(groupItem.unitPrice)} ea.</span>
                 <label className="row" style={{ gap: 6, fontSize: '0.85rem' }}>
@@ -316,7 +318,7 @@ export default function AdminMenuGroupEdit() {
             <select
               value={newItem.menuItemOptionId}
               onChange={(e) => setNewItem((f) => ({ ...f, menuItemOptionId: e.target.value }))}
-              style={{ minWidth: 220 }}
+              style={{ minWidth: 220, border: '1px solid var(--line)', borderRadius: 8, padding: '6px 8px', fontSize: '0.9rem' }}
             >
               <option value="">Select an item &amp; size</option>
               {optionChoices.map((o) => (

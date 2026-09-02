@@ -5,6 +5,7 @@ import { api, ApiError } from '../../lib/api';
 import { formatNaira } from '../../lib/format';
 import Modal from '../../components/Modal';
 import IconPicker from '../../components/IconPicker';
+import MenuIcon from '../../components/MenuIcon';
 import { confirmAction } from '../../lib/confirm';
 
 const emptyNewGroup = { name: '', categoryId: '', description: '', icon: '', menuItemOptionId: '' };
@@ -152,7 +153,9 @@ export default function AdminMenuGroups() {
             <tbody>
               {groups.map((group) => (
                 <tr key={group.id}>
-                  <td style={{ fontSize: '1.4rem' }}>{group.icon || '🎁'}</td>
+                  <td style={{ fontSize: '1.4rem' }}>
+                    <MenuIcon icon={group.icon || '🎁'} imgClassName="menu-table__icon-img" />
+                  </td>
                   <td style={{ fontWeight: 700 }}>{group.name}</td>
                   <td className="muted">{group.category}</td>
                   <td className="muted">

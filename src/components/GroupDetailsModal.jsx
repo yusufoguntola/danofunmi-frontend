@@ -16,7 +16,7 @@ export default function GroupDetailsModal({ group, onClose, footer }) {
               <span className="group-details__item-name">
                 <MenuIcon icon={item.icon} className="group-details__item-icon" imgClassName="group-details__item-icon-img" />{' '}
                 {item.name}
-                <span className="muted"> &middot; {item.size}{item.quantity > 1 ? ` &times;${item.quantity}` : ''}</span>
+                <span className="muted"> &middot; {item.size}{item.quantity > 1 ? ` ×${item.quantity}` : ''}</span>
               </span>
               {item.isBonus ? (
                 <span className="tag tag--bonus">Bonus &middot; free</span>
