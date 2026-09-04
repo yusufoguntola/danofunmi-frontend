@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import MenuGrid from '../components/MenuGrid';
 import SiteFooter from '../components/SiteFooter';
+import LogoMark from '../components/LogoMark';
 import './MenuPage.css';
 
 export default function MenuPage() {
@@ -19,7 +20,10 @@ export default function MenuPage() {
     <div className="menu-page">
       <header className="menu-page__hero">
         <div className="wrap row--between">
-          <Link className="menu-page__logo" to="/">dánọ́fúnmi</Link>
+          <Link className="menu-page__logo" to="/">
+            <LogoMark size={28} />
+            dánọ́fúnmi
+          </Link>
           <Link to="/order" className="btn btn--onlight btn--small">Order now</Link>
         </div>
       </header>

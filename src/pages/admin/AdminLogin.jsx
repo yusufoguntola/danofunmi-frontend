@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { ApiError } from '../../lib/api';
+import LogoMark from '../../components/LogoMark';
 
 export default function AdminLogin() {
   const { session, login } = useAdminAuth();
@@ -30,7 +31,10 @@ export default function AdminLogin() {
   return (
     <div className="admin-login">
       <form className="card stack admin-login__card" onSubmit={handleSubmit}>
-        <h2 style={{ textAlign: 'center' }}>dánọ́fúnmi admin</h2>
+        <h2 style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+          <LogoMark size={26} />
+          dánọ́fúnmi admin
+        </h2>
         <div className="field">
           <label htmlFor="email">Email</label>
           <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />

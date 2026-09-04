@@ -4,6 +4,7 @@ import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { ApiError } from '../lib/api';
 import { getRecaptchaToken } from '../lib/recaptcha';
 import GoogleSignInButton from '../components/GoogleSignInButton';
+import LogoMark from '../components/LogoMark';
 import './AuthPage.css';
 
 export default function SignupPage() {
@@ -42,7 +43,10 @@ export default function SignupPage() {
 
   return (
     <div className="auth-page">
-      <Link className="auth-page__logo" to="/">dánọ́fúnmi</Link>
+      <Link className="auth-page__logo" to="/">
+        <LogoMark size={30} />
+        dánọ́fúnmi
+      </Link>
       <form className="card stack auth-page__card" onSubmit={handleSubmit}>
         <h2 style={{ textAlign: 'center', margin: 0 }}>Create your account</h2>
         <p className="muted" style={{ textAlign: 'center', marginTop: -8 }}>

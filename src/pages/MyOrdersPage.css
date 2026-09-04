@@ -4,6 +4,9 @@
 }
 
 .my-orders__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-size: 1.5rem;

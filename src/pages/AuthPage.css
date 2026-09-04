@@ -10,6 +10,9 @@
 }
 
 .auth-page__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-size: 1.6rem;

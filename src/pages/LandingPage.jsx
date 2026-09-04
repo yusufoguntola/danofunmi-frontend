@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import { db } from '../lib/db';
 import SiteFooter from '../components/SiteFooter';
 import MenuGrid from '../components/MenuGrid';
+import LogoMark from '../components/LogoMark';
 import './LandingPage.css';
 
 export default function LandingPage() {
@@ -24,7 +25,10 @@ export default function LandingPage() {
     <div className="landing">
       <header className="nav">
         <div className="wrap nav__inner">
-          <a className="logo" href="#top">dánọ́fúnmi</a>
+          <a className="logo" href="#top">
+            <LogoMark size={28} />
+            dánọ́fúnmi
+          </a>
           <nav className="nav__links">
             <a href="#menu">Menu</a>
             <a href="#how">How it works</a>

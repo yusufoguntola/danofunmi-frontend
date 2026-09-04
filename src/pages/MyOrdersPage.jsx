@@ -4,6 +4,7 @@ import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { api } from '../lib/api';
 import { formatNaira, formatDate, formatStatus } from '../lib/format';
 import SiteFooter from '../components/SiteFooter';
+import LogoMark from '../components/LogoMark';
 import './MyOrdersPage.css';
 
 const OPEN_STATUSES = ['PENDING_PAYMENT', 'PAYMENT_SUBMITTED', 'CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY'];
@@ -148,7 +149,10 @@ export default function MyOrdersPage() {
     <div className="my-orders">
       <header className="my-orders__hero">
         <div className="wrap row--between">
-          <Link className="my-orders__logo" to="/">dánọ́fúnmi</Link>
+          <Link className="my-orders__logo" to="/">
+            <LogoMark size={28} />
+            dánọ́fúnmi
+          </Link>
           {session?.customer && (
             <div className="row">
               <span className="my-orders__hero-name">Hi, {session.customer.name.split(' ')[0]}</span>

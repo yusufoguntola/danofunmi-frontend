@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import LogoMark from './LogoMark';
 import './SiteFooter.css';
 
 export default function SiteFooter() {
@@ -10,7 +11,10 @@ export default function SiteFooter() {
     <footer className="footer" id="contact">
       <div className="wrap footer__inner">
         <div className="footer__brand">
-          <Link className="logo logo--footer" to="/">dánọ́fúnmi</Link>
+          <Link className="logo logo--footer" to="/">
+            <LogoMark size={28} />
+            dánọ́fúnmi
+          </Link>
           <p>You choose, we cook.<br />Home-cooked, just for you.</p>
         </div>
 

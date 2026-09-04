@@ -1,3 +1,4 @@
+import LogoMark from '../components/LogoMark';
 import './ComingSoonPage.css';
 
 export default function ComingSoonPage() {
@@ -62,7 +63,10 @@ export default function ComingSoonPage() {
       <div className="coming-soon__panel">
         <span className="coming-soon__badge"><span className="coming-soon__badge-dot" />Launching soon</span>
 
-        <h1 className="coming-soon__logo">dánọ́fúnmi</h1>
+        <h1 className="coming-soon__logo">
+          <LogoMark size={44} />
+          dánọ́fúnmi
+        </h1>
         <span className="coming-soon__tagline">You choose, we cook.</span>
 
         <h2 className="coming-soon__headline">Coming<br /><span>soon&hellip;</span></h2>

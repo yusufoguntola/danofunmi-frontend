@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import AdminMobileNav from './AdminMobileNav';
+import LogoMark from '../../components/LogoMark';
 
 // How often the "unread requests" badge refreshes on its own — a visit to
 // /admin/requests (which marks everything read) also triggers an immediate
@@ -33,7 +34,10 @@ export default function AdminLayout() {
     <div className="admin-layout">
       <header className="admin-layout__header">
         <div className="wrap row--between">
-          <span className="admin-layout__logo">dánọ́fúnmi admin</span>
+          <span className="admin-layout__logo">
+            <LogoMark size={22} />
+            dánọ́fúnmi admin
+          </span>
           <nav className="admin-layout__nav">
             <NavLink to="/admin" end>Orders</NavLink>
             <NavLink to="/admin/menu">Menu</NavLink>

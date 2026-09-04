@@ -8,6 +8,7 @@ import { getRecaptchaToken } from '../lib/recaptcha';
 import SiteFooter from '../components/SiteFooter';
 import GroupDetailsModal from '../components/GroupDetailsModal';
 import MenuIcon from '../components/MenuIcon';
+import LogoMark from '../components/LogoMark';
 import './OrderPage.css';
 
 export default function OrderPage() {
@@ -207,7 +208,10 @@ export default function OrderPage() {
         </div>
         <div className="wrap order-page__intro">
           <span className="order-page__eyebrow">Monthly stock-up &middot; home-cooked in bulk</span>
-          <h1 className="order-page__logo">dánọ́fúnmi</h1>
+          <h1 className="order-page__logo">
+            <LogoMark size={44} />
+            dánọ́fúnmi
+          </h1>
           <p className="order-page__tagline">You choose, we cook.</p>
         </div>
       </header>

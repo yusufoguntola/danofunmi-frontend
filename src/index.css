@@ -388,6 +388,9 @@ button, input, select, textarea {
 .section-title { font-size: 1.6rem; }
 
 .logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
   font-family: 'Fraunces', serif;
   font-size: 1.5rem;
   font-weight: 600;
@@ -482,6 +485,9 @@ button, input, select, textarea {
 }
 
 .admin-layout__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-weight: 600;

@@ -1,9 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <circle cx="32" cy="32" r="32" fill="#16321f"/>
-  <path d="M24 15c-2.2 2.8 2 4.4 0 7.2" stroke="#faf6ec" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.65"/>
-  <path d="M32 13c-2.2 2.8 2 4.4 0 7.2" stroke="#faf6ec" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.85"/>
-  <path d="M40 15c-2.2 2.8 2 4.4 0 7.2" stroke="#faf6ec" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.65"/>
-  <path d="M16 30c0 11.05 7.163 18 16 18s16-6.95 16-18" stroke="#faf6ec" stroke-width="4.5" stroke-linecap="round" fill="none"/>
-  <ellipse cx="32" cy="30" rx="17" ry="4.6" fill="#faf6ec"/>
-  <ellipse cx="32" cy="30" rx="12.4" ry="2.6" fill="#c4652f"/>
+  <circle cx="32" cy="32" r="31" fill="none" stroke="#e6f1e3" stroke-width="1" opacity="0.35"/>
+  <line x1="32" y1="32" x2="52" y2="32" stroke="#e6f1e3" stroke-width="1" opacity="0.5"/>
+  <line x1="32" y1="32" x2="42" y2="49.3" stroke="#e6f1e3" stroke-width="1" opacity="0.5"/>
+  <line x1="32" y1="32" x2="22" y2="49.3" stroke="#e6f1e3" stroke-width="1" opacity="0.5"/>
+  <line x1="32" y1="32" x2="12" y2="32" stroke="#e6f1e3" stroke-width="1" opacity="0.5"/>
+  <line x1="32" y1="32" x2="22" y2="14.7" stroke="#e6f1e3" stroke-width="1" opacity="0.5"/>
+  <line x1="32" y1="32" x2="42" y2="14.7" stroke="#e6f1e3" stroke-width="1" opacity="0.5"/>
+  <circle cx="52" cy="32" r="5" fill="#16321f" stroke="#faf6ec" stroke-width="1.8"/>
+  <circle cx="52" cy="32" r="1.8" fill="#c4652f"/>
+  <circle cx="42" cy="49.3" r="5" fill="#16321f" stroke="#faf6ec" stroke-width="1.8"/>
+  <circle cx="42" cy="49.3" r="1.8" fill="#c4652f"/>
+  <circle cx="22" cy="49.3" r="5" fill="#16321f" stroke="#faf6ec" stroke-width="1.8"/>
+  <circle cx="22" cy="49.3" r="1.8" fill="#c4652f"/>
+  <circle cx="12" cy="32" r="5" fill="#16321f" stroke="#faf6ec" stroke-width="1.8"/>
+  <circle cx="12" cy="32" r="1.8" fill="#c4652f"/>
+  <circle cx="22" cy="14.7" r="5" fill="#16321f" stroke="#faf6ec" stroke-width="1.8"/>
+  <circle cx="22" cy="14.7" r="1.8" fill="#c4652f"/>
+  <circle cx="42" cy="14.7" r="5" fill="#16321f" stroke="#faf6ec" stroke-width="1.8"/>
+  <circle cx="42" cy="14.7" r="1.8" fill="#c4652f"/>
+  <circle cx="32" cy="32" r="12" fill="#faf6ec"/>
+  <circle cx="32" cy="32" r="7.5" fill="#c4652f"/>
 </svg>

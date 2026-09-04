@@ -143,6 +143,10 @@
 }
 
 .coming-soon__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
   font-size: 2.6rem;
   font-style: italic;
   color: #fff;

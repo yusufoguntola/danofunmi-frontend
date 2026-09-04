@@ -5,6 +5,7 @@ import { formatNaira, formatDate, formatStatus } from '../lib/format';
 import { pushSupported, subscribeToPush } from '../lib/push';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import SiteFooter from '../components/SiteFooter';
+import LogoMark from '../components/LogoMark';
 import './OrderStatusPage.css';
 
 const STEPS = ['PENDING_PAYMENT', 'PAYMENT_SUBMITTED', 'CONFIRMED', 'PACKED', 'OUT_FOR_DELIVERY', 'DELIVERED'];
@@ -119,7 +120,10 @@ export default function OrderStatusPage() {
     <div className="order-status">
       <header className="order-status__hero">
         <div className="wrap row--between">
-          <Link className="order-status__logo" to="/">dánọ́fúnmi</Link>
+          <Link className="order-status__logo" to="/">
+            <LogoMark size={28} />
+            dánọ́fúnmi
+          </Link>
           <Link className="order-status__back" to="/orders">&larr; My orders</Link>
         </div>
       </header>
