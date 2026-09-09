@@ -1,3 +1,7 @@
+import { encryptionEnabled, encryptText, decryptText } from './crypto';
+import { emitSessionExpired } from './sessionEvents';
+import { tokenType } from './jwt';
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
 console.log("Base Url:", BASE_URL);
@@ -13,18 +17,38 @@ class ApiError extends Error {
 async function request(path, { method = 'GET', body, token, isForm = false } = {}) {
   const headers = {};
   if (token) headers.Authorization = `Bearer ${token}`;
-  if (body && !isForm) headers['Content-Type'] = 'application/json';
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method,
-    headers,
-    body: body ? (isForm ? body : JSON.stringify(body)) : undefined,
-  });
+  // Payload encryption never wraps multipart uploads — just JSON bodies.
+  const useEncryption = encryptionEnabled && !isForm;
 
-  const text = await res.text();
+  let outgoing;
+  if (isForm) {
+    outgoing = body;
+  } else if (body !== undefined) {
+    const json = JSON.stringify(body);
+    outgoing = useEncryption ? JSON.stringify({ data: await encryptText(json) }) : json;
+    headers['Content-Type'] = 'application/json';
+  }
+  // Sent on every request (bodyless GETs included) so the server knows to
+  // encrypt the response too.
+  if (useEncryption) headers['X-Encrypted'] = '1';
+
+  const res = await fetch(`${BASE_URL}${path}`, { method, headers, body: outgoing });
+
+  let text = await res.text();
+  if (text && res.headers.get('X-Encrypted') === '1') {
+    try {
+      text = await decryptText(JSON.parse(text).data);
+    } catch {
+      throw new ApiError('Could not decrypt server response', res.status, null);
+    }
+  }
   const data = text ? JSON.parse(text) : null;
 
   if (!res.ok) {
+    // A 401 on a request that carried a token means that token is dead —
+    // tell the app so it can sign the user out (see SessionWatcher).
+    if (res.status === 401 && token) emitSessionExpired(tokenType(token));
     throw new ApiError(data?.error || `Request failed (${res.status})`, res.status, data);
   }
   return data;
@@ -33,6 +57,8 @@ async function request(path, { method = 'GET', body, token, isForm = false } = {
 export const api = {
   BASE_URL,
   getMenu: () => request('/api/menu'),
+  getFeedback: () => request('/api/feedback'),
+  registerInterest: (payload) => request('/api/interest', { method: 'POST', body: payload }),
   getPaymentInfo: () => request('/api/payment-info'),
   getLocations: () => request('/api/locations'),
   createOrder: (payload, token) => request('/api/orders', { method: 'POST', body: payload, token }),
@@ -129,6 +155,12 @@ export const api = {
   adminMarkAllRequestsRead: (token) => request('/api/admin/requests/read-all', { method: 'PATCH', token }),
   adminMarkRequestRead: (token, id, read = true) =>
     request(`/api/admin/requests/${id}`, { method: 'PATCH', body: { read }, token }),
+
+  adminListInterest: (token) => request('/api/admin/interest', { token }),
+  adminInterestUnreadCount: (token) => request('/api/admin/interest/unread-count', { token }),
+  adminMarkAllInterestRead: (token) => request('/api/admin/interest/read-all', { method: 'PATCH', token }),
+  adminMarkInterestRead: (token, id, read = true) =>
+    request(`/api/admin/interest/${id}`, { method: 'PATCH', body: { read }, token }),
 
   sendChatMessage: (messages, token) => request('/api/chat', { method: 'POST', body: { messages }, token }),
 

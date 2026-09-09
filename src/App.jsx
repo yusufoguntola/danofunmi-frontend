@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AdminAuthProvider } from './context/AdminAuthContext';
 import { CustomerAuthProvider } from './context/CustomerAuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import SessionWatcher from './components/SessionWatcher';
 import InstallPrompt from './components/InstallPrompt';
 import MobileNav from './components/MobileNav';
 import ChatWidget from './components/chat/ChatWidget';
@@ -26,6 +27,7 @@ import AdminCosts from './pages/admin/AdminCosts';
 import AdminReports from './pages/admin/AdminReports';
 import AdminFeedback from './pages/admin/AdminFeedback';
 import AdminRequests from './pages/admin/AdminRequests';
+import AdminInterest from './pages/admin/AdminInterest';
 import AdminNotifications from './pages/admin/AdminNotifications';
 
 // Gates the whole customer-facing site behind a "coming soon" page while
@@ -67,6 +69,7 @@ const adminRoutes = (
       <Route path="reports" element={<AdminReports />} />
       <Route path="feedback" element={<AdminFeedback />} />
       <Route path="requests" element={<AdminRequests />} />
+      <Route path="interest" element={<AdminInterest />} />
       <Route path="notifications" element={<AdminNotifications />} />
     </Route>
   </>
@@ -77,6 +80,7 @@ export default function App() {
     <AdminAuthProvider>
       <CustomerAuthProvider>
         <BrowserRouter>
+          <SessionWatcher />
           <Routes>
             {COMING_SOON ? (
               <>

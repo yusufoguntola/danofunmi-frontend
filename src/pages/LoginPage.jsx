@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { ApiError } from '../lib/api';
+import { consumeSessionExpired } from '../lib/sessionEvents';
 import { getRecaptchaToken } from '../lib/recaptcha';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 import LogoMark from '../components/LogoMark';
@@ -10,10 +11,14 @@ import './AuthPage.css';
 export default function LoginPage() {
   const { session, login, loginWithGoogle } = useCustomerAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [sessionExpired] = useState(
+    () => !!location.state?.expired || consumeSessionExpired('customer')
+  );
 
   if (session?.token) return <Navigate to="/orders" replace />;
 
@@ -71,6 +76,9 @@ export default function LoginPage() {
           />
         </div>
 
+        {sessionExpired && !error && (
+          <p className="form-error">Your session expired — please sign in again.</p>
+        )}
         {error && <p className="form-error">{error}</p>}
         <button className="btn btn--primary btn--block" type="submit" disabled={submitting}>
           {submitting ? 'Signing in…' : 'Sign in'}

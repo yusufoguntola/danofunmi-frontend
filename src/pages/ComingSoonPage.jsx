@@ -1,7 +1,11 @@
+import { useState } from 'react';
 import LogoMark from '../components/LogoMark';
+import InterestModal from '../components/InterestModal';
 import './ComingSoonPage.css';
 
 export default function ComingSoonPage() {
+  const [interestOpen, setInterestOpen] = useState(false);
+
   return (
     <div className="coming-soon">
       <div className="coming-soon__doodles" aria-hidden="true">
@@ -74,6 +78,10 @@ export default function ComingSoonPage() {
           Home-cooked soups &amp; rice, made fresh and stocked in bulk — once a month, just for you.
         </p>
 
+        <button type="button" className="btn coming-soon__cta" onClick={() => setInterestOpen(true)}>
+          I&rsquo;m interested
+        </button>
+
         <div className="coming-soon__details">
           <div className="coming-soon__detail">
             <span className="coming-soon__detail-icon">🗓️</span>
@@ -102,6 +110,8 @@ export default function ComingSoonPage() {
           <strong>dánọ́fúnmi</strong> &middot; from &ldquo;Dánọ́ fún mi&rdquo; — &ldquo;cook for me&rdquo;
         </p>
       </div>
+
+      {interestOpen && <InterestModal onClose={() => setInterestOpen(false)} />}
     </div>
   );
 }

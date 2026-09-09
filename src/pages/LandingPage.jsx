@@ -7,13 +7,23 @@ import MenuGrid from '../components/MenuGrid';
 import LogoMark from '../components/LogoMark';
 import './LandingPage.css';
 
+function reviewMonth(value) {
+  try {
+    return new Date(value).toLocaleDateString('en-NG', { month: 'short', year: 'numeric' });
+  } catch {
+    return '';
+  }
+}
+
 export default function LandingPage() {
   const [menu, setMenu] = useState([]);
   const [menuError, setMenuError] = useState(null);
   const [savedCart, setSavedCart] = useState(null);
+  const [feedback, setFeedback] = useState([]);
 
   useEffect(() => {
     api.getMenu().then(setMenu).catch((err) => setMenuError(err.message));
+    api.getFeedback().then(setFeedback).catch(() => setFeedback([]));
     db.cart.get('draft').then((draft) => {
       if (draft?.items?.length) setSavedCart(draft);
     });
@@ -33,6 +43,7 @@ export default function LandingPage() {
             <a href="#menu">Menu</a>
             <a href="#how">How it works</a>
             <a href="#why">Why us</a>
+            {feedback.length > 0 && <a href="#reviews">Reviews</a>}
             <a href="#contact">Contact</a>
             <Link to="/orders">My orders</Link>
           </nav>
@@ -191,6 +202,32 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {feedback.length > 0 && (
+          <section className="reviews" id="reviews">
+            <div className="wrap">
+              <h2 className="section-title">What customers say</h2>
+              <p className="section-sub">Straight from the feedback on recent orders.</p>
+              <ul className="reviews__grid">
+                {feedback.map((f) => (
+                  <li key={f.id} className="review-card">
+                    <div className="review-card__stars" aria-label={`${f.rating} out of 5`}>
+                      <span aria-hidden="true">{'★★★★★'.slice(0, f.rating)}</span>
+                      <span className="review-card__stars--dim" aria-hidden="true">
+                        {'★★★★★'.slice(f.rating)}
+                      </span>
+                    </div>
+                    <p className="review-card__quote">&ldquo;{f.comment}&rdquo;</p>
+                    <p className="review-card__by">
+                      {f.name}
+                      {reviewMonth(f.createdAt) && <span> &middot; {reviewMonth(f.createdAt)}</span>}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        )}
 
         <section className="cta-banner">
           <div className="wrap cta-banner__inner">

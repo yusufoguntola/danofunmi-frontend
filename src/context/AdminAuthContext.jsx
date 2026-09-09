@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import { api } from '../lib/api';
+import { isTokenExpired } from '../lib/jwt';
 
 const AdminAuthContext = createContext(null);
 
@@ -8,7 +9,15 @@ const STORAGE_KEY = 'danofunmi_admin_session';
 function readStoredSession() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    // A token that's already expired is as good as no session — drop it so the
+    // app boots straight to the login screen instead of flashing the dashboard.
+    if (isTokenExpired(parsed?.token)) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return parsed;
   } catch {
     return null;
   }

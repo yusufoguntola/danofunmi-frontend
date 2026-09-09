@@ -1,40 +1,74 @@
 /**
- * The dánọ́fúnmi brand mark — one pot portioned into many bowls, the bulk-order
- * model drawn as an emblem. Self-contained (own dark-green circular badge), so
- * it reads on light or dark page backgrounds alike.
+ * The dánọ́fúnmi brand mark — "Concept C": a cooking pot over three tongues of
+ * fire, with steam rising and a terracotta dome of food in the pot mouth. The
+ * hearth / big-pot image behind "dánọ́ fún mi" ("cook for me"). Self-contained
+ * (own dark-green circular badge), so it reads on light or dark backgrounds.
  */
 export default function LogoMark({ size = 24, className = '' }) {
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 64 64"
+      viewBox="0 0 512 512"
       className={className}
       aria-hidden="true"
       style={{ flexShrink: 0 }}
     >
-      <circle cx="32" cy="32" r="32" fill="#16321f" />
-      <circle cx="32" cy="32" r="31" fill="none" stroke="#e6f1e3" strokeWidth="1" opacity="0.35" />
-      <line x1="32" y1="32" x2="52" y2="32" stroke="#e6f1e3" strokeWidth="1" opacity="0.5" />
-      <line x1="32" y1="32" x2="42" y2="49.3" stroke="#e6f1e3" strokeWidth="1" opacity="0.5" />
-      <line x1="32" y1="32" x2="22" y2="49.3" stroke="#e6f1e3" strokeWidth="1" opacity="0.5" />
-      <line x1="32" y1="32" x2="12" y2="32" stroke="#e6f1e3" strokeWidth="1" opacity="0.5" />
-      <line x1="32" y1="32" x2="22" y2="14.7" stroke="#e6f1e3" strokeWidth="1" opacity="0.5" />
-      <line x1="32" y1="32" x2="42" y2="14.7" stroke="#e6f1e3" strokeWidth="1" opacity="0.5" />
-      <circle cx="52" cy="32" r="5" fill="#16321f" stroke="#faf6ec" strokeWidth="1.8" />
-      <circle cx="52" cy="32" r="1.8" fill="#c4652f" />
-      <circle cx="42" cy="49.3" r="5" fill="#16321f" stroke="#faf6ec" strokeWidth="1.8" />
-      <circle cx="42" cy="49.3" r="1.8" fill="#c4652f" />
-      <circle cx="22" cy="49.3" r="5" fill="#16321f" stroke="#faf6ec" strokeWidth="1.8" />
-      <circle cx="22" cy="49.3" r="1.8" fill="#c4652f" />
-      <circle cx="12" cy="32" r="5" fill="#16321f" stroke="#faf6ec" strokeWidth="1.8" />
-      <circle cx="12" cy="32" r="1.8" fill="#c4652f" />
-      <circle cx="22" cy="14.7" r="5" fill="#16321f" stroke="#faf6ec" strokeWidth="1.8" />
-      <circle cx="22" cy="14.7" r="1.8" fill="#c4652f" />
-      <circle cx="42" cy="14.7" r="5" fill="#16321f" stroke="#faf6ec" strokeWidth="1.8" />
-      <circle cx="42" cy="14.7" r="1.8" fill="#c4652f" />
-      <circle cx="32" cy="32" r="12" fill="#faf6ec" />
-      <circle cx="32" cy="32" r="7.5" fill="#c4652f" />
+      <circle cx="256" cy="256" r="256" fill="#16321f" />
+
+      {/* steam: two bold wisps above the pot */}
+      <g fill="none" stroke="#faf6ec" strokeWidth="15" strokeLinecap="round">
+        <path d="M232 150 c -14 -18 10 -33 -2 -52 c -5 -8 -3 -13 1 -19" />
+        <path d="M280 150 c 14 -18 -10 -33 2 -52 c 5 -8 3 -13 -1 -19" />
+      </g>
+
+      {/* fire: three tongues below the pot (reads as heat / hearth) */}
+      <path
+        fill="#c4652f"
+        d="M210 448
+          C 198 438 196 424 206 410
+          C 213 399 215 393 219 384
+          C 224 394 228 404 235 414
+          C 239 420 242 424 246 428
+          C 251 414 254 392 257 368
+          C 259 358 260 352 261 344
+          C 265 360 269 380 274 396
+          C 278 408 282 418 286 426
+          C 291 420 295 410 301 400
+          C 307 392 309 389 312 382
+          C 317 394 320 416 317 430
+          C 315 439 311 446 304 449
+          C 283 457 233 457 210 448 Z"
+      />
+
+      {/* food: terracotta dome in the pot mouth */}
+      <path d="M190 164 A66 27 0 0 1 322 164 Z" fill="#c4652f" />
+
+      {/* pot: one bold flat silhouette */}
+      <g fill="#faf6ec">
+        <path
+          d="M172 200
+             C 150 200 148 242 156 282
+             C 166 324 202 348 256 348
+             C 310 348 346 324 356 282
+             C 364 242 362 200 340 200 Z"
+        />
+        <path
+          d="M158 208 c -30 2 -34 40 -2 48"
+          fill="none"
+          stroke="#faf6ec"
+          strokeWidth="15"
+          strokeLinecap="round"
+        />
+        <path
+          d="M354 208 c 30 2 34 40 2 48"
+          fill="none"
+          stroke="#faf6ec"
+          strokeWidth="15"
+          strokeLinecap="round"
+        />
+        <rect x="150" y="168" width="212" height="34" rx="16" />
+      </g>
     </svg>
   );
 }

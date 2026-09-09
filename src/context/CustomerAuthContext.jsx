@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import { api } from '../lib/api';
+import { isTokenExpired } from '../lib/jwt';
 
 const CustomerAuthContext = createContext(null);
 
@@ -8,7 +9,14 @@ const STORAGE_KEY = 'danofunmi_customer_session';
 function readStoredSession() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    // An expired token means the user is effectively signed out already.
+    if (isTokenExpired(parsed?.token)) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return parsed;
   } catch {
     return null;
   }

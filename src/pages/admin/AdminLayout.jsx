@@ -14,16 +14,25 @@ export default function AdminLayout() {
   const { session, logout } = useAdminAuth();
   const navigate = useNavigate();
   const [unreadRequests, setUnreadRequests] = useState(0);
+  const [unreadInterest, setUnreadInterest] = useState(0);
 
   const refreshUnreadRequests = useCallback(() => {
     api.adminRequestsUnreadCount(session.token).then((d) => setUnreadRequests(d.count)).catch(() => {});
   }, [session.token]);
 
+  const refreshUnreadInterest = useCallback(() => {
+    api.adminInterestUnreadCount(session.token).then((d) => setUnreadInterest(d.count)).catch(() => {});
+  }, [session.token]);
+
   useEffect(() => {
     refreshUnreadRequests();
-    const timer = setInterval(refreshUnreadRequests, UNREAD_POLL_MS);
+    refreshUnreadInterest();
+    const timer = setInterval(() => {
+      refreshUnreadRequests();
+      refreshUnreadInterest();
+    }, UNREAD_POLL_MS);
     return () => clearInterval(timer);
-  }, [refreshUnreadRequests]);
+  }, [refreshUnreadRequests, refreshUnreadInterest]);
 
   function handleLogout() {
     logout();
@@ -49,6 +58,10 @@ export default function AdminLayout() {
               Requests
               {unreadRequests > 0 && <span className="admin-layout__nav-badge">{unreadRequests}</span>}
             </NavLink>
+            <NavLink to="/admin/interest">
+              Interested
+              {unreadInterest > 0 && <span className="admin-layout__nav-badge">{unreadInterest}</span>}
+            </NavLink>
             <NavLink to="/admin/notifications">Notifications</NavLink>
           </nav>
           <div className="row">
@@ -58,9 +71,9 @@ export default function AdminLayout() {
         </div>
       </header>
       <main className="wrap admin-layout__body">
-        <Outlet context={{ refreshUnreadRequests }} />
+        <Outlet context={{ refreshUnreadRequests, refreshUnreadInterest }} />
       </main>
-      <AdminMobileNav unreadRequests={unreadRequests} />
+      <AdminMobileNav unreadRequests={unreadRequests} unreadInterest={unreadInterest} />
     </div>
   );
 }

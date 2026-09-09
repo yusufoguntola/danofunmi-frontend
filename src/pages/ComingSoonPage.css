@@ -184,6 +184,20 @@
   line-height: 1.5;
 }
 
+.coming-soon__cta {
+  background: var(--terracotta);
+  color: #fff;
+  font-size: 1rem;
+  padding: 14px 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.coming-soon__cta:hover:not(:disabled) {
+  background: var(--terracotta-dark);
+  transform: translateY(-2px);
+}
+
 .coming-soon__details {
   display: flex;
   flex-direction: column;

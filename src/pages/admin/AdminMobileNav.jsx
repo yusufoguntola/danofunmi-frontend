@@ -105,10 +105,18 @@ const GROUPS = [
     ],
   },
   { key: 'feedback', label: 'Feedback', Icon: FeedbackIcon, items: [{ to: '/admin/feedback', label: 'Feedback' }] },
-  { key: 'requests', label: 'Requests', Icon: RequestsIcon, items: [{ to: '/admin/requests', label: 'Requests' }] },
+  {
+    key: 'requests',
+    label: 'Inbox',
+    Icon: RequestsIcon,
+    items: [
+      { to: '/admin/requests', label: 'Requests' },
+      { to: '/admin/interest', label: 'Interested' },
+    ],
+  },
 ];
 
-export default function AdminMobileNav({ unreadRequests = 0 }) {
+export default function AdminMobileNav({ unreadRequests = 0, unreadInterest = 0 }) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const [openGroup, setOpenGroup] = useState(null);
@@ -166,8 +174,11 @@ export default function AdminMobileNav({ unreadRequests = 0 }) {
           >
             <span className="admin-mobile-nav__icon">
               <group.Icon />
-              {group.key === 'requests' && unreadRequests > 0 && (
-                <span className="admin-mobile-nav__dot" aria-label={`${unreadRequests} unread`} />
+              {group.key === 'requests' && unreadRequests + unreadInterest > 0 && (
+                <span
+                  className="admin-mobile-nav__dot"
+                  aria-label={`${unreadRequests + unreadInterest} unread`}
+                />
               )}
             </span>
             <span className="admin-mobile-nav__label">

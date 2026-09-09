@@ -1,16 +1,21 @@
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { ApiError } from '../../lib/api';
+import { consumeSessionExpired } from '../../lib/sessionEvents';
 import LogoMark from '../../components/LogoMark';
 
 export default function AdminLogin() {
   const { session, login } = useAdminAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [sessionExpired] = useState(
+    () => !!location.state?.expired || consumeSessionExpired('admin')
+  );
 
   if (session?.token) return <Navigate to="/admin" replace />;
 
@@ -49,6 +54,9 @@ export default function AdminLogin() {
             required
           />
         </div>
+        {sessionExpired && !error && (
+          <p className="form-error">Your session expired — please sign in again.</p>
+        )}
         {error && <p className="form-error">{error}</p>}
         <button className="btn btn--primary btn--block" type="submit" disabled={submitting}>
           {submitting ? 'Signing in…' : 'Sign in'}
