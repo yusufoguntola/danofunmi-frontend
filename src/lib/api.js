@@ -1,4 +1,4 @@
-import { encryptionEnabled, encryptText, decryptText } from './crypto';
+import { obfuscationEnabled, obfuscatePayload, deobfuscatePayload } from './payloadObfuscation';
 import { emitSessionExpired } from './sessionEvents';
 import { tokenType } from './jwt';
 
@@ -18,29 +18,29 @@ async function request(path, { method = 'GET', body, token, isForm = false } = {
   const headers = {};
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  // Payload encryption never wraps multipart uploads — just JSON bodies.
-  const useEncryption = encryptionEnabled && !isForm;
+  // Payload obfuscation never wraps multipart uploads — just JSON bodies.
+  const useObfuscation = obfuscationEnabled && !isForm;
 
   let outgoing;
   if (isForm) {
     outgoing = body;
   } else if (body !== undefined) {
     const json = JSON.stringify(body);
-    outgoing = useEncryption ? JSON.stringify({ data: await encryptText(json) }) : json;
+    outgoing = useObfuscation ? JSON.stringify({ data: await obfuscatePayload(json) }) : json;
     headers['Content-Type'] = 'application/json';
   }
   // Sent on every request (bodyless GETs included) so the server knows to
-  // encrypt the response too.
-  if (useEncryption) headers['X-Encrypted'] = '1';
+  // wrap the response too.
+  if (useObfuscation) headers['X-Encrypted'] = '1';
 
   const res = await fetch(`${BASE_URL}${path}`, { method, headers, body: outgoing });
 
   let text = await res.text();
   if (text && res.headers.get('X-Encrypted') === '1') {
     try {
-      text = await decryptText(JSON.parse(text).data);
+      text = await deobfuscatePayload(JSON.parse(text).data);
     } catch {
-      throw new ApiError('Could not decrypt server response', res.status, null);
+      throw new ApiError('Could not read server response', res.status, null);
     }
   }
   const data = text ? JSON.parse(text) : null;
