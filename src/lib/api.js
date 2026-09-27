@@ -150,12 +150,14 @@ export const api = {
   },
 
   adminListFeedback: (token) => request('/api/admin/feedback', { token }),
+  adminDeleteFeedback: (token, id) => request(`/api/admin/feedback/${id}`, { method: 'DELETE', token }),
 
   adminListRequests: (token) => request('/api/admin/requests', { token }),
   adminRequestsUnreadCount: (token) => request('/api/admin/requests/unread-count', { token }),
   adminMarkAllRequestsRead: (token) => request('/api/admin/requests/read-all', { method: 'PATCH', token }),
   adminMarkRequestRead: (token, id, read = true) =>
     request(`/api/admin/requests/${id}`, { method: 'PATCH', body: { read }, token }),
+  adminDeleteRequest: (token, id) => request(`/api/admin/requests/${id}`, { method: 'DELETE', token }),
 
   adminListInterest: (token) => request('/api/admin/interest', { token }),
   adminInterestUnreadCount: (token) => request('/api/admin/interest/unread-count', { token }),
@@ -171,6 +173,7 @@ export const api = {
     request('/api/admin/interest/send-shortlist-emails', { method: 'POST', token }),
   adminCreateFirstTasteOrder: (token, id, locationId) =>
     request(`/api/admin/interest/${id}/create-order`, { method: 'POST', body: { locationId }, token }),
+  adminDeleteInterest: (token, id) => request(`/api/admin/interest/${id}`, { method: 'DELETE', token }),
 
   sendChatMessage: (messages, token) => request('/api/chat', { method: 'POST', body: { messages }, token }),
 

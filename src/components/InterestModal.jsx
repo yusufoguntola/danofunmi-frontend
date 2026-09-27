@@ -113,16 +113,18 @@ export default function InterestModal({ onClose, variant = 'general' }) {
               />
             </div>
           )}
-          <div className="field">
-            <label htmlFor="interest-excites">What excites you the most?</label>
-            <textarea
-              id="interest-excites"
-              rows={3}
-              value={form.excites}
-              onChange={set('excites')}
-              maxLength={1000}
-            />
-          </div>
+          {!isSlot && (
+            <div className="field">
+              <label htmlFor="interest-excites">What excites you the most?</label>
+              <textarea
+                id="interest-excites"
+                rows={3}
+                value={form.excites}
+                onChange={set('excites')}
+                maxLength={1000}
+              />
+            </div>
+          )}
 
           {error && <p className="form-error">{error}</p>}
 

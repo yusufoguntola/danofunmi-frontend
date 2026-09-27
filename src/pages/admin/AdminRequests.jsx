@@ -3,6 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import { formatDate } from '../../lib/format';
+import { confirmDelete } from '../../lib/confirm';
 
 const TYPE_LABELS = {
   item_request: 'Item request',
@@ -45,6 +46,18 @@ export default function AdminRequests() {
     }
   }
 
+  async function deleteRequest(request) {
+    if (!(await confirmDelete('this request'))) return;
+    setBusyId(request.id);
+    try {
+      await api.adminDeleteRequest(token, request.id);
+      setRequests((prev) => prev.filter((r) => r.id !== request.id));
+      refreshUnreadRequests();
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   return (
     <div className="stack">
       <h2 className="section-title">Requests</h2>
@@ -81,13 +94,22 @@ export default function AdminRequests() {
                   </td>
                   <td className="muted" style={{ fontWeight: 400 }}>{r.orderNarration || '—'}</td>
                   <td>
-                    <button
-                      className="btn btn--ghost btn--small"
-                      disabled={busyId === r.id}
-                      onClick={() => toggleRead(r)}
-                    >
-                      {r.readAt ? 'Mark unread' : 'Mark read'}
-                    </button>
+                    <div className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
+                      <button
+                        className="btn btn--ghost btn--small"
+                        disabled={busyId === r.id}
+                        onClick={() => toggleRead(r)}
+                      >
+                        {r.readAt ? 'Mark unread' : 'Mark read'}
+                      </button>
+                      <button
+                        className="btn btn--danger btn--small"
+                        disabled={busyId === r.id}
+                        onClick={() => deleteRequest(r)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

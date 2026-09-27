@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import { formatDate } from '../../lib/format';
-import { confirmAction } from '../../lib/confirm';
+import { confirmAction, confirmDelete } from '../../lib/confirm';
 
 export default function AdminInterest() {
   const { session } = useAdminAuth();
@@ -87,6 +87,17 @@ export default function AdminInterest() {
     try {
       const { order } = await api.adminCreateFirstTasteOrder(token, row.id, locationId);
       setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, orderId: order.id } : r)));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function deleteRegistration(row) {
+    if (!(await confirmDelete(`${row.name}'s interest registration`))) return;
+    setBusyId(row.id);
+    try {
+      await api.adminDeleteInterest(token, row.id);
+      setRows((prev) => prev.filter((r) => r.id !== row.id));
     } finally {
       setBusyId(null);
     }
@@ -257,13 +268,22 @@ export default function AdminInterest() {
                   </td>
                   <td className="muted" style={{ fontWeight: 400 }}>{r.excites || '—'}</td>
                   <td>
-                    <button
-                      className="btn btn--ghost btn--small"
-                      disabled={busyId === r.id}
-                      onClick={() => toggleRead(r)}
-                    >
-                      {r.readAt ? 'Mark unread' : 'Mark read'}
-                    </button>
+                    <div className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
+                      <button
+                        className="btn btn--ghost btn--small"
+                        disabled={busyId === r.id}
+                        onClick={() => toggleRead(r)}
+                      >
+                        {r.readAt ? 'Mark unread' : 'Mark read'}
+                      </button>
+                      <button
+                        className="btn btn--danger btn--small"
+                        disabled={busyId === r.id}
+                        onClick={() => deleteRegistration(r)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import { formatDate } from '../../lib/format';
+import { confirmDelete } from '../../lib/confirm';
 
 function Stars({ rating }) {
   return (
@@ -17,11 +18,23 @@ export default function AdminFeedback() {
   const token = session.token;
   const [feedback, setFeedback] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState(null);
 
   useEffect(() => {
     setLoading(true);
     api.adminListFeedback(token).then(setFeedback).finally(() => setLoading(false));
   }, [token]);
+
+  async function deleteFeedback(f) {
+    if (!(await confirmDelete('this feedback'))) return;
+    setBusyId(f.id);
+    try {
+      await api.adminDeleteFeedback(token, f.id);
+      setFeedback((prev) => prev.filter((row) => row.id !== f.id));
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   return (
     <div className="stack">
@@ -39,6 +52,7 @@ export default function AdminFeedback() {
                 <th>Customer</th>
                 <th>Rating</th>
                 <th>Comment</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -49,10 +63,19 @@ export default function AdminFeedback() {
                   <td>{f.order?.customer?.name}</td>
                   <td><Stars rating={f.rating} /></td>
                   <td>{f.comment || <span className="muted">—</span>}</td>
+                  <td>
+                    <button
+                      className="btn btn--danger btn--small"
+                      disabled={busyId === f.id}
+                      onClick={() => deleteFeedback(f)}
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
               {feedback.length === 0 && (
-                <tr><td colSpan={5} className="muted">No feedback yet.</td></tr>
+                <tr><td colSpan={6} className="muted">No feedback yet.</td></tr>
               )}
             </tbody>
           </table>
