@@ -115,6 +115,7 @@ export default function AdminInterest() {
     }
   }
 
+  const shortlistedCount = rows.filter((r) => r.shortlisted).length;
   const pendingShortlistCount = rows.filter((r) => r.shortlisted && !r.finalEmailSentAt).length;
 
   async function sendShortlistEmails() {
@@ -169,11 +170,14 @@ export default function AdminInterest() {
 
       <div className="card row--between" style={{ alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <strong>Shortlisted customers</strong>
+          <strong>
+            Shortlisted customers{' '}
+            <span className="muted" style={{ fontWeight: 400 }}>({shortlistedCount})</span>
+          </strong>
           <p className="muted" style={{ margin: '2px 0 0' }}>
             {pendingShortlistCount === 0
-              ? 'No shortlisted customers waiting on the "you made the list" email.'
-              : `${pendingShortlistCount} shortlisted and not yet emailed.`}
+              ? 'None waiting on the "you made the list" email.'
+              : `${pendingShortlistCount} not yet emailed.`}
           </p>
           {shortlistResult && (
             <p className="muted" style={{ margin: '4px 0 0' }}>
