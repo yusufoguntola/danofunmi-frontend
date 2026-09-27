@@ -17,7 +17,7 @@ export default function AdminLogin() {
     () => !!location.state?.expired || consumeSessionExpired('admin')
   );
 
-  if (session?.token) return <Navigate to="/admin" replace />;
+  if (session?.token) return <Navigate to="/restricted-path" replace />;
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -25,7 +25,7 @@ export default function AdminLogin() {
     setSubmitting(true);
     try {
       await login(email, password);
-      navigate('/admin');
+      navigate('/restricted-path');
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Could not sign in.');
     } finally {

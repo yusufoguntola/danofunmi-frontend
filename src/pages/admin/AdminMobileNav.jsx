@@ -76,14 +76,14 @@ const CHEVRON = (
 // related ones are grounded together into a single tab whose sub-items
 // appear in a small sheet on tap, mirroring the customer MobileNav pattern.
 const GROUPS = [
-  { key: 'orders', label: 'Orders', Icon: OrdersIcon, items: [{ to: '/admin', label: 'Orders', end: true }] },
+  { key: 'orders', label: 'Orders', Icon: OrdersIcon, items: [{ to: '/restricted-path', label: 'Orders', end: true }] },
   {
     key: 'menu',
     label: 'Menu',
     Icon: MenuIcon,
     items: [
-      { to: '/admin/menu', label: 'Menu' },
-      { to: '/admin/menu/groups', label: 'Combos' },
+      { to: '/restricted-path/menu', label: 'Menu' },
+      { to: '/restricted-path/menu/groups', label: 'Combos' },
     ],
   },
   {
@@ -91,8 +91,8 @@ const GROUPS = [
     label: 'Money',
     Icon: MoneyIcon,
     items: [
-      { to: '/admin/costs', label: 'Costs' },
-      { to: '/admin/reports', label: 'Reports' },
+      { to: '/restricted-path/costs', label: 'Costs' },
+      { to: '/restricted-path/reports', label: 'Reports' },
     ],
   },
   {
@@ -100,18 +100,18 @@ const GROUPS = [
     label: 'Setup',
     Icon: SetupIcon,
     items: [
-      { to: '/admin/locations', label: 'Locations' },
-      { to: '/admin/notifications', label: 'Notifications' },
+      { to: '/restricted-path/locations', label: 'Locations' },
+      { to: '/restricted-path/notifications', label: 'Notifications' },
     ],
   },
-  { key: 'feedback', label: 'Feedback', Icon: FeedbackIcon, items: [{ to: '/admin/feedback', label: 'Feedback' }] },
+  { key: 'feedback', label: 'Feedback', Icon: FeedbackIcon, items: [{ to: '/restricted-path/feedback', label: 'Feedback' }] },
   {
     key: 'requests',
     label: 'Inbox',
     Icon: RequestsIcon,
     items: [
-      { to: '/admin/requests', label: 'Requests' },
-      { to: '/admin/interest', label: 'Interested' },
+      { to: '/restricted-path/requests', label: 'Requests' },
+      { to: '/restricted-path/interest', label: 'Interested' },
     ],
   },
 ];

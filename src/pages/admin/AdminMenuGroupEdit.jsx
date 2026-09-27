@@ -97,7 +97,7 @@ export default function AdminMenuGroupEdit() {
     setBusy(true);
     try {
       await api.adminDeleteGroup(token, id);
-      navigate('/admin/menu/groups');
+      navigate('/restricted-path/menu/groups');
     } catch (err) {
       alert(err instanceof ApiError ? err.message : 'Could not delete this combo.');
       setBusy(false);
@@ -167,7 +167,7 @@ export default function AdminMenuGroupEdit() {
     <div className="stack">
       <div className="row--between">
         <div>
-          <Link to="/admin/menu/groups" className="muted" style={{ fontSize: '0.85rem', textDecoration: 'none' }}>
+          <Link to="/restricted-path/menu/groups" className="muted" style={{ fontSize: '0.85rem', textDecoration: 'none' }}>
             &larr; Back to combos
           </Link>
           <h2 className="section-title" style={{ margin: '4px 0 0' }}>{group.name}</h2>

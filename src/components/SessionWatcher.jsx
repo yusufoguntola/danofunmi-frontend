@@ -30,8 +30,8 @@ export default function SessionWatcher() {
     if (!admin.session) return;
     markSessionExpired('admin');
     admin.logout();
-    const onAdminScreen = pathname.startsWith('/admin') && pathname !== '/admin/login';
-    if (onAdminScreen) navigate('/admin/login', { replace: true, state: { expired: true } });
+    const onAdminScreen = pathname.startsWith('/restricted-path') && pathname !== '/restricted-path/login';
+    if (onAdminScreen) navigate('/restricted-path/login', { replace: true, state: { expired: true } });
   }, []);
 
   const expireCustomer = useCallback(() => {

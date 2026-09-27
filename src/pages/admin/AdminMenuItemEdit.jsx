@@ -70,7 +70,7 @@ export default function AdminMenuItemEdit() {
     setBusy(true);
     try {
       await api.adminDeleteMenuItem(token, id);
-      navigate('/admin/menu');
+      navigate('/restricted-path/menu');
     } catch (err) {
       alert(err instanceof ApiError ? err.message : 'Could not delete this item.');
       setBusy(false);
@@ -134,7 +134,7 @@ export default function AdminMenuItemEdit() {
     <div className="stack">
       <div className="row--between">
         <div>
-          <Link to="/admin/menu" className="muted" style={{ fontSize: '0.85rem', textDecoration: 'none' }}>
+          <Link to="/restricted-path/menu" className="muted" style={{ fontSize: '0.85rem', textDecoration: 'none' }}>
             &larr; Back to menu
           </Link>
           <h2 className="section-title" style={{ margin: '4px 0 0' }}>{item.name}</h2>

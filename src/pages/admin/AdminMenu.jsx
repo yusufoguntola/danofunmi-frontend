@@ -169,7 +169,7 @@ export default function AdminMenu() {
       });
       setNewItem((f) => ({ ...emptyNewItem, categoryId: f.categoryId }));
       setShowItemModal(false);
-      navigate(`/admin/menu/${created.id}`);
+      navigate(`/restricted-path/menu/${created.id}`);
     } catch (err) {
       setNewItemError(err instanceof ApiError ? err.message : 'Could not create menu item.');
     } finally {
@@ -182,7 +182,7 @@ export default function AdminMenu() {
       <div className="row--between">
         <h2 className="section-title" style={{ margin: 0 }}>Menu</h2>
         <div className="row">
-          <button className="btn btn--ghost btn--small" onClick={() => navigate('/admin/menu/groups')}>
+          <button className="btn btn--ghost btn--small" onClick={() => navigate('/restricted-path/menu/groups')}>
             Combos
           </button>
           <button className="btn btn--ghost btn--small" onClick={() => setShowCategoryModal(true)}>
@@ -275,7 +275,7 @@ export default function AdminMenu() {
                   </td>
                   <td>
                     <div className="row" style={{ gap: 8, justifyContent: 'flex-end' }}>
-                      <button className="btn btn--ghost btn--small" onClick={() => navigate(`/admin/menu/${item.id}`)}>
+                      <button className="btn btn--ghost btn--small" onClick={() => navigate(`/restricted-path/menu/${item.id}`)}>
                         Edit
                       </button>
                       <button className="btn btn--danger btn--small" disabled={busy} onClick={() => deleteItem(item)}>

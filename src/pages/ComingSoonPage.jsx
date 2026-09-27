@@ -1,10 +1,28 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import LogoMark from '../components/LogoMark';
 import InterestModal from '../components/InterestModal';
+import { api } from '../lib/api';
 import './ComingSoonPage.css';
 
 export default function ComingSoonPage() {
-  const [interestOpen, setInterestOpen] = useState(false);
+  const [modalVariant, setModalVariant] = useState(null); // null | 'slot' | 'general'
+  const [status, setStatus] = useState(null); // { slotsTotal, slotsClaimed, slotsRemaining }
+
+  const refreshStatus = useCallback(() => {
+    api.getInterestStatus().then(setStatus).catch(() => {});
+  }, []);
+
+  useEffect(refreshStatus, [refreshStatus]);
+
+  function closeModal() {
+    setModalVariant(null);
+    refreshStatus();
+  }
+
+  // Assume slots are open until the count says otherwise — the backend is
+  // authoritative at submission time regardless of what's guessed here, so
+  // there's no harm defaulting optimistically while /status is loading.
+  const slotsOpen = status ? status.slotsRemaining > 0 : true;
 
   return (
     <div className="coming-soon">
@@ -65,7 +83,7 @@ export default function ComingSoonPage() {
       </div>
 
       <div className="coming-soon__panel">
-        <span className="coming-soon__badge"><span className="coming-soon__badge-dot" />Launching soon</span>
+        <span className="coming-soon__badge"><span className="coming-soon__badge-dot" />So close</span>
 
         <h1 className="coming-soon__logo">
           <LogoMark size={44} />
@@ -73,14 +91,44 @@ export default function ComingSoonPage() {
         </h1>
         <span className="coming-soon__tagline">You choose, we cook.</span>
 
-        <h2 className="coming-soon__headline">Coming<br /><span>soon&hellip;</span></h2>
+        <h2 className="coming-soon__headline">The wait is<br /><span>almost over.</span></h2>
         <p className="coming-soon__body">
-          Home-cooked soups &amp; rice, made fresh and stocked in bulk — once a month, just for you.
+          Get the first sneak-peek of danofunmi before anyone else — home-cooked soups &amp; rice, made fresh and stocked in bulk.
         </p>
 
-        <button type="button" className="btn coming-soon__cta" onClick={() => setInterestOpen(true)}>
-          I&rsquo;m interested
-        </button>
+        {slotsOpen ? (
+          <>
+            <button type="button" className="btn coming-soon__cta" onClick={() => setModalVariant('slot')}>
+              Lock in your slot
+            </button>
+            {status && (
+              <div className="coming-soon__slots">
+                <div className="coming-soon__slots-track">
+                  <div
+                    className="coming-soon__slots-fill"
+                    style={{ width: `${Math.round((status.slotsClaimed / status.slotsTotal) * 100)}%` }}
+                  />
+                </div>
+                <span className="coming-soon__slots-label">
+                  {status.slotsRemaining} of {status.slotsTotal} first-taste slots left
+                </span>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <div className="coming-soon__full">
+              <span className="coming-soon__full-icon">🧺</span>
+              <span className="coming-soon__full-text">
+                The basket is now full!
+                <small>All first-taste slots are taken — expect the launch soon.</small>
+              </span>
+            </div>
+            <button type="button" className="btn coming-soon__cta coming-soon__cta--ghost" onClick={() => setModalVariant('general')}>
+              I&rsquo;m interested
+            </button>
+          </>
+        )}
 
         <div className="coming-soon__details">
           <div className="coming-soon__detail">
@@ -111,7 +159,7 @@ export default function ComingSoonPage() {
         </p>
       </div>
 
-      {interestOpen && <InterestModal onClose={() => setInterestOpen(false)} />}
+      {modalVariant && <InterestModal variant={modalVariant} onClose={closeModal} />}
     </div>
   );
 }

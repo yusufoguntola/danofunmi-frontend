@@ -6,8 +6,9 @@ import AdminMobileNav from './AdminMobileNav';
 import LogoMark from '../../components/LogoMark';
 
 // How often the "unread requests" badge refreshes on its own — a visit to
-// /admin/requests (which marks everything read) also triggers an immediate
-// refresh via the refreshUnreadRequests() passed down through Outlet context.
+// /restricted-path/requests (which marks everything read) also triggers an
+// immediate refresh via the refreshUnreadRequests() passed down through
+// Outlet context.
 const UNREAD_POLL_MS = 30000;
 
 export default function AdminLayout() {
@@ -36,7 +37,7 @@ export default function AdminLayout() {
 
   function handleLogout() {
     logout();
-    navigate('/admin/login');
+    navigate('/restricted-path/login');
   }
 
   return (
@@ -48,21 +49,21 @@ export default function AdminLayout() {
             dánọ́fúnmi admin
           </span>
           <nav className="admin-layout__nav">
-            <NavLink to="/admin" end>Orders</NavLink>
-            <NavLink to="/admin/menu">Menu</NavLink>
-            <NavLink to="/admin/locations">Locations</NavLink>
-            <NavLink to="/admin/costs">Costs</NavLink>
-            <NavLink to="/admin/reports">Reports</NavLink>
-            <NavLink to="/admin/feedback">Feedback</NavLink>
-            <NavLink to="/admin/requests">
+            <NavLink to="/restricted-path" end>Orders</NavLink>
+            <NavLink to="/restricted-path/menu">Menu</NavLink>
+            <NavLink to="/restricted-path/locations">Locations</NavLink>
+            <NavLink to="/restricted-path/costs">Costs</NavLink>
+            <NavLink to="/restricted-path/reports">Reports</NavLink>
+            <NavLink to="/restricted-path/feedback">Feedback</NavLink>
+            <NavLink to="/restricted-path/requests">
               Requests
               {unreadRequests > 0 && <span className="admin-layout__nav-badge">{unreadRequests}</span>}
             </NavLink>
-            <NavLink to="/admin/interest">
+            <NavLink to="/restricted-path/interest">
               Interested
               {unreadInterest > 0 && <span className="admin-layout__nav-badge">{unreadInterest}</span>}
             </NavLink>
-            <NavLink to="/admin/notifications">Notifications</NavLink>
+            <NavLink to="/restricted-path/notifications">Notifications</NavLink>
           </nav>
           <div className="row">
             <span className="muted" style={{ fontSize: '0.85rem' }}>{session?.admin?.name}</span>

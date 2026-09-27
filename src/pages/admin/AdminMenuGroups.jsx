@@ -102,7 +102,7 @@ export default function AdminMenuGroups() {
       });
       setNewGroup((f) => ({ ...emptyNewGroup, categoryId: f.categoryId }));
       setShowModal(false);
-      navigate(`/admin/menu/groups/${created.id}`);
+      navigate(`/restricted-path/menu/groups/${created.id}`);
     } catch (err) {
       setNewGroupError(err instanceof ApiError ? err.message : 'Could not create this combo.');
     } finally {
@@ -114,7 +114,7 @@ export default function AdminMenuGroups() {
     <div className="stack">
       <div className="row--between">
         <div>
-          <Link to="/admin/menu" className="muted" style={{ fontSize: '0.85rem', textDecoration: 'none' }}>
+          <Link to="/restricted-path/menu" className="muted" style={{ fontSize: '0.85rem', textDecoration: 'none' }}>
             &larr; Back to menu
           </Link>
           <h2 className="section-title" style={{ margin: '4px 0 0' }}>Combos</h2>
@@ -172,7 +172,7 @@ export default function AdminMenuGroups() {
                   </td>
                   <td>
                     <div className="row" style={{ gap: 8, justifyContent: 'flex-end' }}>
-                      <button className="btn btn--ghost btn--small" onClick={() => navigate(`/admin/menu/groups/${group.id}`)}>
+                      <button className="btn btn--ghost btn--small" onClick={() => navigate(`/restricted-path/menu/groups/${group.id}`)}>
                         Edit
                       </button>
                       <button className="btn btn--danger btn--small" disabled={busy} onClick={() => deleteGroup(group)}>

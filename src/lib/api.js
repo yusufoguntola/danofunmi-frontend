@@ -59,6 +59,7 @@ export const api = {
   getMenu: () => request('/api/menu'),
   getFeedback: () => request('/api/feedback'),
   registerInterest: (payload) => request('/api/interest', { method: 'POST', body: payload }),
+  getInterestStatus: () => request('/api/interest/status'),
   getPaymentInfo: () => request('/api/payment-info'),
   getLocations: () => request('/api/locations'),
   createOrder: (payload, token) => request('/api/orders', { method: 'POST', body: payload, token }),
@@ -161,6 +162,15 @@ export const api = {
   adminMarkAllInterestRead: (token) => request('/api/admin/interest/read-all', { method: 'PATCH', token }),
   adminMarkInterestRead: (token, id, read = true) =>
     request(`/api/admin/interest/${id}`, { method: 'PATCH', body: { read }, token }),
+  adminGetInterestSettings: (token) => request('/api/admin/interest/settings', { token }),
+  adminUpdateInterestSettings: (token, firstTasteSlots) =>
+    request('/api/admin/interest/settings', { method: 'PATCH', body: { firstTasteSlots }, token }),
+  adminSetInterestShortlisted: (token, id, shortlisted) =>
+    request(`/api/admin/interest/${id}`, { method: 'PATCH', body: { shortlisted }, token }),
+  adminSendShortlistEmails: (token) =>
+    request('/api/admin/interest/send-shortlist-emails', { method: 'POST', token }),
+  adminCreateFirstTasteOrder: (token, id, locationId) =>
+    request(`/api/admin/interest/${id}/create-order`, { method: 'POST', body: { locationId }, token }),
 
   sendChatMessage: (messages, token) => request('/api/chat', { method: 'POST', body: { messages }, token }),
 

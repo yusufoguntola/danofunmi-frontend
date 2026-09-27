@@ -5,7 +5,7 @@ import { isTokenExpired } from '../lib/jwt';
 export default function ProtectedRoute({ children }) {
   const { session } = useAdminAuth();
   if (!session?.token || isTokenExpired(session.token)) {
-    return <Navigate to="/admin/login" replace state={{ expired: !!session?.token }} />;
+    return <Navigate to="/restricted-path/login" replace state={{ expired: !!session?.token }} />;
   }
   return children;
 }

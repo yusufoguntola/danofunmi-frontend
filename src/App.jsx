@@ -38,7 +38,7 @@ const COMING_SOON = import.meta.env.VITE_COMING_SOON === 'true';
 // on the back-office admin dashboard and while the coming-soon gate is up.
 function CustomerChrome() {
   const { pathname } = useLocation();
-  if (pathname.startsWith('/admin') || COMING_SOON) return null;
+  if (pathname.startsWith('/restricted-path') || COMING_SOON) return null;
   return (
     <>
       <InstallPrompt />
@@ -50,9 +50,9 @@ function CustomerChrome() {
 
 const adminRoutes = (
   <>
-    <Route path="/admin/login" element={<AdminLogin />} />
+    <Route path="/restricted-path/login" element={<AdminLogin />} />
     <Route
-      path="/admin"
+      path="/restricted-path"
       element={
         <ProtectedRoute>
           <AdminLayout />
