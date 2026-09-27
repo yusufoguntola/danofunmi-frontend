@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.2" baseProfile="tiny-ps" viewBox="0 0 512 512">
+<title>dánọ́fúnmi</title>
+<circle cx="256" cy="256" r="256" fill="#16321f"/>
+<g fill="none" stroke="#faf6ec" stroke-width="15" stroke-linecap="round">
+<path d="M232 150 c -14 -18 10 -33 -2 -52 c -5 -8 -3 -13 1 -19"/>
+<path d="M280 150 c 14 -18 -10 -33 2 -52 c 5 -8 3 -13 -1 -19"/>
+</g>
+<path fill="#c4652f" d="M210 448 C 198 438 196 424 206 410 C 213 399 215 393 219 384 C 224 394 228 404 235 414 C 239 420 242 424 246 428 C 251 414 254 392 257 368 C 259 358 260 352 261 344 C 265 360 269 380 274 396 C 278 408 282 418 286 426 C 291 420 295 410 301 400 C 307 392 309 389 312 382 C 317 394 320 416 317 430 C 315 439 311 446 304 449 C 283 457 233 457 210 448 Z"/>
+<path fill="#c4652f" d="M190 164 A66 27 0 0 1 322 164 Z"/>
+<g fill="#faf6ec">
+<path d="M172 200 C 150 200 148 242 156 282 C 166 324 202 348 256 348 C 310 348 346 324 356 282 C 364 242 362 200 340 200 Z"/>
+<path fill="none" stroke="#faf6ec" stroke-width="15" stroke-linecap="round" d="M158 208 c -30 2 -34 40 -2 48"/>
+<path fill="none" stroke="#faf6ec" stroke-width="15" stroke-linecap="round" d="M354 208 c 30 2 34 40 2 48"/>
+<rect x="150" y="168" width="212" height="34" rx="16"/>
+</g>
+</svg>
