@@ -58,6 +58,9 @@ export const api = {
     BASE_URL,
     getMenu: () => request('/api/menu'),
     getFeedback: () => request('/api/feedback'),
+    getOrderFeedback: (idOrNarration) => request(`/api/feedback/order/${encodeURIComponent(idOrNarration)}`),
+    submitOrderFeedback: (idOrNarration, {rating, comment}) =>
+        request(`/api/feedback/order/${encodeURIComponent(idOrNarration)}`, {method: 'POST', body: {rating, comment}}),
     registerInterest: (payload) => request('/api/interest', {method: 'POST', body: payload}),
     getInterestStatus: () => request('/api/interest/status'),
     getPaymentInfo: () => request('/api/payment-info'),
@@ -77,8 +80,12 @@ export const api = {
 
     adminListOrders: (token, status) =>
         request(`/api/orders/admin/all${status ? `?status=${status}` : ''}`, {token}),
-    adminUpdateOrderStatus: (token, orderId, status) =>
-        request(`/api/orders/admin/${orderId}/status`, {method: 'PATCH', body: {status}, token}),
+    adminUpdateOrderStatus: (token, orderId, status, riderContact) =>
+        request(`/api/orders/admin/${orderId}/status`, {
+            method: 'PATCH',
+            body: riderContact !== undefined ? {status, riderContact} : {status},
+            token,
+        }),
     adminUpdateOrderLocation: (token, orderId, locationId) =>
         request(`/api/orders/admin/${orderId}/location`, {method: 'PATCH', body: {locationId}, token}),
     adminUpdateReceiptStatus: (token, orderId, receiptId, status) =>

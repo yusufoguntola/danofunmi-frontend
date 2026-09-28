@@ -57,6 +57,37 @@ export function confirmWithSelect({
   }).then((result) => (result.isConfirmed ? result.value : null));
 }
 
+/**
+ * Same as confirmAction, but with a free-text field baked into the dialog
+ * (e.g. "who's the rider?") instead of needing a separate control on the
+ * page. Resolves to the (possibly empty) trimmed string if confirmed, or
+ * `undefined` if cancelled/dismissed — distinct from an empty-but-confirmed
+ * value, so callers can tell "skipped this field" from "backed out entirely".
+ */
+export function confirmWithInput({
+  title,
+  text,
+  placeholder,
+  inputValue = '',
+  confirmButtonText = 'Confirm',
+  cancelButtonText = 'Cancel',
+}) {
+  return Swal.fire({
+    title,
+    text,
+    input: 'text',
+    inputPlaceholder: placeholder,
+    inputValue,
+    showCancelButton: true,
+    confirmButtonText,
+    cancelButtonText,
+    confirmButtonColor: '#2a5c37',
+    cancelButtonColor: '#5b6b5c',
+    reverseButtons: true,
+    customClass: { popup: 'swal-popup' },
+  }).then((result) => (result.isConfirmed ? String(result.value || '').trim() : undefined));
+}
+
 /** One-button error dialog, styled to match the app's confirm dialogs. */
 export function alertError(title, text) {
   return Swal.fire({

@@ -10,6 +10,7 @@ import ChatWidget from './components/chat/ChatWidget';
 import LandingPage from './pages/LandingPage';
 import OrderPage from './pages/OrderPage';
 import OrderStatusPage from './pages/OrderStatusPage';
+import FeedbackPage from './pages/FeedbackPage';
 import MyOrdersPage from './pages/MyOrdersPage';
 import MenuPage from './pages/MenuPage';
 import SignupPage from './pages/SignupPage';
@@ -96,6 +97,7 @@ export default function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/order" element={<OrderPage />} />
                 <Route path="/order/:id" element={<OrderStatusPage />} />
+                <Route path="/feedback/:id" element={<FeedbackPage />} />
                 <Route path="/orders" element={<MyOrdersPage />} />
                 <Route path="/menu" element={<MenuPage />} />
                 <Route path="/signup" element={<SignupPage />} />

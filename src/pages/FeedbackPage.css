@@ -1,0 +1,43 @@
+.feedback-page__hero {
+  background: var(--green-900);
+  padding: 20px 0;
+}
+
+.feedback-page__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  color: #fff;
+  text-decoration: none;
+}
+
+.feedback-page__body {
+  padding: 40px 24px 96px;
+  max-width: 520px;
+}
+
+.star-input {
+  display: flex;
+  gap: 6px;
+}
+
+.star-input__star {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--line);
+  cursor: pointer;
+}
+
+.star-input__star.is-filled {
+  color: #e0a530;
+}
+
+.star-input__star:disabled {
+  cursor: default;
+}
