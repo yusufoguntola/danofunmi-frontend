@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import LogoMark from './LogoMark';
+import { PHONE_DISPLAY, INSTAGRAM_HANDLE, INSTAGRAM_URL, whatsappLink } from '../lib/contact';
 import './SiteFooter.css';
 
 export default function SiteFooter() {
@@ -29,9 +30,12 @@ export default function SiteFooter() {
 
         <div className="footer__col">
           <h4>Contact</h4>
-          <span>📞 [Phone number]</span>
-          <span>📷 [Instagram handle]</span>
-          <span>📍 [Delivery area]</span>
+          <a href={`tel:${PHONE_DISPLAY}`}>📞 {PHONE_DISPLAY}</a>
+          <a href={INSTAGRAM_URL} target="_blank" rel="noreferrer">📷 @{INSTAGRAM_HANDLE}</a>
+          <a href={whatsappLink("Hi, I'd like to place an order")} target="_blank" rel="noreferrer">
+            💬 WhatsApp us
+          </a>
+          <span>📍 Akobo, Ibadan</span>
         </div>
       </div>
       <div className="wrap footer__legal">

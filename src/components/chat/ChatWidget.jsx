@@ -5,6 +5,7 @@ import { formatNaira } from '../../lib/format';
 import { db } from '../../lib/db';
 import { pushSupported, subscribeToPush, unsubscribeFromPush } from '../../lib/push';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
+import { whatsappLink } from '../../lib/contact';
 import './ChatWidget.css';
 
 const RECEIPT_UPLOADABLE_STATUSES = ['PENDING_PAYMENT', 'PAYMENT_SUBMITTED'];
@@ -302,6 +303,21 @@ export default function ChatWidget() {
               <Link to="/order" className="btn btn--small chat-widget__notify-btn">
                 🛒 View cart ({meta.cart.items.reduce((n, i) => n + i.quantity, 0)}) — continue on web
               </Link>
+            )}
+
+            {meta?.humanHandoff && (
+              <a
+                href={whatsappLink(
+                  meta.humanHandoff.reason
+                    ? `Hi, I need help — ${meta.humanHandoff.reason}`
+                    : 'Hi, I need help from a dánọ́fúnmi team member.'
+                )}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn--small chat-widget__notify-btn"
+              >
+                💬 Chat on WhatsApp
+              </a>
             )}
 
             {showReceiptUpload && (
