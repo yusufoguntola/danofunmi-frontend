@@ -4,6 +4,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import { formatDate } from '../../lib/format';
 import { confirmAction, confirmDelete } from '../../lib/confirm';
+import ExpandableRow from '../../components/admin/ExpandableRow';
 
 export default function AdminInterest() {
   const { session } = useAdminAuth();
@@ -66,6 +67,19 @@ export default function AdminInterest() {
     try {
       const updated = await api.adminSetInterestShortlisted(token, row.id, !row.shortlisted);
       setRows((prev) => prev.map((r) => (r.id === row.id ? updated : r)));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  // Moving someone to/from "First taste" changes how many first-taste slots
+  // are taken, so refresh the slots card alongside the row itself.
+  async function toggleClaimedSlot(row) {
+    setBusyId(row.id);
+    try {
+      const updated = await api.adminSetInterestClaimedSlot(token, row.id, !row.claimedSlot);
+      setRows((prev) => prev.map((r) => (r.id === row.id ? updated : r)));
+      loadSettings();
     } finally {
       setBusyId(null);
     }
@@ -203,96 +217,117 @@ export default function AdminInterest() {
           <table className="table">
             <thead>
               <tr>
+                <th>#</th>
                 <th>Date</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Address</th>
-                <th>Landmark</th>
                 <th>Slot</th>
-                <th>Shortlist</th>
-                <th>Order</th>
-                <th>What excites them</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((r) => (
-                <tr key={r.id} style={{ fontWeight: r.readAt ? 400 : 700 }}>
-                  <td className="muted" style={{ fontWeight: 400 }}>{formatDate(r.createdAt)}</td>
-                  <td>{r.name}</td>
-                  <td className="muted" style={{ fontWeight: 400 }}>{r.email}</td>
-                  <td className="muted" style={{ fontWeight: 400 }}>{r.phone}</td>
-                  <td className="muted" style={{ fontWeight: 400 }}>{r.address}</td>
-                  <td className="muted" style={{ fontWeight: 400 }}>{r.landmark || '—'}</td>
-                  <td>
-                    {r.claimedSlot ? (
-                      <span className="badge badge--confirmed">First taste</span>
-                    ) : (
-                      <span className="badge badge--pending">General</span>
-                    )}
-                  </td>
-                  <td>
-                    <div className="stack" style={{ gap: 4 }}>
-                      <button
-                        className="btn btn--ghost btn--small"
-                        disabled={busyId === r.id}
-                        onClick={() => toggleShortlisted(r)}
-                      >
-                        {r.shortlisted ? 'Shortlisted ✓' : 'Shortlist'}
-                      </button>
-                      {r.finalEmailSentAt && <span className="muted" style={{ fontWeight: 400, fontSize: '0.78rem' }}>Emailed</span>}
-                    </div>
-                  </td>
-                  <td>
-                    {r.orderId ? (
-                      <span className="badge badge--confirmed">Order created</span>
-                    ) : r.shortlisted ? (
-                      <div className="row" style={{ gap: 6, flexWrap: 'nowrap' }}>
-                        <select
-                          value={locationChoice[r.id] || locations[0]?.id || ''}
-                          onChange={(e) => setLocationChoice((prev) => ({ ...prev, [r.id]: e.target.value }))}
-                          style={{ border: '1px solid var(--line)', borderRadius: 8, padding: '6px 8px', fontSize: '0.82rem' }}
-                        >
-                          {locations.map((l) => (
-                            <option key={l.id} value={l.id}>{l.name}</option>
-                          ))}
-                        </select>
+              {rows.map((r, i) => (
+                <ExpandableRow
+                  key={r.id}
+                  colSpan={8}
+                  rowStyle={{ fontWeight: r.readAt ? 400 : 700 }}
+                  summary={
+                    <>
+                      <td className="muted" style={{ fontWeight: 400 }}>{i + 1}</td>
+                      <td className="muted" style={{ fontWeight: 400 }}>{formatDate(r.createdAt)}</td>
+                      <td>{r.name}</td>
+                      <td className="muted" style={{ fontWeight: 400 }}>{r.email}</td>
+                      <td className="muted" style={{ fontWeight: 400 }}>{r.phone}</td>
+                      <td className="muted" style={{ fontWeight: 400 }}>{r.address}</td>
+                      <td>
                         <button
                           className="btn btn--ghost btn--small"
-                          disabled={busyId === r.id || locations.length === 0}
-                          onClick={() => createOrder(r)}
+                          disabled={busyId === r.id}
+                          onClick={(e) => { e.stopPropagation(); toggleClaimedSlot(r); }}
                         >
-                          Create order
+                          {r.claimedSlot ? 'First taste ✓' : 'General'}
+                        </button>
+                      </td>
+                    </>
+                  }
+                  detail={
+                    <>
+                      <div className="detail-field">
+                        <span className="detail-field__label">Landmark</span>
+                        <span className="detail-field__value">{r.landmark || '—'}</span>
+                      </div>
+                      <div className="detail-field">
+                        <span className="detail-field__label">Shortlist</span>
+                        <span className="detail-field__value">
+                          <div className="row" style={{ gap: 8 }}>
+                            <button
+                              className="btn btn--ghost btn--small"
+                              disabled={busyId === r.id}
+                              onClick={() => toggleShortlisted(r)}
+                            >
+                              {r.shortlisted ? 'Shortlisted ✓' : 'Shortlist'}
+                            </button>
+                            {r.finalEmailSentAt && <span className="muted" style={{ fontSize: '0.78rem' }}>Emailed</span>}
+                          </div>
+                        </span>
+                      </div>
+                      <div className="detail-field" style={{ gridColumn: 'span 2' }}>
+                        <span className="detail-field__label">Order</span>
+                        <span className="detail-field__value">
+                          {r.orderId ? (
+                            <span className="badge badge--confirmed">Order created</span>
+                          ) : r.shortlisted ? (
+                            <div className="row" style={{ gap: 6, flexWrap: 'nowrap' }}>
+                              <select
+                                value={locationChoice[r.id] || locations[0]?.id || ''}
+                                onChange={(e) => setLocationChoice((prev) => ({ ...prev, [r.id]: e.target.value }))}
+                                style={{ border: '1px solid var(--line)', borderRadius: 8, padding: '6px 8px', fontSize: '0.82rem' }}
+                              >
+                                {locations.map((l) => (
+                                  <option key={l.id} value={l.id}>{l.name}</option>
+                                ))}
+                              </select>
+                              <button
+                                className="btn btn--ghost btn--small"
+                                disabled={busyId === r.id || locations.length === 0}
+                                onClick={() => createOrder(r)}
+                              >
+                                Create order
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="muted">—</span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="detail-field">
+                        <span className="detail-field__label">What excites them</span>
+                        <span className="detail-field__value">{r.excites || '—'}</span>
+                      </div>
+                      <div className="detail-actions">
+                        <button
+                          className="btn btn--ghost btn--small"
+                          disabled={busyId === r.id}
+                          onClick={() => toggleRead(r)}
+                        >
+                          {r.readAt ? 'Mark unread' : 'Mark read'}
+                        </button>
+                        <button
+                          className="btn btn--danger btn--small"
+                          disabled={busyId === r.id}
+                          onClick={() => deleteRegistration(r)}
+                        >
+                          Delete
                         </button>
                       </div>
-                    ) : (
-                      <span className="muted">—</span>
-                    )}
-                  </td>
-                  <td className="muted" style={{ fontWeight: 400 }}>{r.excites || '—'}</td>
-                  <td>
-                    <div className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
-                      <button
-                        className="btn btn--ghost btn--small"
-                        disabled={busyId === r.id}
-                        onClick={() => toggleRead(r)}
-                      >
-                        {r.readAt ? 'Mark unread' : 'Mark read'}
-                      </button>
-                      <button
-                        className="btn btn--danger btn--small"
-                        disabled={busyId === r.id}
-                        onClick={() => deleteRegistration(r)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                    </>
+                  }
+                />
               ))}
               {rows.length === 0 && (
-                <tr><td colSpan={11} className="muted">No one has registered interest yet.</td></tr>
+                <tr><td colSpan={8} className="muted">No one has registered interest yet.</td></tr>
               )}
             </tbody>
           </table>

@@ -169,6 +169,8 @@ export const api = {
     request('/api/admin/interest/settings', { method: 'PATCH', body: { firstTasteSlots }, token }),
   adminSetInterestShortlisted: (token, id, shortlisted) =>
     request(`/api/admin/interest/${id}`, { method: 'PATCH', body: { shortlisted }, token }),
+  adminSetInterestClaimedSlot: (token, id, claimedSlot) =>
+    request(`/api/admin/interest/${id}`, { method: 'PATCH', body: { claimedSlot }, token }),
   adminSendShortlistEmails: (token) =>
     request('/api/admin/interest/send-shortlist-emails', { method: 'POST', token }),
   adminCreateFirstTasteOrder: (token, id, locationId) =>

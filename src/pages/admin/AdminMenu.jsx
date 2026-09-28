@@ -6,6 +6,7 @@ import { formatNaira } from '../../lib/format';
 import Modal from '../../components/Modal';
 import IconPicker from '../../components/IconPicker';
 import { confirmAction, confirmDelete } from '../../lib/confirm';
+import ExpandableRow from '../../components/admin/ExpandableRow';
 
 const emptyNewItem = { name: '', categoryId: '', description: '', icon: '', size: '', price: '' };
 
@@ -253,7 +254,6 @@ export default function AdminMenu() {
                 <th></th>
                 <th>Name</th>
                 <th>Category</th>
-                <th>Sizes</th>
                 <th>Price</th>
                 <th>Active</th>
                 <th></th>
@@ -261,32 +261,43 @@ export default function AdminMenu() {
             </thead>
             <tbody>
               {items.map((item) => (
-                <tr key={item.id}>
-                  <td><IconThumb icon={item.icon} /></td>
-                  <td style={{ fontWeight: 700 }}>{item.name}</td>
-                  <td className="muted">{item.category}</td>
-                  <td className="muted">{item.options.length}</td>
-                  <td>{priceRange(item.options)}</td>
-                  <td>
-                    <label className="toggle">
-                      <input type="checkbox" checked={item.active} disabled={busy} onChange={() => toggleActive(item)} />
-                      <span className="toggle__track" />
-                    </label>
-                  </td>
-                  <td>
-                    <div className="row" style={{ gap: 8, justifyContent: 'flex-end' }}>
-                      <button className="btn btn--ghost btn--small" onClick={() => navigate(`/restricted-path/menu/${item.id}`)}>
-                        Edit
-                      </button>
-                      <button className="btn btn--danger btn--small" disabled={busy} onClick={() => deleteItem(item)}>
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                <ExpandableRow
+                  key={item.id}
+                  colSpan={6}
+                  summary={
+                    <>
+                      <td><IconThumb icon={item.icon} /></td>
+                      <td style={{ fontWeight: 700 }}>{item.name}</td>
+                      <td className="muted">{item.category}</td>
+                      <td>{priceRange(item.options)}</td>
+                      <td>
+                        <label className="toggle" onClick={(e) => e.stopPropagation()}>
+                          <input type="checkbox" checked={item.active} disabled={busy} onChange={() => toggleActive(item)} />
+                          <span className="toggle__track" />
+                        </label>
+                      </td>
+                    </>
+                  }
+                  detail={
+                    <>
+                      <div className="detail-field">
+                        <span className="detail-field__label">Sizes</span>
+                        <span className="detail-field__value">{item.options.length}</span>
+                      </div>
+                      <div className="detail-actions">
+                        <button className="btn btn--ghost btn--small" onClick={() => navigate(`/restricted-path/menu/${item.id}`)}>
+                          Edit
+                        </button>
+                        <button className="btn btn--danger btn--small" disabled={busy} onClick={() => deleteItem(item)}>
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  }
+                />
               ))}
               {items.length === 0 && (
-                <tr><td colSpan={7} className="muted">No menu items yet — add one above.</td></tr>
+                <tr><td colSpan={6} className="muted">No menu items yet — add one above.</td></tr>
               )}
             </tbody>
           </table>

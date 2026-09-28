@@ -7,6 +7,7 @@ import Modal from '../../components/Modal';
 import IconPicker from '../../components/IconPicker';
 import MenuIcon from '../../components/MenuIcon';
 import { confirmAction } from '../../lib/confirm';
+import ExpandableRow from '../../components/admin/ExpandableRow';
 
 const emptyNewGroup = { name: '', categoryId: '', description: '', icon: '', menuItemOptionId: '' };
 
@@ -143,8 +144,6 @@ export default function AdminMenuGroups() {
                 <th></th>
                 <th>Name</th>
                 <th>Category</th>
-                <th>Items</th>
-                <th>Discount</th>
                 <th>Combo price</th>
                 <th>Active</th>
                 <th></th>
@@ -152,38 +151,52 @@ export default function AdminMenuGroups() {
             </thead>
             <tbody>
               {groups.map((group) => (
-                <tr key={group.id}>
-                  <td style={{ fontSize: '1.4rem' }}>
-                    <MenuIcon icon={group.icon || '🎁'} imgClassName="menu-table__icon-img" />
-                  </td>
-                  <td style={{ fontWeight: 700 }}>{group.name}</td>
-                  <td className="muted">{group.category}</td>
-                  <td className="muted">
-                    {group.items.filter((i) => !i.isBonus).length} item(s)
-                    {group.items.some((i) => i.isBonus) && ' + bonus'}
-                  </td>
-                  <td className="muted">{discountLabel(group.discount)}</td>
-                  <td>{formatNaira(group.total)}</td>
-                  <td>
-                    <label className="toggle">
-                      <input type="checkbox" checked={group.active} disabled={busy} onChange={() => toggleActive(group)} />
-                      <span className="toggle__track" />
-                    </label>
-                  </td>
-                  <td>
-                    <div className="row" style={{ gap: 8, justifyContent: 'flex-end' }}>
-                      <button className="btn btn--ghost btn--small" onClick={() => navigate(`/restricted-path/menu/groups/${group.id}`)}>
-                        Edit
-                      </button>
-                      <button className="btn btn--danger btn--small" disabled={busy} onClick={() => deleteGroup(group)}>
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+                <ExpandableRow
+                  key={group.id}
+                  colSpan={6}
+                  summary={
+                    <>
+                      <td style={{ fontSize: '1.4rem' }}>
+                        <MenuIcon icon={group.icon || '🎁'} imgClassName="menu-table__icon-img" />
+                      </td>
+                      <td style={{ fontWeight: 700 }}>{group.name}</td>
+                      <td className="muted">{group.category}</td>
+                      <td>{formatNaira(group.total)}</td>
+                      <td>
+                        <label className="toggle" onClick={(e) => e.stopPropagation()}>
+                          <input type="checkbox" checked={group.active} disabled={busy} onChange={() => toggleActive(group)} />
+                          <span className="toggle__track" />
+                        </label>
+                      </td>
+                    </>
+                  }
+                  detail={
+                    <>
+                      <div className="detail-field">
+                        <span className="detail-field__label">Items</span>
+                        <span className="detail-field__value">
+                          {group.items.filter((i) => !i.isBonus).length} item(s)
+                          {group.items.some((i) => i.isBonus) && ' + bonus'}
+                        </span>
+                      </div>
+                      <div className="detail-field">
+                        <span className="detail-field__label">Discount</span>
+                        <span className="detail-field__value">{discountLabel(group.discount)}</span>
+                      </div>
+                      <div className="detail-actions">
+                        <button className="btn btn--ghost btn--small" onClick={() => navigate(`/restricted-path/menu/groups/${group.id}`)}>
+                          Edit
+                        </button>
+                        <button className="btn btn--danger btn--small" disabled={busy} onClick={() => deleteGroup(group)}>
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  }
+                />
               ))}
               {groups.length === 0 && (
-                <tr><td colSpan={8} className="muted">No combos yet — add one above.</td></tr>
+                <tr><td colSpan={6} className="muted">No combos yet — add one above.</td></tr>
               )}
             </tbody>
           </table>

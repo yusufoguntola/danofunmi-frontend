@@ -380,6 +380,70 @@ button, input, select, textarea {
   border-bottom: none;
 }
 
+/* Expandable admin table rows — a summary row with a handful of primary
+   columns, click to reveal the rest in a detail panel underneath. Used by
+   any admin table with more than ~6 columns (ExpandableRow component). */
+.table tr.expandable-row {
+  cursor: pointer;
+}
+
+.table tr.expandable-row:hover {
+  background: var(--green-50);
+}
+
+.expand-toggle-cell {
+  width: 28px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.table tr.detail-row:hover {
+  background: none;
+}
+
+.table tr.detail-row td {
+  background: var(--green-50);
+  padding: 18px 20px;
+  cursor: default;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px 28px;
+}
+
+.detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.detail-field__label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.detail-field__value {
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.detail-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
 /* Layout helpers */
 .stack { display: flex; flex-direction: column; gap: 16px; }
 .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
