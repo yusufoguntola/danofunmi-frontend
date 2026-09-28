@@ -61,6 +61,11 @@ export const api = {
     getOrderFeedback: (idOrNarration) => request(`/api/feedback/order/${encodeURIComponent(idOrNarration)}`),
     submitOrderFeedback: (idOrNarration, {rating, comment}) =>
         request(`/api/feedback/order/${encodeURIComponent(idOrNarration)}`, {method: 'POST', body: {rating, comment}}),
+    submitGeneralFeedback: ({rating, comment, customerName, location, foodType, recaptchaToken}) =>
+        request('/api/feedback/general', {
+            method: 'POST',
+            body: {rating, comment, customerName, location, foodType, recaptchaToken},
+        }),
     registerInterest: (payload) => request('/api/interest', {method: 'POST', body: payload}),
     getInterestStatus: () => request('/api/interest/status'),
     getPaymentInfo: () => request('/api/payment-info'),

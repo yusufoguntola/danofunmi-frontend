@@ -1,35 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
-import LogoMark from '../components/LogoMark';
 import SiteFooter from '../components/SiteFooter';
+import StarInput from '../components/StarInput';
+import PublicHero from '../components/PublicHero';
 import './FeedbackPage.css';
 
-/** Interactive when `onChange` is given, read-only display otherwise. */
-function StarInput({ value, onChange }) {
-  return (
-    <div className="star-input" role={onChange ? 'radiogroup' : undefined} aria-label="Rating">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <button
-          key={n}
-          type="button"
-          className={`star-input__star${n <= value ? ' is-filled' : ''}`}
-          onClick={onChange ? () => onChange(n) : undefined}
-          disabled={!onChange}
-          aria-label={`${n} star${n > 1 ? 's' : ''}`}
-          aria-pressed={onChange ? n === value : undefined}
-        >
-          ★
-        </button>
-      ))}
-    </div>
-  );
-}
-
-// Linked from the "delivered" order-status email (see backend/src/lib/email.js)
-// — order id/narration/number in the URL uniquely identifies which order the
-// feedback is for; GET /api/feedback/order/:id carries just enough of the
-// order + customer for this page (name, items), never the full order record.
+// Feedback about a *specific* order — linked from the "delivered" order-
+// status email (see backend/src/lib/email.js); order id/narration/number in
+// the URL uniquely identifies which order the feedback is for. GET
+// /api/feedback/order/:id carries just enough of the order + customer for
+// this page (name, items), never the full order record. For feedback not
+// tied to any order, see GeneralFeedbackPage (route /feedback, no id).
 export default function FeedbackPage() {
   const { id } = useParams();
   const [data, setData] = useState(null);
@@ -88,14 +70,7 @@ export default function FeedbackPage() {
 
   return (
     <div>
-      <header className="feedback-page__hero">
-        <div className="wrap">
-          <Link className="feedback-page__logo" to="/">
-            <LogoMark size={28} />
-            dánọ́fúnmi
-          </Link>
-        </div>
-      </header>
+      <PublicHero />
 
       <main className="wrap feedback-page__body">
         {loading && <p>Loading&hellip;</p>}

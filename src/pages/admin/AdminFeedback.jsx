@@ -69,8 +69,8 @@ export default function AdminFeedback() {
                     <>
                       <td className="muted">{start + i + 1}</td>
                       <td className="muted">{formatDate(f.createdAt)}</td>
-                      <td>{f.order?.narration}</td>
-                      <td>{f.order?.customer?.name}</td>
+                      <td>{f.order?.narration || <span className="muted">General</span>}</td>
+                      <td>{f.order?.customer?.name || f.customerName || <span className="muted">—</span>}</td>
                       <td><Stars rating={f.rating} /></td>
                     </>
                   }
@@ -80,6 +80,18 @@ export default function AdminFeedback() {
                         <span className="detail-field__label">Comment</span>
                         <span className="detail-field__value">{f.comment || <span className="muted">—</span>}</span>
                       </div>
+                      {!f.order && (f.location || f.foodType) && (
+                        <>
+                          <div className="detail-field">
+                            <span className="detail-field__label">Location</span>
+                            <span className="detail-field__value">{f.location || <span className="muted">—</span>}</span>
+                          </div>
+                          <div className="detail-field">
+                            <span className="detail-field__label">What they had</span>
+                            <span className="detail-field__value">{f.foodType || <span className="muted">—</span>}</span>
+                          </div>
+                        </>
+                      )}
                       <div className="detail-actions">
                         <button
                           className="btn btn--danger btn--small"

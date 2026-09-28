@@ -1,0 +1,15 @@
+.public-hero {
+  background: var(--green-900);
+  padding: 20px 0;
+}
+
+.public-hero__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.5rem;
+  color: #fff;
+  text-decoration: none;
+}

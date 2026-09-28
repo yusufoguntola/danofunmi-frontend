@@ -5,6 +5,8 @@ import { formatNaira, formatDate, formatStatus } from '../../lib/format';
 import { confirmAction, confirmWithSelect, confirmWithInput } from '../../lib/confirm';
 import { usePagination } from '../../lib/usePagination';
 import Pagination from '../../components/admin/Pagination';
+import Modal from '../../components/Modal';
+import { whatsappLinkTo } from '../../lib/contact';
 import './AdminOrders.css';
 
 const STATUS_FILTERS = [
@@ -34,6 +36,8 @@ export default function AdminOrders() {
   const [selectedId, setSelectedId] = useState(null);
   const [busy, setBusy] = useState(false);
   const [locations, setLocations] = useState([]);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -53,6 +57,19 @@ export default function AdminOrders() {
 
   const selected = orders.find((o) => o.id === selectedId);
   const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total, start } = usePagination(orders);
+  const feedbackUrl = selected ? `${window.location.origin}/feedback/${selected.id}` : '';
+
+  async function handleCopyFeedbackLink() {
+    try {
+      await navigator.clipboard.writeText(feedbackUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard API can be unavailable (older browser, permission denied)
+      // — the field is readonly and select-on-focus, so manual copy still
+      // works as a fallback.
+    }
+  }
 
   async function updateStatus(orderId, status, riderContact) {
     setBusy(true);
@@ -188,6 +205,7 @@ export default function AdminOrders() {
                     <th>Customer</th>
                     <th>Total</th>
                     <th>Status</th>
+                    <th>Status updated</th>
                     <th>Placed</th>
                   </tr>
                 </thead>
@@ -204,11 +222,12 @@ export default function AdminOrders() {
                       <td>{order.customer?.name}<br /><span className="muted">{order.customer?.phone}</span></td>
                       <td>{formatNaira(order.total)}</td>
                       <td><span className={`badge badge--${order.status.toLowerCase()}`}>{formatStatus(order.status)}</span></td>
-                      <td>{formatDate(order.createdAt)}</td>
+                      <td className="muted">{formatDate(order.statusUpdatedAt)}</td>
+                      <td className="muted">{formatDate(order.createdAt)}</td>
                     </tr>
                   ))}
                   {pageItems.length === 0 && (
-                    <tr><td colSpan={7} className="muted">No orders here yet.</td></tr>
+                    <tr><td colSpan={8} className="muted">No orders here yet.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -241,6 +260,9 @@ export default function AdminOrders() {
                   </button>
                 </div>
               </div>
+              <p className="muted" style={{ margin: 0, fontSize: '0.82rem' }}>
+                Status updated {formatDate(selected.statusUpdatedAt)}
+              </p>
 
               <div className="order-builder__summary">
                 <ul className="cart-list">
@@ -319,11 +341,55 @@ export default function AdminOrders() {
                     Cancel order
                   </button>
                 )}
+                {selected.status === 'DELIVERED' && (
+                  <button
+                    type="button"
+                    className="btn btn--ghost btn--small"
+                    onClick={() => {
+                      setCopied(false);
+                      setShareOpen(true);
+                    }}
+                  >
+                    Share feedback link
+                  </button>
+                )}
               </div>
             </div>
           </div>
         )}
       </div>
+
+      {shareOpen && selected && (
+        <Modal title="Share feedback link" onClose={() => setShareOpen(false)}>
+          <div className="stack">
+            <p className="muted" style={{ marginTop: 0 }}>
+              Send this to {selected.customer?.name} so they can rate order {selected.narration}.
+            </p>
+            <div className="row" style={{ gap: 8 }}>
+              <input
+                readOnly
+                value={feedbackUrl}
+                onFocus={(e) => e.target.select()}
+                style={{ flex: 1, border: '1px solid var(--line)', borderRadius: 8, padding: '8px 10px', fontSize: '0.85rem' }}
+              />
+              <button type="button" className="btn btn--ghost btn--small" onClick={handleCopyFeedbackLink}>
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+            <a
+              className="btn btn--primary"
+              href={whatsappLinkTo(
+                selected.customer?.phone,
+                `Hi ${(selected.customer?.name || '').trim().split(/\s+/)[0] || 'there'}! Here's the link to share feedback on your dánọ́fúnmi order ${selected.narration}: ${feedbackUrl}`
+              )}
+              target="_blank"
+              rel="noreferrer"
+            >
+              💬 Share via WhatsApp
+            </a>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

@@ -1,0 +1,22 @@
+.star-input {
+  display: flex;
+  gap: 6px;
+}
+
+.star-input__star {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--line);
+  cursor: pointer;
+}
+
+.star-input__star.is-filled {
+  color: #e0a530;
+}
+
+.star-input__star:disabled {
+  cursor: default;
+}

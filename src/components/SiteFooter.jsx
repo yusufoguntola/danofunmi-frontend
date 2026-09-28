@@ -26,6 +26,7 @@ export default function SiteFooter() {
           <a href={sectionHref('why')}>Why us</a>
           <Link to="/order">Order</Link>
           <Link to="/orders">My orders</Link>
+          <Link to="/feedback">Leave feedback</Link>
         </div>
 
         <div className="footer__col">
