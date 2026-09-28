@@ -107,6 +107,23 @@ export default function AdminOrders() {
     if (ok) updateStatus(order.id, status);
   }
 
+  // Jumps straight to Delivered from any state short of DELIVERED/CANCELLED
+  // — separate from the step-by-step "Mark as {next}" button above, for
+  // orders that were actually fulfilled outside the normal digital flow
+  // (cash paid in person, a status that never got updated along the way,
+  // etc.) and shouldn't have to be walked through every step to catch up.
+  // No backend transition rules to skip — PATCH .../status already accepts
+  // any valid status regardless of the order's current one.
+  async function handleMarkDelivered(order) {
+    const ok = await confirmAction({
+      title: 'Mark as delivered?',
+      text: `Order ${order.narration} is currently "${formatStatus(order.status)}" — this jumps straight to "Delivered", skipping any steps in between.`,
+      confirmButtonText: 'Mark as delivered',
+      icon: 'question',
+    });
+    if (ok) updateStatus(order.id, 'DELIVERED');
+  }
+
   async function handleCancelOrder(order) {
     const ok = await confirmAction({
       title: 'Cancel this order?',
@@ -334,6 +351,11 @@ export default function AdminOrders() {
                     onClick={() => handleAdvanceStatus(selected, NEXT_STATUS[selected.status])}
                   >
                     Mark as {formatStatus(NEXT_STATUS[selected.status])}
+                  </button>
+                )}
+                {!['DELIVERED', 'CANCELLED'].includes(selected.status) && NEXT_STATUS[selected.status] !== 'DELIVERED' && (
+                  <button className="btn btn--ghost btn--small" disabled={busy} onClick={() => handleMarkDelivered(selected)}>
+                    Mark as Delivered
                   </button>
                 )}
                 {!['DELIVERED', 'CANCELLED'].includes(selected.status) && (
