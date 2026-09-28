@@ -1,4 +1,15 @@
+/* Sticky footer — same reasoning as FeedbackPage.css: the post-submission
+   "thanks" state has much less content than the form, and without this the
+   footer would float above blank space instead of sitting at the bottom of
+   the screen. */
+.general-feedback-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .general-feedback-page__body {
+  flex: 1;
   padding: 40px 24px 96px;
   max-width: 520px;
 }

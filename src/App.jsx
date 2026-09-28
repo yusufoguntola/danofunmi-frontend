@@ -52,6 +52,17 @@ function CustomerChrome() {
   );
 }
 
+// Kept reachable even behind the coming-soon gate: first-taste pilot
+// customers (see AdminInterest.jsx) get real delivered orders and an emailed
+// /feedback/:id link before the site otherwise opens, and the standalone
+// /feedback link is meant to be shareable independent of launch status.
+const feedbackRoutes = (
+  <>
+    <Route path="/feedback/:id" element={<FeedbackPage />} />
+    <Route path="/feedback" element={<GeneralFeedbackPage />} />
+  </>
+);
+
 const adminRoutes = (
   <>
     <Route path="/restricted-path/login" element={<AdminLogin />} />
@@ -90,6 +101,7 @@ export default function App() {
           <Routes>
             {COMING_SOON ? (
               <>
+                {feedbackRoutes}
                 {adminRoutes}
                 <Route path="*" element={<ComingSoonPage />} />
               </>
@@ -98,8 +110,7 @@ export default function App() {
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/order" element={<OrderPage />} />
                 <Route path="/order/:id" element={<OrderStatusPage />} />
-                <Route path="/feedback/:id" element={<FeedbackPage />} />
-                <Route path="/feedback" element={<GeneralFeedbackPage />} />
+                {feedbackRoutes}
                 <Route path="/orders" element={<MyOrdersPage />} />
                 <Route path="/menu" element={<MenuPage />} />
                 <Route path="/signup" element={<SignupPage />} />

@@ -69,7 +69,7 @@ export default function FeedbackPage() {
   const firstName = (data?.customerName || '').trim().split(/\s+/)[0] || 'there';
 
   return (
-    <div>
+    <div className="feedback-page">
       <PublicHero />
 
       <main className="wrap feedback-page__body">

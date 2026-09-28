@@ -1,4 +1,16 @@
+/* Sticky footer: short content (notably the post-submission "thanks" state,
+   which has far less on it than the form) would otherwise leave the footer
+   floating above blank space instead of sitting at the bottom of the
+   screen. min-height + flex column pins it there without affecting the
+   normal case where content already exceeds the viewport. */
+.feedback-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .feedback-page__body {
+  flex: 1;
   padding: 40px 24px 96px;
   max-width: 520px;
 }

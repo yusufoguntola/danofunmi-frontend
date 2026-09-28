@@ -50,7 +50,7 @@ export default function GeneralFeedbackPage() {
   }
 
   return (
-    <div>
+    <div className="general-feedback-page">
       <PublicHero />
 
       <main className="wrap general-feedback-page__body">
