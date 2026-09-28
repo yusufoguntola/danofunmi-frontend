@@ -7,6 +7,8 @@ import Modal from '../../components/Modal';
 import IconPicker from '../../components/IconPicker';
 import { confirmAction, confirmDelete } from '../../lib/confirm';
 import ExpandableRow from '../../components/admin/ExpandableRow';
+import { usePagination } from '../../lib/usePagination';
+import Pagination from '../../components/admin/Pagination';
 
 const emptyNewItem = { name: '', categoryId: '', description: '', icon: '', size: '', price: '' };
 
@@ -178,6 +180,9 @@ export default function AdminMenu() {
     }
   }
 
+  const categoriesPage = usePagination(categories);
+  const itemsPage = usePagination(items);
+
   return (
     <div className="stack">
       <div className="row--between">
@@ -208,16 +213,18 @@ export default function AdminMenu() {
             <table className="table">
               <thead>
                 <tr>
+                  <th>#</th>
                   <th>Name</th>
                   <th>Items</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {categories.map((cat) => {
-                  const itemCount = items.filter((i) => i.categoryId === cat.id).length;
+                {categoriesPage.pageItems.map((cat, i) => {
+                  const itemCount = items.filter((it) => it.categoryId === cat.id).length;
                   return (
                     <tr key={cat.id}>
+                      <td className="muted">{categoriesPage.start + i + 1}</td>
                       <td style={{ fontWeight: 700 }}>{cat.name}</td>
                       <td className="muted">{itemCount}</td>
                       <td>
@@ -233,11 +240,19 @@ export default function AdminMenu() {
                     </tr>
                   );
                 })}
-                {categories.length === 0 && (
-                  <tr><td colSpan={3} className="muted">No categories yet — add one above.</td></tr>
+                {categoriesPage.pageItems.length === 0 && (
+                  <tr><td colSpan={4} className="muted">No categories yet — add one above.</td></tr>
                 )}
               </tbody>
             </table>
+            <Pagination
+              page={categoriesPage.page}
+              pageCount={categoriesPage.pageCount}
+              pageSize={categoriesPage.pageSize}
+              total={categoriesPage.total}
+              onPageChange={categoriesPage.setPage}
+              onPageSizeChange={categoriesPage.changePageSize}
+            />
           </div>
         )}
       </div>
@@ -251,6 +266,7 @@ export default function AdminMenu() {
           <table className="table">
             <thead>
               <tr>
+                <th>#</th>
                 <th></th>
                 <th>Name</th>
                 <th>Category</th>
@@ -260,12 +276,13 @@ export default function AdminMenu() {
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
+              {itemsPage.pageItems.map((item, i) => (
                 <ExpandableRow
                   key={item.id}
-                  colSpan={6}
+                  colSpan={7}
                   summary={
                     <>
+                      <td className="muted">{itemsPage.start + i + 1}</td>
                       <td><IconThumb icon={item.icon} /></td>
                       <td style={{ fontWeight: 700 }}>{item.name}</td>
                       <td className="muted">{item.category}</td>
@@ -296,11 +313,19 @@ export default function AdminMenu() {
                   }
                 />
               ))}
-              {items.length === 0 && (
-                <tr><td colSpan={6} className="muted">No menu items yet — add one above.</td></tr>
+              {itemsPage.pageItems.length === 0 && (
+                <tr><td colSpan={7} className="muted">No menu items yet — add one above.</td></tr>
               )}
             </tbody>
           </table>
+          <Pagination
+            page={itemsPage.page}
+            pageCount={itemsPage.pageCount}
+            pageSize={itemsPage.pageSize}
+            total={itemsPage.total}
+            onPageChange={itemsPage.setPage}
+            onPageSizeChange={itemsPage.changePageSize}
+          />
         </div>
         )}
       </div>

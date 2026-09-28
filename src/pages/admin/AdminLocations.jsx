@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import { formatNaira } from '../../lib/format';
+import { usePagination } from '../../lib/usePagination';
+import Pagination from '../../components/admin/Pagination';
 
 export default function AdminLocations() {
   const { session } = useAdminAuth();
@@ -57,6 +59,8 @@ export default function AdminLocations() {
     }
   }
 
+  const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total, start } = usePagination(locations);
+
   return (
     <div className="stack">
       <h2 className="section-title">Locations &amp; logistics fees</h2>
@@ -68,6 +72,7 @@ export default function AdminLocations() {
           <table className="table">
             <thead>
               <tr>
+                <th>#</th>
                 <th>Name</th>
                 <th>Logistics fee</th>
                 <th>Active</th>
@@ -75,11 +80,12 @@ export default function AdminLocations() {
               </tr>
             </thead>
             <tbody>
-              {locations.map((loc) => {
+              {pageItems.map((loc, i) => {
                 const draft = draftFor(loc);
                 const dirty = drafts[loc.id] != null;
                 return (
                   <tr key={loc.id}>
+                    <td className="muted">{start + i + 1}</td>
                     <td>
                       <input
                         value={draft.name}
@@ -113,8 +119,19 @@ export default function AdminLocations() {
                   </tr>
                 );
               })}
+              {pageItems.length === 0 && (
+                <tr><td colSpan={5} className="muted">No locations yet — add one below.</td></tr>
+              )}
             </tbody>
           </table>
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={setPage}
+            onPageSizeChange={changePageSize}
+          />
         </div>
       )}
 

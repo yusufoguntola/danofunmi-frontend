@@ -53,8 +53,28 @@ export function CustomerAuthProvider({ children }) {
     setSession(null);
   }, []);
 
+  // Re-fetches the account's own profile and updates the cached session —
+  // name/phone/address can change server-side after the token was issued
+  // (e.g. a placed order backfilling phone or address, see
+  // lib/orderCreation.js), and the session is otherwise only ever as fresh
+  // as the last login. Returns the fresh customer object directly (rather
+  // than relying on a caller re-reading `session` right after, which
+  // wouldn't see this update in the same tick) — a no-op returning null if
+  // signed out or the request fails (e.g. an expired token; SessionWatcher
+  // handles that separately).
+  const refresh = useCallback(async () => {
+    if (!session?.token) return null;
+    try {
+      const customer = await api.getCustomerProfile(session.token);
+      persist({ ...session, customer });
+      return customer;
+    } catch {
+      return null;
+    }
+  }, [session, persist]);
+
   return (
-    <CustomerAuthContext.Provider value={{ session, signup, login, loginWithGoogle, logout }}>
+    <CustomerAuthContext.Provider value={{ session, signup, login, loginWithGoogle, logout, refresh }}>
       {children}
     </CustomerAuthContext.Provider>
   );

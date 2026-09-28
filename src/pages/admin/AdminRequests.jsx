@@ -4,6 +4,9 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import { formatDate } from '../../lib/format';
 import { confirmDelete } from '../../lib/confirm';
+import ExpandableRow from '../../components/admin/ExpandableRow';
+import { usePagination } from '../../lib/usePagination';
+import Pagination from '../../components/admin/Pagination';
 
 const TYPE_LABELS = {
   item_request: 'Item request',
@@ -58,6 +61,8 @@ export default function AdminRequests() {
     }
   }
 
+  const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total, start } = usePagination(requests);
+
   return (
     <div className="stack">
       <h2 className="section-title">Requests</h2>
@@ -73,51 +78,74 @@ export default function AdminRequests() {
           <table className="table">
             <thead>
               <tr>
+                <th>#</th>
                 <th>Date</th>
                 <th>Type</th>
-                <th>Request</th>
                 <th>Customer</th>
-                <th>Order</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {requests.map((r) => (
-                <tr key={r.id} style={{ fontWeight: r.readAt ? 400 : 700 }}>
-                  <td className="muted" style={{ fontWeight: 400 }}>{formatDate(r.createdAt)}</td>
-                  <td>{TYPE_LABELS[r.requestType] || r.requestType}</td>
-                  <td>{r.message}</td>
-                  <td className="muted" style={{ fontWeight: 400 }}>
-                    {r.customerName || r.customerPhone
-                      ? [r.customerName, r.customerPhone].filter(Boolean).join(' · ')
-                      : '—'}
-                  </td>
-                  <td className="muted" style={{ fontWeight: 400 }}>{r.orderNarration || '—'}</td>
-                  <td>
-                    <div className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
-                      <button
-                        className="btn btn--ghost btn--small"
-                        disabled={busyId === r.id}
-                        onClick={() => toggleRead(r)}
-                      >
-                        {r.readAt ? 'Mark unread' : 'Mark read'}
-                      </button>
-                      <button
-                        className="btn btn--danger btn--small"
-                        disabled={busyId === r.id}
-                        onClick={() => deleteRequest(r)}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+              {pageItems.map((r, i) => (
+                <ExpandableRow
+                  key={r.id}
+                  colSpan={5}
+                  rowStyle={{ fontWeight: r.readAt ? 400 : 700 }}
+                  summary={
+                    <>
+                      <td className="muted" style={{ fontWeight: 400 }}>{start + i + 1}</td>
+                      <td className="muted" style={{ fontWeight: 400 }}>{formatDate(r.createdAt)}</td>
+                      <td>{TYPE_LABELS[r.requestType] || r.requestType}</td>
+                      <td className="muted" style={{ fontWeight: 400 }}>
+                        {r.customerName || r.customerPhone
+                          ? [r.customerName, r.customerPhone].filter(Boolean).join(' · ')
+                          : '—'}
+                      </td>
+                    </>
+                  }
+                  detail={
+                    <>
+                      <div className="detail-field" style={{ gridColumn: '1 / -1' }}>
+                        <span className="detail-field__label">Request</span>
+                        <span className="detail-field__value">{r.message}</span>
+                      </div>
+                      <div className="detail-field">
+                        <span className="detail-field__label">Order</span>
+                        <span className="detail-field__value">{r.orderNarration || '—'}</span>
+                      </div>
+                      <div className="detail-actions">
+                        <button
+                          className="btn btn--ghost btn--small"
+                          disabled={busyId === r.id}
+                          onClick={() => toggleRead(r)}
+                        >
+                          {r.readAt ? 'Mark unread' : 'Mark read'}
+                        </button>
+                        <button
+                          className="btn btn--danger btn--small"
+                          disabled={busyId === r.id}
+                          onClick={() => deleteRequest(r)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  }
+                />
               ))}
-              {requests.length === 0 && (
-                <tr><td colSpan={6} className="muted">No requests logged yet.</td></tr>
+              {pageItems.length === 0 && (
+                <tr><td colSpan={5} className="muted">No requests logged yet.</td></tr>
               )}
             </tbody>
           </table>
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={setPage}
+            onPageSizeChange={changePageSize}
+          />
         </div>
       )}
     </div>

@@ -30,29 +30,11 @@ function MenuIcon() {
   );
 }
 
-function MoneyIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M14.5 9.3a2.6 2.6 0 0 0-2.3-1.3c-1.5 0-2.6 1-2.6 2.2 0 3 4.9 1.5 4.9 4.2 0 1.2-1.1 2.2-2.6 2.2a2.6 2.6 0 0 1-2.3-1.3M12 6.7v1.3M12 16v1.3" />
-    </svg>
-  );
-}
-
 function SetupIcon() {
   return (
     <svg {...ICON_PROPS}>
       <path d="M12 21s-6.5-5.2-6.5-10.5A6.5 6.5 0 0 1 12 4a6.5 6.5 0 0 1 6.5 6.5C18.5 15.8 12 21 12 21Z" />
       <circle cx="12" cy="10.3" r="2.3" />
-    </svg>
-  );
-}
-
-function FeedbackIcon() {
-  return (
-    <svg {...ICON_PROPS}>
-      <path d="M4 5h16v11H9l-4 3.5V16H4Z" />
-      <path d="M8 9.3h8M8 12.2h5" />
     </svg>
   );
 }
@@ -66,6 +48,17 @@ function RequestsIcon() {
   );
 }
 
+function CustomersIcon() {
+  return (
+    <svg {...ICON_PROPS}>
+      <circle cx="9" cy="8" r="3.2" />
+      <path d="M3.2 19c0-3.4 2.6-5.7 5.8-5.7s5.8 2.3 5.8 5.7" />
+      <circle cx="16.5" cy="7.5" r="2.2" />
+      <path d="M14.8 13.2c2.7.4 4.6 2.6 4.9 5" />
+    </svg>
+  );
+}
+
 const CHEVRON = (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" aria-hidden="true">
     <path d="M6 15l6-6 6 6" />
@@ -75,6 +68,8 @@ const CHEVRON = (
 // Admin has more sections than fit comfortably in a bottom tab bar, so
 // related ones are grounded together into a single tab whose sub-items
 // appear in a small sheet on tap, mirroring the customer MobileNav pattern.
+// Capped at 5 top-level tabs — anything past that nests under one of these
+// instead of adding a 6th.
 const GROUPS = [
   { key: 'orders', label: 'Orders', Icon: OrdersIcon, items: [{ to: '/restricted-path', label: 'Orders', end: true }] },
   {
@@ -87,13 +82,10 @@ const GROUPS = [
     ],
   },
   {
-    key: 'money',
-    label: 'Money',
-    Icon: MoneyIcon,
-    items: [
-      { to: '/restricted-path/costs', label: 'Costs' },
-      { to: '/restricted-path/reports', label: 'Reports' },
-    ],
+    key: 'customers',
+    label: 'Customers',
+    Icon: CustomersIcon,
+    items: [{ to: '/restricted-path/customers', label: 'Customers' }],
   },
   {
     key: 'setup',
@@ -102,16 +94,18 @@ const GROUPS = [
     items: [
       { to: '/restricted-path/locations', label: 'Locations' },
       { to: '/restricted-path/notifications', label: 'Notifications' },
+      { to: '/restricted-path/costs', label: 'Costs' },
+      { to: '/restricted-path/reports', label: 'Reports' },
     ],
   },
-  { key: 'feedback', label: 'Feedback', Icon: FeedbackIcon, items: [{ to: '/restricted-path/feedback', label: 'Feedback' }] },
   {
-    key: 'requests',
+    key: 'inbox',
     label: 'Inbox',
     Icon: RequestsIcon,
     items: [
       { to: '/restricted-path/requests', label: 'Requests' },
       { to: '/restricted-path/interest', label: 'Interested' },
+      { to: '/restricted-path/feedback', label: 'Feedback' },
     ],
   },
 ];
@@ -174,7 +168,7 @@ export default function AdminMobileNav({ unreadRequests = 0, unreadInterest = 0 
           >
             <span className="admin-mobile-nav__icon">
               <group.Icon />
-              {group.key === 'requests' && unreadRequests + unreadInterest > 0 && (
+              {group.key === 'inbox' && unreadRequests + unreadInterest > 0 && (
                 <span
                   className="admin-mobile-nav__dot"
                   aria-label={`${unreadRequests + unreadInterest} unread`}

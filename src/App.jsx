@@ -29,6 +29,8 @@ import AdminFeedback from './pages/admin/AdminFeedback';
 import AdminRequests from './pages/admin/AdminRequests';
 import AdminInterest from './pages/admin/AdminInterest';
 import AdminNotifications from './pages/admin/AdminNotifications';
+import AdminCustomers from './pages/admin/AdminCustomers';
+import AdminCustomerDetail from './pages/admin/AdminCustomerDetail';
 
 // Gates the whole customer-facing site behind a "coming soon" page while
 // leaving the back-office admin dashboard reachable, via VITE_COMING_SOON.
@@ -71,6 +73,8 @@ const adminRoutes = (
       <Route path="requests" element={<AdminRequests />} />
       <Route path="interest" element={<AdminInterest />} />
       <Route path="notifications" element={<AdminNotifications />} />
+      <Route path="customers" element={<AdminCustomers />} />
+      <Route path="customers/:id" element={<AdminCustomerDetail />} />
     </Route>
   </>
 );

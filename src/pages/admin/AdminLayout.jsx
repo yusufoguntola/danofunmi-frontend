@@ -51,6 +51,7 @@ export default function AdminLayout() {
           <nav className="admin-layout__nav">
             <NavLink to="/restricted-path" end>Orders</NavLink>
             <NavLink to="/restricted-path/menu">Menu</NavLink>
+            <NavLink to="/restricted-path/customers">Customers</NavLink>
             <NavLink to="/restricted-path/locations">Locations</NavLink>
             <NavLink to="/restricted-path/costs">Costs</NavLink>
             <NavLink to="/restricted-path/reports">Reports</NavLink>

@@ -3,6 +3,8 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import { formatNaira, formatDate, formatStatus } from '../../lib/format';
 import { confirmAction } from '../../lib/confirm';
+import { usePagination } from '../../lib/usePagination';
+import Pagination from '../../components/admin/Pagination';
 
 const STATUS_FILTERS = [
   '',
@@ -44,6 +46,7 @@ export default function AdminOrders() {
   }, [load]);
 
   const selected = orders.find((o) => o.id === selectedId);
+  const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total, start } = usePagination(orders);
 
   async function updateStatus(orderId, status) {
     setBusy(true);
@@ -129,6 +132,7 @@ export default function AdminOrders() {
           <table className="table">
             <thead>
               <tr>
+                <th>#</th>
                 <th>Order #</th>
                 <th>Narration</th>
                 <th>Customer</th>
@@ -138,12 +142,13 @@ export default function AdminOrders() {
               </tr>
             </thead>
             <tbody>
-              {orders.map((order) => (
+              {pageItems.map((order, i) => (
                 <tr
                   key={order.id}
                   onClick={() => setSelectedId(order.id)}
                   style={{ cursor: 'pointer', background: selectedId === order.id ? 'var(--green-50)' : undefined }}
                 >
+                  <td className="muted">{start + i + 1}</td>
                   <td>{order.orderNumber}</td>
                   <td>{order.narration}</td>
                   <td>{order.customer?.name}<br /><span className="muted">{order.customer?.phone}</span></td>
@@ -152,11 +157,19 @@ export default function AdminOrders() {
                   <td>{formatDate(order.createdAt)}</td>
                 </tr>
               ))}
-              {orders.length === 0 && (
-                <tr><td colSpan={6} className="muted">No orders here yet.</td></tr>
+              {pageItems.length === 0 && (
+                <tr><td colSpan={7} className="muted">No orders here yet.</td></tr>
               )}
             </tbody>
           </table>
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={setPage}
+            onPageSizeChange={changePageSize}
+          />
         </div>
       )}
 
@@ -181,7 +194,8 @@ export default function AdminOrders() {
 
           <p className="muted">
             {selected.customer?.name} &middot; {selected.customer?.phone}<br />
-            {selected.deliveryAddress}<br />
+            {selected.deliveryAddress}
+            {selected.landmark && <> &middot; near {selected.landmark}</>}<br />
             Delivery to {selected.location?.name} (+{formatNaira(selected.logisticsFee)})
             {selected.notes && <><br /><em>Note: {selected.notes}</em></>}
           </p>

@@ -5,6 +5,8 @@ import { api } from '../../lib/api';
 import { formatDate } from '../../lib/format';
 import { confirmAction, confirmDelete } from '../../lib/confirm';
 import ExpandableRow from '../../components/admin/ExpandableRow';
+import { usePagination } from '../../lib/usePagination';
+import Pagination from '../../components/admin/Pagination';
 
 export default function AdminInterest() {
   const { session } = useAdminAuth();
@@ -129,6 +131,8 @@ export default function AdminInterest() {
     }
   }
 
+  const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total, start } = usePagination(rows);
+
   const shortlistedCount = rows.filter((r) => r.shortlisted).length;
   const pendingShortlistCount = rows.filter((r) => r.shortlisted && !r.finalEmailSentAt).length;
 
@@ -223,32 +227,35 @@ export default function AdminInterest() {
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Address</th>
-                <th>Slot</th>
+                <th>Shortlist</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((r, i) => (
+              {pageItems.map((r, i) => (
                 <ExpandableRow
                   key={r.id}
                   colSpan={8}
                   rowStyle={{ fontWeight: r.readAt ? 400 : 700 }}
                   summary={
                     <>
-                      <td className="muted" style={{ fontWeight: 400 }}>{i + 1}</td>
+                      <td className="muted" style={{ fontWeight: 400 }}>{start + i + 1}</td>
                       <td className="muted" style={{ fontWeight: 400 }}>{formatDate(r.createdAt)}</td>
                       <td>{r.name}</td>
                       <td className="muted" style={{ fontWeight: 400 }}>{r.email}</td>
                       <td className="muted" style={{ fontWeight: 400 }}>{r.phone}</td>
                       <td className="muted" style={{ fontWeight: 400 }}>{r.address}</td>
-                      <td>
-                        <button
-                          className="btn btn--ghost btn--small"
-                          disabled={busyId === r.id}
-                          onClick={(e) => { e.stopPropagation(); toggleClaimedSlot(r); }}
-                        >
-                          {r.claimedSlot ? 'First taste ✓' : 'General'}
-                        </button>
+                      <td onClick={(e) => e.stopPropagation()}>
+                        <div className="row" style={{ gap: 8 }}>
+                          <button
+                            className="btn btn--ghost btn--small"
+                            disabled={busyId === r.id}
+                            onClick={() => toggleShortlisted(r)}
+                          >
+                            {r.shortlisted ? 'Shortlisted ✓' : 'Shortlist'}
+                          </button>
+                          {r.finalEmailSentAt && <span className="muted" style={{ fontSize: '0.78rem' }}>Emailed</span>}
+                        </div>
                       </td>
                     </>
                   }
@@ -259,18 +266,15 @@ export default function AdminInterest() {
                         <span className="detail-field__value">{r.landmark || '—'}</span>
                       </div>
                       <div className="detail-field">
-                        <span className="detail-field__label">Shortlist</span>
+                        <span className="detail-field__label">Slot</span>
                         <span className="detail-field__value">
-                          <div className="row" style={{ gap: 8 }}>
-                            <button
-                              className="btn btn--ghost btn--small"
-                              disabled={busyId === r.id}
-                              onClick={() => toggleShortlisted(r)}
-                            >
-                              {r.shortlisted ? 'Shortlisted ✓' : 'Shortlist'}
-                            </button>
-                            {r.finalEmailSentAt && <span className="muted" style={{ fontSize: '0.78rem' }}>Emailed</span>}
-                          </div>
+                          <button
+                            className="btn btn--ghost btn--small"
+                            disabled={busyId === r.id}
+                            onClick={() => toggleClaimedSlot(r)}
+                          >
+                            {r.claimedSlot ? 'First taste ✓' : 'General'}
+                          </button>
                         </span>
                       </div>
                       <div className="detail-field" style={{ gridColumn: 'span 2' }}>
@@ -326,11 +330,19 @@ export default function AdminInterest() {
                   }
                 />
               ))}
-              {rows.length === 0 && (
+              {pageItems.length === 0 && (
                 <tr><td colSpan={8} className="muted">No one has registered interest yet.</td></tr>
               )}
             </tbody>
           </table>
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={setPage}
+            onPageSizeChange={changePageSize}
+          />
         </div>
       )}
     </div>

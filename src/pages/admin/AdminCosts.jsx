@@ -3,6 +3,8 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import { formatNaira, formatDate } from '../../lib/format';
 import { confirmDelete } from '../../lib/confirm';
+import { usePagination } from '../../lib/usePagination';
+import Pagination from '../../components/admin/Pagination';
 
 const CATEGORIES = ['Ingredients', 'Packaging', 'Logistics', 'Staff', 'Utilities', 'Other'];
 
@@ -54,7 +56,10 @@ export default function AdminCosts() {
     load();
   }
 
+  // Sums the full ledger, not just the visible page — a "Total" that dropped
+  // to zero on the last page would be worse than useless.
   const total = costs.reduce((sum, c) => sum + Number(c.amount), 0);
+  const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total: pagedTotal, start } = usePagination(costs);
 
   return (
     <div className="stack">
@@ -111,6 +116,7 @@ export default function AdminCosts() {
           <table className="table">
             <thead>
               <tr>
+                <th>#</th>
                 <th>Date</th>
                 <th>Description</th>
                 <th>Category</th>
@@ -119,8 +125,9 @@ export default function AdminCosts() {
               </tr>
             </thead>
             <tbody>
-              {costs.map((c) => (
+              {pageItems.map((c, i) => (
                 <tr key={c.id}>
+                  <td className="muted">{start + i + 1}</td>
                   <td>{formatDate(c.incurredOn)}</td>
                   <td>{c.description}</td>
                   <td>{c.category}</td>
@@ -130,17 +137,25 @@ export default function AdminCosts() {
                   </td>
                 </tr>
               ))}
-              {costs.length === 0 && <tr><td colSpan={5} className="muted">No costs recorded yet.</td></tr>}
+              {pageItems.length === 0 && <tr><td colSpan={6} className="muted">No costs recorded yet.</td></tr>}
             </tbody>
             {costs.length > 0 && (
               <tfoot>
                 <tr>
-                  <td colSpan={3}><strong>Total</strong></td>
+                  <td colSpan={4}><strong>Total (all pages)</strong></td>
                   <td colSpan={2}><strong>{formatNaira(total)}</strong></td>
                 </tr>
               </tfoot>
             )}
           </table>
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            pageSize={pageSize}
+            total={pagedTotal}
+            onPageChange={setPage}
+            onPageSizeChange={changePageSize}
+          />
         </div>
       )}
     </div>

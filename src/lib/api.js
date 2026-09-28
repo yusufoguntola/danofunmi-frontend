@@ -130,6 +130,9 @@ export const api = {
   adminGenerateMenuIcon: (token, payload) =>
     request('/api/menu/admin/icons/generate', { method: 'POST', body: payload, token }),
 
+  adminListCustomers: (token) => request('/api/admin/customers', { token }),
+  adminGetCustomer: (token, id) => request(`/api/admin/customers/${id}`, { token }),
+
   adminListLocations: (token) => request('/api/locations/admin/all', { token }),
   adminCreateLocation: (token, payload) =>
     request('/api/locations/admin', { method: 'POST', body: payload, token }),
@@ -186,14 +189,16 @@ export const api = {
   customerGoogleLogin: (credential) =>
     request('/api/customer/google', { method: 'POST', body: { credential } }),
   getCustomerOrders: (token) => request('/api/customer/orders', { token }),
+  getCustomerProfile: (token) => request('/api/customer/me', { token }),
 
   getPushVapidKey: () => request('/api/push/vapid-public-key'),
   subscribeToPush: (payload) => request('/api/push/subscribe', { method: 'POST', body: payload }),
   unsubscribeFromPush: (endpoint) => request('/api/push/unsubscribe', { method: 'POST', body: { endpoint } }),
 
   adminListPushSubscriptions: (token) => request('/api/push/admin/subscriptions', { token }),
+  // payload: { channels: ['in_app', 'email'], title, body }
   adminSendBroadcast: (token, payload) =>
-    request('/api/push/admin/broadcast', { method: 'POST', body: payload, token }),
+    request('/api/admin/broadcast', { method: 'POST', body: payload, token }),
 };
 
 export { ApiError };

@@ -8,6 +8,8 @@ import IconPicker from '../../components/IconPicker';
 import MenuIcon from '../../components/MenuIcon';
 import { confirmAction } from '../../lib/confirm';
 import ExpandableRow from '../../components/admin/ExpandableRow';
+import { usePagination } from '../../lib/usePagination';
+import Pagination from '../../components/admin/Pagination';
 
 const emptyNewGroup = { name: '', categoryId: '', description: '', icon: '', menuItemOptionId: '' };
 
@@ -111,6 +113,8 @@ export default function AdminMenuGroups() {
     }
   }
 
+  const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total, start } = usePagination(groups);
+
   return (
     <div className="stack">
       <div className="row--between">
@@ -141,6 +145,7 @@ export default function AdminMenuGroups() {
           <table className="table">
             <thead>
               <tr>
+                <th>#</th>
                 <th></th>
                 <th>Name</th>
                 <th>Category</th>
@@ -150,12 +155,13 @@ export default function AdminMenuGroups() {
               </tr>
             </thead>
             <tbody>
-              {groups.map((group) => (
+              {pageItems.map((group, i) => (
                 <ExpandableRow
                   key={group.id}
-                  colSpan={6}
+                  colSpan={7}
                   summary={
                     <>
+                      <td className="muted">{start + i + 1}</td>
                       <td style={{ fontSize: '1.4rem' }}>
                         <MenuIcon icon={group.icon || '🎁'} imgClassName="menu-table__icon-img" />
                       </td>
@@ -195,11 +201,19 @@ export default function AdminMenuGroups() {
                   }
                 />
               ))}
-              {groups.length === 0 && (
-                <tr><td colSpan={6} className="muted">No combos yet — add one above.</td></tr>
+              {pageItems.length === 0 && (
+                <tr><td colSpan={7} className="muted">No combos yet — add one above.</td></tr>
               )}
             </tbody>
           </table>
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={setPage}
+            onPageSizeChange={changePageSize}
+          />
         </div>
       )}
 

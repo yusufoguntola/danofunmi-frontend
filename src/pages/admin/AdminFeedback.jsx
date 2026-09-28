@@ -3,6 +3,9 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import { formatDate } from '../../lib/format';
 import { confirmDelete } from '../../lib/confirm';
+import ExpandableRow from '../../components/admin/ExpandableRow';
+import { usePagination } from '../../lib/usePagination';
+import Pagination from '../../components/admin/Pagination';
 
 function Stars({ rating }) {
   return (
@@ -36,6 +39,8 @@ export default function AdminFeedback() {
     }
   }
 
+  const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total, start } = usePagination(feedback);
+
   return (
     <div className="stack">
       <h2 className="section-title">Feedback</h2>
@@ -47,38 +52,60 @@ export default function AdminFeedback() {
           <table className="table">
             <thead>
               <tr>
+                <th>#</th>
                 <th>Date</th>
                 <th>Order</th>
                 <th>Customer</th>
                 <th>Rating</th>
-                <th>Comment</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              {feedback.map((f) => (
-                <tr key={f.id}>
-                  <td>{formatDate(f.createdAt)}</td>
-                  <td>{f.order?.narration}</td>
-                  <td>{f.order?.customer?.name}</td>
-                  <td><Stars rating={f.rating} /></td>
-                  <td>{f.comment || <span className="muted">—</span>}</td>
-                  <td>
-                    <button
-                      className="btn btn--danger btn--small"
-                      disabled={busyId === f.id}
-                      onClick={() => deleteFeedback(f)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
+              {pageItems.map((f, i) => (
+                <ExpandableRow
+                  key={f.id}
+                  colSpan={6}
+                  summary={
+                    <>
+                      <td className="muted">{start + i + 1}</td>
+                      <td className="muted">{formatDate(f.createdAt)}</td>
+                      <td>{f.order?.narration}</td>
+                      <td>{f.order?.customer?.name}</td>
+                      <td><Stars rating={f.rating} /></td>
+                    </>
+                  }
+                  detail={
+                    <>
+                      <div className="detail-field" style={{ gridColumn: '1 / -1' }}>
+                        <span className="detail-field__label">Comment</span>
+                        <span className="detail-field__value">{f.comment || <span className="muted">—</span>}</span>
+                      </div>
+                      <div className="detail-actions">
+                        <button
+                          className="btn btn--danger btn--small"
+                          disabled={busyId === f.id}
+                          onClick={() => deleteFeedback(f)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  }
+                />
               ))}
-              {feedback.length === 0 && (
+              {pageItems.length === 0 && (
                 <tr><td colSpan={6} className="muted">No feedback yet.</td></tr>
               )}
             </tbody>
           </table>
+          <Pagination
+            page={page}
+            pageCount={pageCount}
+            pageSize={pageSize}
+            total={total}
+            onPageChange={setPage}
+            onPageSizeChange={changePageSize}
+          />
         </div>
       )}
     </div>

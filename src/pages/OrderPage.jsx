@@ -13,7 +13,7 @@ import './OrderPage.css';
 
 export default function OrderPage() {
   const navigate = useNavigate();
-  const { session } = useCustomerAuth();
+  const { session, refresh } = useCustomerAuth();
   const [menu, setMenu] = useState([]);
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +24,7 @@ export default function OrderPage() {
     customerName: '',
     customerPhone: '',
     deliveryAddress: '',
+    landmark: '',
     locationId: '',
     notes: '',
   });
@@ -33,32 +34,47 @@ export default function OrderPage() {
   const [viewingGroup, setViewingGroup] = useState(null);
 
   const [draftRestored, setDraftRestored] = useState(false);
-  // Captured once at mount — a draft or hand-typed value always wins over the
-  // account, and a login happening later while this page is open shouldn't
-  // retroactively overwrite whatever the customer has already typed.
+  // Captured once at mount (after a refresh — see below) — a draft or
+  // hand-typed value always wins over the account, and a login happening
+  // later while this page is open shouldn't retroactively overwrite
+  // whatever the customer has already typed.
   const initialCustomerRef = useRef(session?.customer);
 
   useEffect(() => {
-    const initialCustomer = initialCustomerRef.current;
-    Promise.all([api.getMenu(), api.getLocations(), db.cart.get('draft')])
-      .then(([menuData, locationData, draft]) => {
-        setMenu(menuData);
-        setLocations(locationData);
-        setForm((f) => ({
-          ...f,
-          locationId: draft?.locationId || locationData[0]?.id || '',
-          customerName: draft?.customerName || f.customerName || initialCustomer?.name || '',
-          customerPhone: draft?.customerPhone || f.customerPhone || initialCustomer?.phone || '',
-          deliveryAddress: draft?.deliveryAddress || f.deliveryAddress,
-          notes: draft?.notes || f.notes,
-        }));
-        if (draft?.items?.length) setCart(draft.items);
-      })
+    (async () => {
+      // The cached session can be stale — e.g. phone/address backfilled onto
+      // the account by a previous order (see lib/orderCreation.js) since
+      // this device last logged in — so catch up before using it to build
+      // the form's starting values. Deliberately mount-only (session/refresh
+      // intentionally excluded from deps): refresh() always persists a new
+      // session object, so depending on it here would refetch in a loop.
+      const freshCustomer = session?.token ? await refresh() : null;
+      const initialCustomer = freshCustomer || initialCustomerRef.current;
+
+      const [menuData, locationData, draft] = await Promise.all([
+        api.getMenu(),
+        api.getLocations(),
+        db.cart.get('draft'),
+      ]);
+      setMenu(menuData);
+      setLocations(locationData);
+      setForm((f) => ({
+        ...f,
+        locationId: draft?.locationId || locationData[0]?.id || '',
+        customerName: draft?.customerName || f.customerName || initialCustomer?.name || '',
+        customerPhone: draft?.customerPhone || f.customerPhone || initialCustomer?.phone || '',
+        deliveryAddress: draft?.deliveryAddress || f.deliveryAddress || initialCustomer?.address || '',
+        landmark: draft?.landmark || f.landmark || initialCustomer?.landmark || '',
+        notes: draft?.notes || f.notes,
+      }));
+      if (draft?.items?.length) setCart(draft.items);
+    })()
       .catch((err) => setLoadError(err.message))
       .finally(() => {
         setLoading(false);
         setDraftRestored(true);
       });
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Debounce-save the in-progress cart/delivery details so a customer can
@@ -67,7 +83,8 @@ export default function OrderPage() {
   // never overwrite a stored draft with the pre-restore empty state.
   useEffect(() => {
     if (!draftRestored) return;
-    const hasContent = cart.length > 0 || form.customerName || form.customerPhone || form.deliveryAddress || form.notes;
+    const hasContent =
+      cart.length > 0 || form.customerName || form.customerPhone || form.deliveryAddress || form.landmark || form.notes;
     const timer = setTimeout(() => {
       if (hasContent) {
         db.cart.put({ id: 'draft', items: cart, ...form, updatedAt: new Date().toISOString() });
@@ -164,6 +181,7 @@ export default function OrderPage() {
           customerName: form.customerName,
           customerPhone: form.customerPhone,
           deliveryAddress: form.deliveryAddress,
+          landmark: form.landmark.trim() || undefined,
           locationId: form.locationId,
           notes: form.notes.trim() || undefined,
           items: cart.map((l) =>
@@ -357,7 +375,16 @@ export default function OrderPage() {
                     rows={3}
                     value={form.deliveryAddress}
                     onChange={(e) => setForm((f) => ({ ...f, deliveryAddress: e.target.value }))}
-                    placeholder="Street, area, landmark"
+                    placeholder="Street, area"
+                  />
+                </div>
+                <div className="field">
+                  <label htmlFor="landmark">Nearest landmark <span className="muted">(optional)</span></label>
+                  <input
+                    id="landmark"
+                    value={form.landmark}
+                    onChange={(e) => setForm((f) => ({ ...f, landmark: e.target.value }))}
+                    placeholder="e.g. Opposite Ecobank, Akobo"
                   />
                 </div>
                 <div className="field">

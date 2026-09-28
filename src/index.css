@@ -199,6 +199,11 @@ button, input, select, textarea {
   gap: 10px;
 }
 
+.pagination {
+  padding: 14px 16px;
+  flex-wrap: wrap;
+}
+
 .chip {
   padding: 10px 16px;
   border-radius: 999px;
@@ -542,10 +547,19 @@ button, input, select, textarea {
   max-width: 380px;
 }
 
+/* Wider than the site-wide .wrap (1080px) — the admin dashboard is a tool,
+   not a marketing page, so its header nav and page content can use more of
+   a desktop screen instead of being capped to the same reading-width column
+   as the customer-facing site. Doesn't affect narrower viewports at all —
+   raising a max-width only matters once the screen is actually that wide. */
+.admin-layout .wrap {
+  max-width: 1320px;
+}
+
 .admin-layout__header {
   background: #fff;
   border-bottom: 1px solid var(--line);
-  padding: 16px 0;
+  padding: 12px 0;
 }
 
 .admin-layout__logo {

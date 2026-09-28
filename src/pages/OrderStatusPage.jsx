@@ -184,7 +184,10 @@ export default function OrderStatusPage() {
             <div>
               <h4>Delivery</h4>
               <p className="muted" style={{ marginBottom: 4 }}>{order.customer?.name} &middot; {order.customer?.phone}</p>
-              <p className="muted">{order.deliveryAddress}</p>
+              <p className="muted">
+                {order.deliveryAddress}
+                {order.landmark && <><br />Near {order.landmark}</>}
+              </p>
               {order.notes && <p className="muted"><em>Note: {order.notes}</em></p>}
               <p className="muted" style={{ fontSize: '0.82rem' }}>Placed {formatDate(order.createdAt)}</p>
             </div>
