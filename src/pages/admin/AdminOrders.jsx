@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import { formatNaira, formatDate, formatStatus } from '../../lib/format';
-import { confirmAction } from '../../lib/confirm';
+import { confirmAction, confirmWithSelect } from '../../lib/confirm';
 import { usePagination } from '../../lib/usePagination';
 import Pagination from '../../components/admin/Pagination';
 
@@ -32,6 +32,7 @@ export default function AdminOrders() {
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [locations, setLocations] = useState([]);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -44,6 +45,10 @@ export default function AdminOrders() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    api.getLocations().then(setLocations);
+  }, []);
 
   const selected = orders.find((o) => o.id === selectedId);
   const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total, start } = usePagination(orders);
@@ -96,6 +101,29 @@ export default function AdminOrders() {
       icon: 'question',
     });
     if (ok) updateReceipt(order.id, receiptId, 'CONFIRMED');
+  }
+
+  // Fixes an order created with the wrong delivery location (e.g. a
+  // first-taste order — see AdminInterest.jsx) — recalculates the delivery
+  // fee/total from the new location. Blocked server-side once the order is
+  // DELIVERED or CANCELLED, so the button is hidden then too.
+  async function handleEditLocation(order) {
+    const locationId = await confirmWithSelect({
+      title: 'Change delivery location?',
+      text: `This recalculates the delivery fee for order ${order.narration}.`,
+      options: locations.map((l) => ({ value: l.id, label: `${l.name} (+${formatNaira(l.logisticsFee)})` })),
+      defaultValue: order.locationId,
+      confirmButtonText: 'Update location',
+    });
+    if (!locationId || locationId === order.locationId) return;
+
+    setBusy(true);
+    try {
+      await api.adminUpdateOrderLocation(token, order.id, locationId);
+      load();
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleRejectReceipt(order, receiptId) {
@@ -197,6 +225,16 @@ export default function AdminOrders() {
             {selected.deliveryAddress}
             {selected.landmark && <> &middot; near {selected.landmark}</>}<br />
             Delivery to {selected.location?.name} (+{formatNaira(selected.logisticsFee)})
+            {!['DELIVERED', 'CANCELLED'].includes(selected.status) && (
+              <button
+                className="btn btn--ghost btn--small"
+                style={{ marginLeft: 8 }}
+                disabled={busy}
+                onClick={() => handleEditLocation(selected)}
+              >
+                Change
+              </button>
+            )}
             {selected.notes && <><br /><em>Note: {selected.notes}</em></>}
           </p>
 

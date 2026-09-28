@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import { formatDate } from '../../lib/format';
-import { confirmAction, confirmDelete } from '../../lib/confirm';
+import { confirmAction, confirmDelete, confirmWithSelect, alertError } from '../../lib/confirm';
 import ExpandableRow from '../../components/admin/ExpandableRow';
 import { usePagination } from '../../lib/usePagination';
 import Pagination from '../../components/admin/Pagination';
@@ -64,7 +64,40 @@ export default function AdminInterest() {
     }
   }
 
+  // Shortlisting someone (not un-shortlisting, and only if they don't
+  // already have an order) pushes them straight into the ordering flow in
+  // the same action — admin still has to pick the delivery location (it
+  // sets the delivery fee, and the free-text landmark/address is never
+  // auto-guessed), so that's asked for right here instead of needing a
+  // separate "Create order" click afterwards.
   async function toggleShortlisted(row) {
+    if (!row.shortlisted && !row.orderId) {
+      if (locations.length === 0) return;
+      const locationId = await confirmWithSelect({
+        title: `Shortlist ${row.name}?`,
+        text: 'A free first-taste order will be created for them and confirmed right away. Pick their delivery location:',
+        options: locations.map((l) => ({ value: l.id, label: l.name })),
+        defaultValue: locationChoice[row.id] || locations[0]?.id,
+        confirmButtonText: 'Shortlist & create order',
+      });
+      if (!locationId) return;
+
+      setBusyId(row.id);
+      try {
+        const updated = await api.adminSetInterestShortlisted(token, row.id, true, locationId);
+        setRows((prev) => prev.map((r) => (r.id === row.id ? updated : r)));
+      } catch (err) {
+        // Shortlisted may have saved server-side even though order creation
+        // failed (they're not atomic) — resync from the server rather than
+        // leave the row showing stale state.
+        await alertError('Could not create their order', err.message);
+        load();
+      } finally {
+        setBusyId(null);
+      }
+      return;
+    }
+
     setBusyId(row.id);
     try {
       const updated = await api.adminSetInterestShortlisted(token, row.id, !row.shortlisted);
