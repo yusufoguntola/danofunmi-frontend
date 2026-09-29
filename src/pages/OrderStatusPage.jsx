@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, ApiError } from '../lib/api';
 import { formatNaira, formatDate, formatStatus } from '../lib/format';
 import { pushSupported, subscribeToPush } from '../lib/push';
+import { receiptFileError, DEFAULT_RECEIPT_MAX_KB } from '../lib/receiptValidation';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import SiteFooter from '../components/SiteFooter';
 import LogoMark from '../components/LogoMark';
@@ -12,6 +13,7 @@ const STEPS = ['PENDING_PAYMENT', 'PAYMENT_SUBMITTED', 'CONFIRMED', 'PACKED', 'O
 
 export default function OrderStatusPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { session } = useCustomerAuth();
   const [order, setOrder] = useState(null);
   const [paymentInfo, setPaymentInfo] = useState(null);
@@ -29,7 +31,6 @@ export default function OrderStatusPage() {
   const [senderBank, setSenderBank] = useState('');
   const [detailsSubmitting, setDetailsSubmitting] = useState(false);
   const [detailsError, setDetailsError] = useState(null);
-  const [detailsSuccess, setDetailsSuccess] = useState(false);
 
   const [showNotifPrompt, setShowNotifPrompt] = useState(false);
   const [notifBusy, setNotifBusy] = useState(false);
@@ -72,6 +73,11 @@ export default function OrderStatusPage() {
       setUploadError('Choose a screenshot or photo of your payment receipt.');
       return;
     }
+    const sizeError = receiptFileError(file, maxReceiptKB);
+    if (sizeError) {
+      setUploadError(sizeError);
+      return;
+    }
     setUploading(true);
     setUploadError(null);
     try {
@@ -96,10 +102,11 @@ export default function OrderStatusPage() {
     setDetailsError(null);
     try {
       await api.submitPaymentDetails(order.id, { senderName, senderBank });
-      setDetailsSuccess(true);
-      setSenderName('');
-      setSenderBank('');
-      await load();
+      // Redirect rather than show an inline success message — otherwise the
+      // submit button just re-enables and invites a duplicate submission.
+      navigate(`/order/${order.id}/confirmation`, {
+        state: { orderNumber: order.orderNumber, narration: order.narration },
+      });
     } catch (err) {
       setDetailsError(err instanceof ApiError ? err.message : 'Could not submit payment details. Please try again.');
     } finally {
@@ -115,6 +122,7 @@ export default function OrderStatusPage() {
   const isCancelled = order.status === 'CANCELLED';
   const canUploadReceipt = ['PENDING_PAYMENT', 'PAYMENT_SUBMITTED'].includes(order.status);
   const latestReceipt = order.receipts?.[0];
+  const maxReceiptKB = paymentInfo?.maxReceiptFileSizeKB || DEFAULT_RECEIPT_MAX_KB;
 
   return (
     <div className="order-status">
@@ -238,18 +246,27 @@ export default function OrderStatusPage() {
                 {confirmMode === 'upload' ? (
                   <form onSubmit={handleUpload} className="stack">
                     <div className="field">
-                      <label htmlFor="receipt">Payment receipt (screenshot or photo)</label>
+                      <label htmlFor="receipt">
+                        Payment receipt (screenshot or photo)
+                        <span className="muted"> &middot; max {maxReceiptKB}KB</span>
+                      </label>
                       <input
                         id="receipt"
                         type="file"
                         accept="image/*"
-                        onChange={(e) => setFile(e.target.files?.[0] || null)}
+                        onChange={(e) => {
+                          const picked = e.target.files?.[0] || null;
+                          const sizeError = picked ? receiptFileError(picked, maxReceiptKB) : null;
+                          setFile(sizeError ? null : picked);
+                          setUploadError(sizeError);
+                          if (sizeError) e.target.value = '';
+                        }}
                       />
                     </div>
                     {uploadError && <p className="form-error">{uploadError}</p>}
                     {uploadSuccess && <p className="form-success">Receipt uploaded — thank you!</p>}
-                    <button className="btn btn--primary" type="submit" disabled={uploading}>
-                      {uploading ? 'Uploading…' : 'Upload receipt'}
+                    <button className="btn btn--primary" type="submit" disabled={uploading || uploadSuccess}>
+                      {uploading ? 'Uploading…' : uploadSuccess ? 'Uploaded' : 'Upload receipt'}
                     </button>
                   </form>
                 ) : (
@@ -276,7 +293,6 @@ export default function OrderStatusPage() {
                       />
                     </div>
                     {detailsError && <p className="form-error">{detailsError}</p>}
-                    {detailsSuccess && <p className="form-success">Payment details submitted — thank you!</p>}
                     <button className="btn btn--primary" type="submit" disabled={detailsSubmitting}>
                       {detailsSubmitting ? 'Submitting…' : 'Submit payment details'}
                     </button>

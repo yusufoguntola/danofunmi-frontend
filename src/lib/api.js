@@ -33,7 +33,12 @@ async function request(path, {method = 'GET', body, token, isForm = false} = {})
     // wrap the response too.
     if (useObfuscation) headers['X-Encrypted'] = '1';
 
-    const res = await fetch(`${BASE_URL}${path}`, {method, headers, body: outgoing});
+    // Express sends an ETag on every res.json() but no Cache-Control, and
+    // the browser's default fetch caching is happy to serve a stale GET
+    // (e.g. an order's status right after a receipt upload changes it)
+    // without a network round trip at all. This is a live API, never a
+    // cache.
+    const res = await fetch(`${BASE_URL}${path}`, {method, headers, body: outgoing, cache: 'no-store'});
 
     let text = await res.text();
     if (text && res.headers.get('X-Encrypted') === '1') {
@@ -43,7 +48,20 @@ async function request(path, {method = 'GET', body, token, isForm = false} = {})
             throw new ApiError('Could not read server response', res.status, null);
         }
     }
-    const data = text ? JSON.parse(text) : null;
+    let data = null;
+    if (text) {
+        try {
+            data = JSON.parse(text);
+        } catch {
+            // A non-JSON body means something other than this app answered —
+            // a proxy's own error page (e.g. nginx rejecting an oversized
+            // upload before it ever reaches Express), a timeout, etc. Still
+            // surface it as an ApiError so callers' `instanceof ApiError`
+            // checks work and show their own specific message instead of a
+            // generic "please try again" from an unhandled parse failure.
+            throw new ApiError(`Request failed (${res.status})`, res.status, null);
+        }
+    }
 
     if (!res.ok) {
         // A 401 on a request that carried a token means that token is dead —

@@ -35,8 +35,18 @@ export default function MenuPage() {
           <p className="section-sub">Pick any combination — every item is available in bulk.</p>
         </div>
 
+        <div className="menu-page__cta">
+          <p>Browsing only — head to the order page to build and place your order.</p>
+          <Link to="/order" className="btn btn--primary">Start ordering &rarr;</Link>
+        </div>
+
         {menuError && <p className="form-error">{menuError}</p>}
         <MenuGrid menu={menu} categories={categories} />
+
+        <div className="menu-page__cta">
+          <p>Ready to order?</p>
+          <Link to="/order" className="btn btn--primary">Start ordering &rarr;</Link>
+        </div>
       </main>
 
       <SiteFooter />

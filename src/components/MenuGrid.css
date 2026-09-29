@@ -103,6 +103,16 @@
   color: var(--green-800);
 }
 
+.menu__note-cta {
+  margin-top: 10px;
+}
+
+.menu__note-toast {
+  margin-top: 8px !important;
+  font-size: 0.82rem !important;
+  font-style: italic;
+}
+
 @media (max-width: 900px) {
   .menu__cols {
     grid-template-columns: 1fr;

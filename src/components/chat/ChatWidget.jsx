@@ -4,8 +4,10 @@ import { api, ApiError } from '../../lib/api';
 import { formatNaira } from '../../lib/format';
 import { db } from '../../lib/db';
 import { pushSupported, subscribeToPush, unsubscribeFromPush } from '../../lib/push';
+import { receiptFileError, DEFAULT_RECEIPT_MAX_KB } from '../../lib/receiptValidation';
 import { useCustomerAuth } from '../../context/CustomerAuthContext';
 import { whatsappLink } from '../../lib/contact';
+import { onChatPromptRequest } from '../../lib/chatBridge';
 import './ChatWidget.css';
 
 const RECEIPT_UPLOADABLE_STATUSES = ['PENDING_PAYMENT', 'PAYMENT_SUBMITTED'];
@@ -55,7 +57,15 @@ export default function ChatWidget() {
   const [menuNotifsOn, setMenuNotifsOn] = useState(false);
   const [notifBusy, setNotifBusy] = useState(false);
 
+  const [maxReceiptKB, setMaxReceiptKB] = useState(DEFAULT_RECEIPT_MAX_KB);
+
   const listRef = useRef(null);
+
+  useEffect(() => {
+    api.getPaymentInfo().then((info) => {
+      if (info?.maxReceiptFileSizeKB) setMaxReceiptKB(info.maxReceiptFileSizeKB);
+    }).catch(() => {});
+  }, []);
 
   // IndexedDB (Dexie) is async, so hydrate on mount rather than in useState's
   // initializer — the write effect below is gated on `hydrated` so it can't
@@ -190,6 +200,22 @@ export default function ChatWidget() {
     send(text);
   }
 
+  // Kept fresh every render so the mount-only subscription below always
+  // calls the current `send` (closing over the current `messages`/`meta`),
+  // not whatever `send` looked like the one time the effect ran.
+  const sendRef = useRef(send);
+  useEffect(() => {
+    sendRef.current = send;
+  });
+
+  // Lets other parts of the app (e.g. MenuGrid's "bulk requests" note) open
+  // this widget and send a message on the customer's behalf — see
+  // lib/chatBridge.js.
+  useEffect(() => onChatPromptRequest((text) => {
+    setOpen(true);
+    sendRef.current(text);
+  }), []); // oxlint-disable-line react-hooks/exhaustive-deps
+
   function startNewConversation() {
     setMessages([]);
     setMeta(null);
@@ -201,6 +227,11 @@ export default function ChatWidget() {
   async function handleUploadReceipt(e) {
     e.preventDefault();
     if (!file || !meta?.orderId) return;
+    const sizeError = receiptFileError(file, maxReceiptKB);
+    if (sizeError) {
+      setUploadError(sizeError);
+      return;
+    }
     setUploading(true);
     setUploadError(null);
     try {
@@ -345,11 +376,20 @@ export default function ChatWidget() {
 
                 {confirmMode === 'upload' ? (
                   <form onSubmit={handleUploadReceipt} className="stack">
+                    <label htmlFor="chat-receipt" className="muted" style={{ fontSize: '0.78rem' }}>
+                      Max {maxReceiptKB}KB
+                    </label>
                     <input
                       id="chat-receipt"
                       type="file"
                       accept="image/*"
-                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                      onChange={(e) => {
+                        const picked = e.target.files?.[0] || null;
+                        const sizeError = picked ? receiptFileError(picked, maxReceiptKB) : null;
+                        setFile(sizeError ? null : picked);
+                        setUploadError(sizeError);
+                        if (sizeError) e.target.value = '';
+                      }}
                     />
                     {uploadError && <p className="form-error">{uploadError}</p>}
                     <button className="btn btn--primary btn--small" type="submit" disabled={uploading || !file}>

@@ -33,6 +33,14 @@ export default function OrderPage() {
 
   const [viewingGroup, setViewingGroup] = useState(null);
 
+  // Which delivery-detail fields came from the signed-in customer's saved
+  // account info, and so are shown read-only rather than re-editable here —
+  // editing an account's name/phone/address belongs on an account page, not
+  // buried in a one-off order form. Only set for fields the account actually
+  // had a value for; an account missing e.g. a landmark still lets the
+  // customer type one in (it's now required — see handleSubmit).
+  const [lockedFields, setLockedFields] = useState({});
+
   const [draftRestored, setDraftRestored] = useState(false);
   // Captured once at mount (after a refresh — see below) — a draft or
   // hand-typed value always wins over the account, and a login happening
@@ -68,6 +76,14 @@ export default function OrderPage() {
         notes: draft?.notes || f.notes,
       }));
       if (draft?.items?.length) setCart(draft.items);
+
+      const isSignedIn = !!session?.token;
+      setLockedFields({
+        customerName: isSignedIn && !draft?.customerName && !!initialCustomer?.name,
+        customerPhone: isSignedIn && !draft?.customerPhone && !!initialCustomer?.phone,
+        deliveryAddress: isSignedIn && !draft?.deliveryAddress && !!initialCustomer?.address,
+        landmark: isSignedIn && !draft?.landmark && !!initialCustomer?.landmark,
+      });
     })()
       .catch((err) => setLoadError(err.message))
       .finally(() => {
@@ -351,40 +367,59 @@ export default function OrderPage() {
 
                 <h3>Delivery details</h3>
                 <div className="field">
-                  <label htmlFor="customerName">Full name</label>
+                  <label htmlFor="customerName">
+                    Full name
+                    {lockedFields.customerName && <span className="muted"> &middot; from your account</span>}
+                  </label>
                   <input
                     id="customerName"
                     value={form.customerName}
                     onChange={(e) => setForm((f) => ({ ...f, customerName: e.target.value }))}
                     placeholder="Your name"
+                    readOnly={lockedFields.customerName}
+                    required
                   />
                 </div>
                 <div className="field">
-                  <label htmlFor="customerPhone">Phone number</label>
+                  <label htmlFor="customerPhone">
+                    Phone number
+                    {lockedFields.customerPhone && <span className="muted"> &middot; from your account</span>}
+                  </label>
                   <input
                     id="customerPhone"
                     value={form.customerPhone}
                     onChange={(e) => setForm((f) => ({ ...f, customerPhone: e.target.value }))}
                     placeholder="e.g. 0801 234 5678"
+                    readOnly={lockedFields.customerPhone}
+                    required
                   />
                 </div>
                 <div className="field">
-                  <label htmlFor="deliveryAddress">Delivery address</label>
+                  <label htmlFor="deliveryAddress">
+                    Delivery address
+                    {lockedFields.deliveryAddress && <span className="muted"> &middot; from your account</span>}
+                  </label>
                   <textarea
                     id="deliveryAddress"
                     rows={3}
                     value={form.deliveryAddress}
                     onChange={(e) => setForm((f) => ({ ...f, deliveryAddress: e.target.value }))}
                     placeholder="Street, area"
+                    readOnly={lockedFields.deliveryAddress}
+                    required
                   />
                 </div>
                 <div className="field">
-                  <label htmlFor="landmark">Nearest landmark <span className="muted">(optional)</span></label>
+                  <label htmlFor="landmark">
+                    Nearest landmark <span className="muted">(optional)</span>
+                    {lockedFields.landmark && <span className="muted"> &middot; from your account</span>}
+                  </label>
                   <input
                     id="landmark"
                     value={form.landmark}
                     onChange={(e) => setForm((f) => ({ ...f, landmark: e.target.value }))}
                     placeholder="e.g. Opposite Ecobank, Akobo"
+                    readOnly={lockedFields.landmark}
                   />
                 </div>
                 <div className="field">

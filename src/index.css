@@ -160,6 +160,18 @@ button, input, select, textarea {
   outline-offset: 1px;
 }
 
+.field input:read-only,
+.field textarea:read-only {
+  background: var(--green-50);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.field input:read-only:focus,
+.field textarea:read-only:focus {
+  outline: none;
+}
+
 .field-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);

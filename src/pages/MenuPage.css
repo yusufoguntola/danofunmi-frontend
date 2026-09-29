@@ -33,3 +33,29 @@
 .menu-page__back:hover {
   color: var(--green-800);
 }
+
+.menu-page__cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 24px;
+}
+
+.menu-page__cta p {
+  margin: 0;
+  font-weight: 600;
+  color: var(--green-800);
+}
+
+@media (max-width: 480px) {
+  .menu-page__cta {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+}
