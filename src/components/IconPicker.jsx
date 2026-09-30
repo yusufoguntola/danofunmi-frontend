@@ -29,7 +29,7 @@ export default function IconPicker({ value, onChange, name, description }) {
 
   async function handleGenerate() {
     if (!name) {
-      setError('Type the item name first so AI knows what to draw.');
+      setError('Type the item name first so we know what image to find.');
       return;
     }
     setError(null);

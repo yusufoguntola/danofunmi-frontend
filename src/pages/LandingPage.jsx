@@ -160,7 +160,7 @@ export default function LandingPage() {
 
             {menuError && <p className="form-error">{menuError}</p>}
 
-            <MenuGrid menu={menu} categories={categories} />
+            <MenuGrid menu={menu} categories={categories} showOrderLinks={false} />
           </div>
         </section>
 

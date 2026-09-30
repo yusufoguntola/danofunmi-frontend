@@ -212,6 +212,10 @@ export const api = {
     adminListFeedback: (token) => request('/api/admin/feedback', {token}),
     adminDeleteFeedback: (token, id) => request(`/api/admin/feedback/${id}`, {method: 'DELETE', token}),
 
+    adminListErrorLogs: (token) => request('/api/admin/error-logs', {token}),
+    adminDeleteErrorLog: (token, id) => request(`/api/admin/error-logs/${id}`, {method: 'DELETE', token}),
+    adminClearErrorLogs: (token) => request('/api/admin/error-logs', {method: 'DELETE', token}),
+
     adminListRequests: (token) => request('/api/admin/requests', {token}),
     adminRequestsUnreadCount: (token) => request('/api/admin/requests/unread-count', {token}),
     adminMarkAllRequestsRead: (token) => request('/api/admin/requests/read-all', {method: 'PATCH', token}),

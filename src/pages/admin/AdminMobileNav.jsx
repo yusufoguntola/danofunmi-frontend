@@ -96,6 +96,7 @@ const GROUPS = [
       { to: '/restricted-path/notifications', label: 'Notifications' },
       { to: '/restricted-path/costs', label: 'Costs' },
       { to: '/restricted-path/reports', label: 'Reports' },
+      { to: '/restricted-path/error-logs', label: 'Error logs' },
     ],
   },
   {

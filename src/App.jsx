@@ -32,6 +32,7 @@ import AdminFeedback from './pages/admin/AdminFeedback';
 import AdminRequests from './pages/admin/AdminRequests';
 import AdminInterest from './pages/admin/AdminInterest';
 import AdminNotifications from './pages/admin/AdminNotifications';
+import AdminErrorLogs from './pages/admin/AdminErrorLogs';
 import AdminCustomers from './pages/admin/AdminCustomers';
 import AdminCustomerDetail from './pages/admin/AdminCustomerDetail';
 
@@ -87,6 +88,7 @@ const adminRoutes = (
       <Route path="requests" element={<AdminRequests />} />
       <Route path="interest" element={<AdminInterest />} />
       <Route path="notifications" element={<AdminNotifications />} />
+      <Route path="error-logs" element={<AdminErrorLogs />} />
       <Route path="customers" element={<AdminCustomers />} />
       <Route path="customers/:id" element={<AdminCustomerDetail />} />
     </Route>

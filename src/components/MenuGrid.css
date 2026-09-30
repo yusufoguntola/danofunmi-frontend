@@ -89,6 +89,11 @@
   cursor: pointer;
 }
 
+.menu-item__order-link {
+  display: inline-block;
+  margin-top: 6px;
+}
+
 .menu__note {
   background: var(--green-50);
   border: 1px dashed var(--green-500);

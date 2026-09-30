@@ -65,6 +65,7 @@ export default function AdminLayout() {
               {unreadInterest > 0 && <span className="admin-layout__nav-badge">{unreadInterest}</span>}
             </NavLink>
             <NavLink to="/restricted-path/notifications">Notifications</NavLink>
+            <NavLink to="/restricted-path/error-logs">Error logs</NavLink>
           </nav>
           <div className="row">
             <span className="muted" style={{ fontSize: '0.85rem' }}>{session?.admin?.name}</span>

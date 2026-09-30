@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { formatNaira } from '../lib/format';
 import { sendChatPrompt } from '../lib/chatBridge';
 import GroupDetailsModal from './GroupDetailsModal';
@@ -7,8 +8,12 @@ import './MenuGrid.css';
 
 const BULK_REQUEST_PROMPT = "I'd like to make a bulk/custom request";
 
-/** The category-grouped menu grid — shared by LandingPage's #menu section and MenuPage. */
-export default function MenuGrid({ menu, categories }) {
+/** The category-grouped menu grid — shared by LandingPage's #menu section and
+ * MenuPage. `showOrderLinks` adds a small "Start ordering" text link to each
+ * item — on by default, MenuPage's own standalone browsing context (no other
+ * order CTA on the page); LandingPage opts out since it already has its own
+ * prominent "Start ordering" section right after the menu. */
+export default function MenuGrid({ menu, categories, showOrderLinks = true }) {
   const [openGroup, setOpenGroup] = useState(null);
   const [bulkRequestSent, setBulkRequestSent] = useState(false);
 
@@ -53,6 +58,11 @@ export default function MenuGrid({ menu, categories }) {
                       <button type="button" className="link-btn" onClick={() => setOpenGroup(entry)}>
                         View details
                       </button>
+                      {showOrderLinks && (
+                        <Link to="/order" className="link-btn menu-item__order-link">
+                          Start ordering &rarr;
+                        </Link>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -61,6 +71,11 @@ export default function MenuGrid({ menu, categories }) {
                     <div>
                       <h4>{entry.name}</h4>
                       <p>{entry.description}</p>
+                      {showOrderLinks && (
+                        <Link to="/order" className="link-btn menu-item__order-link">
+                          Start ordering &rarr;
+                        </Link>
+                      )}
                     </div>
                     <span className="tag">{entry.options.map((o) => o.size).join(' · ')}</span>
                   </div>
