@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { api, ApiError } from '../lib/api';
+import { api, ApiError, bustOrderCache } from '../lib/api';
 import { formatNaira, formatDate, formatStatus } from '../lib/format';
 import { pushSupported, subscribeToPush } from '../lib/push';
 import { receiptFileError, DEFAULT_RECEIPT_MAX_KB } from '../lib/receiptValidation';
+import { confirmAction } from '../lib/confirm';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import SiteFooter from '../components/SiteFooter';
 import LogoMark from '../components/LogoMark';
@@ -25,7 +26,6 @@ export default function OrderStatusPage() {
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
-  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const [senderName, setSenderName] = useState('');
   const [senderBank, setSenderBank] = useState('');
@@ -34,6 +34,7 @@ export default function OrderStatusPage() {
 
   const [showNotifPrompt, setShowNotifPrompt] = useState(false);
   const [notifBusy, setNotifBusy] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -67,6 +68,24 @@ export default function OrderStatusPage() {
     }
   }
 
+  async function handleCancelOrder() {
+    const ok = await confirmAction({
+      title: 'Cancel this order?',
+      text: `Order ${order.narration} will be cancelled. You can always place a new one.`,
+      confirmButtonText: 'Cancel order',
+      danger: true,
+    });
+    if (!ok) return;
+    setCancelling(true);
+    try {
+      await api.cancelOrder(order.id);
+      await bustOrderCache(order.id);
+      await load();
+    } finally {
+      setCancelling(false);
+    }
+  }
+
   async function handleUpload(e) {
     e.preventDefault();
     if (!file) {
@@ -82,9 +101,13 @@ export default function OrderStatusPage() {
     setUploadError(null);
     try {
       await api.uploadReceipt(order.id, file);
-      setUploadSuccess(true);
-      setFile(null);
-      await load();
+      await bustOrderCache(order.id);
+      // Redirect rather than show an inline success message — same reasoning
+      // as the payment-details flow below: no leftover submit button
+      // inviting a duplicate upload.
+      navigate(`/order/${order.id}/confirmation`, {
+        state: { orderNumber: order.orderNumber, narration: order.narration },
+      });
     } catch (err) {
       setUploadError(err instanceof ApiError ? err.message : 'Could not upload receipt. Please try again.');
     } finally {
@@ -102,6 +125,7 @@ export default function OrderStatusPage() {
     setDetailsError(null);
     try {
       await api.submitPaymentDetails(order.id, { senderName, senderBank });
+      await bustOrderCache(order.id);
       // Redirect rather than show an inline success message — otherwise the
       // submit button just re-enables and invites a duplicate submission.
       navigate(`/order/${order.id}/confirmation`, {
@@ -200,6 +224,18 @@ export default function OrderStatusPage() {
               <p className="muted" style={{ fontSize: '0.82rem' }}>Placed {formatDate(order.createdAt)}</p>
             </div>
           </div>
+
+          {order.status === 'PENDING_PAYMENT' && (
+            <button
+              type="button"
+              className="btn btn--danger btn--small"
+              style={{ alignSelf: 'flex-start' }}
+              disabled={cancelling}
+              onClick={handleCancelOrder}
+            >
+              {cancelling ? 'Cancelling…' : 'Cancel order'}
+            </button>
+          )}
         </div>
 
         {canUploadReceipt && paymentInfo && (
@@ -264,9 +300,8 @@ export default function OrderStatusPage() {
                       />
                     </div>
                     {uploadError && <p className="form-error">{uploadError}</p>}
-                    {uploadSuccess && <p className="form-success">Receipt uploaded — thank you!</p>}
-                    <button className="btn btn--primary" type="submit" disabled={uploading || uploadSuccess}>
-                      {uploading ? 'Uploading…' : uploadSuccess ? 'Uploaded' : 'Upload receipt'}
+                    <button className="btn btn--primary" type="submit" disabled={uploading}>
+                      {uploading ? 'Uploading…' : 'Upload receipt'}
                     </button>
                   </form>
                 ) : (

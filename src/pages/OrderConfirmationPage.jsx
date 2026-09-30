@@ -5,9 +5,10 @@ import SiteFooter from '../components/SiteFooter';
 import LogoMark from '../components/LogoMark';
 import './OrderStatusPage.css';
 
-// Shown after submitting payment details (sender name + bank) on
-// OrderStatusPage — a dedicated stop rather than an inline message, so
-// there's no leftover "submit" button inviting a second submission. Takes
+// Shown after either payment-confirmation path on OrderStatusPage —
+// uploading a receipt image, or submitting sender name + bank details — a
+// dedicated stop rather than an inline success message, so there's no
+// leftover "submit"/"upload" button inviting a duplicate. Takes
 // orderNumber/narration from router state (set by the redirect) and falls
 // back to fetching the order if the page was reached directly (e.g. a
 // refresh), so it never has to show blank.
@@ -15,6 +16,14 @@ export default function OrderConfirmationPage() {
   const { id } = useParams();
   const location = useLocation();
   const [order, setOrder] = useState(location.state || null);
+
+  // The navigate() that lands here can happen from anywhere on the (often
+  // long) OrderStatusPage — React Router doesn't reset scroll position on
+  // its own, so without this the customer can land mid-page, or even on the
+  // footer, instead of seeing the confirmation they were just sent to.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     if (order) return;
@@ -37,14 +46,14 @@ export default function OrderConfirmationPage() {
       <main className="wrap order-status__body">
         <div className="card stack" style={{ textAlign: 'center', padding: '48px 24px' }}>
           <span style={{ fontSize: '3rem' }} aria-hidden="true">✅</span>
-          <h2 style={{ margin: 0 }}>Payment details received!</h2>
+          <h2 style={{ margin: 0 }}>Payment info received!</h2>
           <p className="muted" style={{ margin: 0 }}>
             {order ? (
-              <>We've got the payment details for order <strong>#{order.orderNumber}</strong> ({order.narration}).</>
+              <>We've got your payment info for order <strong>#{order.orderNumber}</strong> ({order.narration}).</>
             ) : (
-              "We've got your payment details."
+              "We've got your payment info."
             )}
-            {' '}We'll match it up against the transfer and confirm your order shortly.
+            {' '}We'll confirm it and update your order status shortly.
           </p>
           <div className="row" style={{ justifyContent: 'center', marginTop: 8 }}>
             <Link to={`/order/${id}`} className="btn btn--primary">Track this order</Link>

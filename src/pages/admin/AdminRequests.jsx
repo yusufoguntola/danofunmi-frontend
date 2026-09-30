@@ -4,9 +4,11 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
 import { formatDate } from '../../lib/format';
 import { confirmDelete } from '../../lib/confirm';
+import { whatsappLinkTo } from '../../lib/contact';
 import ExpandableRow from '../../components/admin/ExpandableRow';
 import { usePagination } from '../../lib/usePagination';
 import Pagination from '../../components/admin/Pagination';
+import CreateOrderFromRequestModal from './CreateOrderFromRequestModal';
 
 const TYPE_LABELS = {
   item_request: 'Item request',
@@ -19,8 +21,10 @@ export default function AdminRequests() {
   const token = session.token;
   const { refreshUnreadRequests } = useOutletContext();
   const [requests, setRequests] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState(null);
+  const [orderModalRequest, setOrderModalRequest] = useState(null);
 
   function load() {
     setLoading(true);
@@ -28,6 +32,9 @@ export default function AdminRequests() {
   }
 
   useEffect(load, [token]);
+  useEffect(() => {
+    api.getLocations().then(setLocations);
+  }, []);
 
   // Visiting this tab is what clears the "unread" badge — mark everything
   // read once loaded, then let the layout know so it can refresh the count.
@@ -59,6 +66,11 @@ export default function AdminRequests() {
     } finally {
       setBusyId(null);
     }
+  }
+
+  function handleOrderCreated(request, order) {
+    setRequests((prev) => prev.map((r) => (r.id === request.id ? { ...r, orderId: order.id, orderCreatedNarration: order.narration } : r)));
+    setOrderModalRequest(null);
   }
 
   const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total, start } = usePagination(requests);
@@ -110,10 +122,43 @@ export default function AdminRequests() {
                         <span className="detail-field__value">{r.message}</span>
                       </div>
                       <div className="detail-field">
-                        <span className="detail-field__label">Order</span>
+                        <span className="detail-field__label">About order</span>
                         <span className="detail-field__value">{r.orderNarration || '—'}</span>
                       </div>
+                      <div className="detail-field">
+                        <span className="detail-field__label">Order created from this request</span>
+                        <span className="detail-field__value">
+                          {r.orderId ? (r.orderCreatedNarration || r.orderId) : '—'}
+                        </span>
+                      </div>
                       <div className="detail-actions">
+                        {r.customerPhone && (
+                          <>
+                            <a
+                              className="btn btn--ghost btn--small"
+                              href={whatsappLinkTo(
+                                r.customerPhone,
+                                `Hi ${r.customerName ? r.customerName.trim().split(/\s+/)[0] : 'there'}! This is dánọ́fúnmi, following up on your request: "${r.message}"`
+                              )}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              💬 WhatsApp
+                            </a>
+                            <a className="btn btn--ghost btn--small" href={`tel:${r.customerPhone}`}>
+                              📞 Call
+                            </a>
+                          </>
+                        )}
+                        {!r.orderId && (
+                          <button
+                            type="button"
+                            className="btn btn--primary btn--small"
+                            onClick={() => setOrderModalRequest(r)}
+                          >
+                            Create order
+                          </button>
+                        )}
                         <button
                           className="btn btn--ghost btn--small"
                           disabled={busyId === r.id}
@@ -147,6 +192,16 @@ export default function AdminRequests() {
             onPageSizeChange={changePageSize}
           />
         </div>
+      )}
+
+      {orderModalRequest && (
+        <CreateOrderFromRequestModal
+          request={orderModalRequest}
+          token={token}
+          locations={locations}
+          onClose={() => setOrderModalRequest(null)}
+          onCreated={(order) => handleOrderCreated(orderModalRequest, order)}
+        />
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api, ApiError } from '../../lib/api';
+import { api, ApiError, bustOrderCache } from '../../lib/api';
 import { formatNaira } from '../../lib/format';
 import { db } from '../../lib/db';
 import { pushSupported, subscribeToPush, unsubscribeFromPush } from '../../lib/push';
@@ -236,6 +236,7 @@ export default function ChatWidget() {
     setUploadError(null);
     try {
       await api.uploadReceipt(meta.orderId, file);
+      await bustOrderCache(meta.orderId);
       setFile(null);
       setReceiptSubmitted(true);
       await send('[Uploaded my payment receipt]');
@@ -253,6 +254,7 @@ export default function ChatWidget() {
     setDetailsError(null);
     try {
       await api.submitPaymentDetails(meta.orderId, { senderName, senderBank });
+      await bustOrderCache(meta.orderId);
       setSenderName('');
       setSenderBank('');
       setReceiptSubmitted(true);

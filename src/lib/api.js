@@ -35,9 +35,11 @@ async function request(path, {method = 'GET', body, token, isForm = false} = {})
 
     // Express sends an ETag on every res.json() but no Cache-Control, and
     // the browser's default fetch caching is happy to serve a stale GET
-    // (e.g. an order's status right after a receipt upload changes it)
     // without a network round trip at all. This is a live API, never a
-    // cache.
+    // cache — though note this only governs the *browser's* HTTP cache:
+    // the service worker's own stale-while-revalidate cache for
+    // GET /api/orders/:id (see sw.js) sits in front of this and isn't
+    // affected by the fetch options here at all — see bustOrderCache below.
     const res = await fetch(`${BASE_URL}${path}`, {method, headers, body: outgoing, cache: 'no-store'});
 
     let text = await res.text();
@@ -72,6 +74,28 @@ async function request(path, {method = 'GET', body, token, isForm = false} = {})
     return data;
 }
 
+// sw.js caches GET /api/orders/:id with a stale-while-revalidate strategy —
+// deliberately, so an order renders instantly on a weak connection and
+// refreshes quietly in the background. That's wrong immediately after *this*
+// tab itself just changed the order (cancelling it, uploading a receipt,
+// submitting payment details): the very next getOrder() would otherwise be
+// served the pre-mutation snapshot, since stale-while-revalidate answers
+// from cache first and only updates it for *next* time. Call this right
+// after such a mutation succeeds, before reading the order back, so that
+// next read is a genuine network fetch. Best-effort/no-op wherever the Cache
+// API or a service worker isn't available (SSR, unsupported browser, or the
+// SW hasn't taken control yet) — those environments were never serving a
+// stale cached response in the first place.
+async function bustOrderCache(idOrNarration) {
+    if (!('caches' in window)) return;
+    try {
+        const cache = await caches.open('dfm-api-cache');
+        await cache.delete(`${BASE_URL}/api/orders/${encodeURIComponent(idOrNarration)}`);
+    } catch {
+        // best-effort
+    }
+}
+
 export const api = {
     BASE_URL,
     getMenu: () => request('/api/menu'),
@@ -97,6 +121,7 @@ export const api = {
     },
     submitPaymentDetails: (orderId, {senderName, senderBank}) =>
         request(`/api/orders/${orderId}/receipt`, {method: 'POST', body: {senderName, senderBank}}),
+    cancelOrder: (orderId) => request(`/api/orders/${orderId}/cancel`, {method: 'PATCH'}),
 
     adminLogin: (email, password) =>
         request('/api/admin/login', {method: 'POST', body: {email, password}}),
@@ -193,6 +218,10 @@ export const api = {
     adminMarkRequestRead: (token, id, read = true) =>
         request(`/api/admin/requests/${id}`, {method: 'PATCH', body: {read}, token}),
     adminDeleteRequest: (token, id) => request(`/api/admin/requests/${id}`, {method: 'DELETE', token}),
+    adminSuggestRequestItems: (token, id) =>
+        request(`/api/admin/requests/${id}/suggest-items`, {method: 'POST', token}),
+    adminCreateOrderFromRequest: (token, id, payload) =>
+        request(`/api/admin/requests/${id}/create-order`, {method: 'POST', body: payload, token}),
 
     adminListInterest: (token) => request('/api/admin/interest', {token}),
     adminInterestUnreadCount: (token) => request('/api/admin/interest/unread-count', {token}),
@@ -239,4 +268,4 @@ export const api = {
         request('/api/admin/broadcast', {method: 'POST', body: payload, token}),
 };
 
-export {ApiError};
+export {ApiError, bustOrderCache};

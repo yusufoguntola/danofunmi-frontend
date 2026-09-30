@@ -1,0 +1,54 @@
+.create-order-modal__panel {
+  max-width: 640px;
+}
+
+.create-order-modal__items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.create-order-modal__item-row {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) 70px minmax(0, 1fr) 28px;
+  gap: 6px;
+  align-items: center;
+}
+
+.create-order-modal__item-row input {
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 0.88rem;
+  width: 100%;
+}
+
+.create-order-modal__item-remove {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.create-order-modal__item-remove:hover {
+  color: var(--red-600, #b3392c);
+}
+
+@media (max-width: 560px) {
+  .create-order-modal__item-row {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      'name name'
+      'size qty'
+      'price remove';
+  }
+  .create-order-modal__item-name { grid-area: name; }
+  .create-order-modal__item-size { grid-area: size; }
+  .create-order-modal__item-qty { grid-area: qty; }
+  .create-order-modal__item-price { grid-area: price; }
+  .create-order-modal__item-remove { grid-area: remove; justify-self: end; }
+}

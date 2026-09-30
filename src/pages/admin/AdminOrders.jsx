@@ -38,6 +38,8 @@ export default function AdminOrders() {
   const [locations, setLocations] = useState([]);
   const [shareOpen, setShareOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [paymentInfo, setPaymentInfo] = useState(null);
+  const [paymentInstructionsOpen, setPaymentInstructionsOpen] = useState(false);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -53,11 +55,33 @@ export default function AdminOrders() {
 
   useEffect(() => {
     api.getLocations().then(setLocations);
+    api.getPaymentInfo().then(setPaymentInfo).catch(() => {});
   }, []);
 
   const selected = orders.find((o) => o.id === selectedId);
   const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total, start } = usePagination(orders);
   const feedbackUrl = selected ? `${window.location.origin}/feedback/${selected.id}` : '';
+
+  // Order details + where to pay, for a customer whose order was created
+  // off-app (e.g. a custom request — see AdminRequests.jsx) and so never saw
+  // this on a checkout screen themselves.
+  const paymentInstructionsMessage =
+    selected && paymentInfo
+      ? [
+          `Hi ${(selected.customer?.name || '').trim().split(/\s+/)[0] || 'there'}! Here's your dánọ́fúnmi order ${selected.narration}:`,
+          '',
+          ...selected.items.map((item) => `• ${item.itemName} (${item.size}) × ${item.quantity} — ${formatNaira(item.lineTotal)}`),
+          '',
+          `Total: ${formatNaira(selected.total)}`,
+          '',
+          `Please pay into:`,
+          `${paymentInfo.bankName}`,
+          `${paymentInfo.accountName}`,
+          `${paymentInfo.accountNumber}`,
+          '',
+          `Use "${selected.narration}" as the transfer narration, then reply here or upload your receipt in the app so we can confirm it.`,
+        ].join('\n')
+      : '';
 
   async function handleCopyFeedbackLink() {
     try {
@@ -122,6 +146,21 @@ export default function AdminOrders() {
       icon: 'question',
     });
     if (ok) updateStatus(order.id, 'DELIVERED');
+  }
+
+  // Skips straight to Confirmed from PENDING_PAYMENT — for when the customer
+  // sent proof of payment directly (WhatsApp, a call) instead of through the
+  // app, so there's no PaymentReceipt row to confirm the normal way. Orders
+  // already at PAYMENT_SUBMITTED have the linear "Mark as Confirmed" button
+  // via NEXT_STATUS for this same move.
+  async function handleMarkPaymentConfirmed(order) {
+    const ok = await confirmAction({
+      title: 'Mark payment as confirmed?',
+      text: `Order ${order.narration} will move to "Confirmed" — use this when the customer sent payment proof outside the app.`,
+      confirmButtonText: 'Mark payment confirmed',
+      icon: 'question',
+    });
+    if (ok) updateStatus(order.id, 'CONFIRMED');
   }
 
   async function handleCancelOrder(order) {
@@ -358,6 +397,24 @@ export default function AdminOrders() {
                     Mark as Delivered
                   </button>
                 )}
+                {selected.status === 'PENDING_PAYMENT' && (
+                  <button
+                    className="btn btn--ghost btn--small"
+                    disabled={busy}
+                    onClick={() => handleMarkPaymentConfirmed(selected)}
+                  >
+                    Mark payment confirmed
+                  </button>
+                )}
+                {['PENDING_PAYMENT', 'PAYMENT_SUBMITTED'].includes(selected.status) && paymentInfo && (
+                  <button
+                    type="button"
+                    className="btn btn--ghost btn--small"
+                    onClick={() => setPaymentInstructionsOpen(true)}
+                  >
+                    Send payment instructions
+                  </button>
+                )}
                 {!['DELIVERED', 'CANCELLED'].includes(selected.status) && (
                   <button className="btn btn--danger btn--small" disabled={busy} onClick={() => handleCancelOrder(selected)}>
                     Cancel order
@@ -408,6 +465,32 @@ export default function AdminOrders() {
               rel="noreferrer"
             >
               💬 Share via WhatsApp
+            </a>
+          </div>
+        </Modal>
+      )}
+
+      {paymentInstructionsOpen && selected && paymentInfo && (
+        <Modal title="Send payment instructions" onClose={() => setPaymentInstructionsOpen(false)}>
+          <div className="stack">
+            <p className="muted" style={{ marginTop: 0 }}>
+              Order details, total, and the account to pay into — for a customer who hasn't seen this on a
+              checkout screen (e.g. an order created from a custom request).
+            </p>
+            <textarea
+              readOnly
+              value={paymentInstructionsMessage}
+              rows={10}
+              style={{ width: '100%', border: '1px solid var(--line)', borderRadius: 8, padding: '10px 12px', fontSize: '0.85rem', fontFamily: 'inherit' }}
+              onFocus={(e) => e.target.select()}
+            />
+            <a
+              className="btn btn--primary"
+              href={whatsappLinkTo(selected.customer?.phone, paymentInstructionsMessage)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              💬 Send via WhatsApp
             </a>
           </div>
         </Modal>

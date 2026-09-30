@@ -3,9 +3,11 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useCustomerAuth } from '../context/CustomerAuthContext';
 import { ApiError } from '../lib/api';
 import { getRecaptchaToken } from '../lib/recaptcha';
+import { isValidNigerianPhone } from '../lib/phone';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 import LogoMark from '../components/LogoMark';
 import PasswordInput from '../components/PasswordInput';
+import NigerianPhoneInput from '../components/NigerianPhoneInput';
 import './AuthPage.css';
 
 export default function SignupPage() {
@@ -20,6 +22,10 @@ export default function SignupPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
+    if (!isValidNigerianPhone(form.phone)) {
+      setError('Please enter a valid 10-digit Nigerian phone number.');
+      return;
+    }
     setSubmitting(true);
     try {
       const recaptchaToken = await getRecaptchaToken('signup').catch(() => null);
@@ -75,7 +81,12 @@ export default function SignupPage() {
         </div>
         <div className="field">
           <label htmlFor="phone">Phone number</label>
-          <input id="phone" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} required />
+          <NigerianPhoneInput
+            id="phone"
+            value={form.phone}
+            onChange={(phone) => setForm((f) => ({ ...f, phone }))}
+            required
+          />
         </div>
         <div className="field">
           <label htmlFor="password">Password</label>

@@ -9,6 +9,8 @@ import SiteFooter from '../components/SiteFooter';
 import GroupDetailsModal from '../components/GroupDetailsModal';
 import MenuIcon from '../components/MenuIcon';
 import LogoMark from '../components/LogoMark';
+import NigerianPhoneInput from '../components/NigerianPhoneInput';
+import { isValidNigerianPhone } from '../lib/phone';
 import './OrderPage.css';
 
 export default function OrderPage() {
@@ -186,6 +188,10 @@ export default function OrderPage() {
     }
     if (!form.customerName || !form.customerPhone || !form.deliveryAddress || !form.locationId) {
       setSubmitError('Please fill in your name, phone, address, and delivery location.');
+      return;
+    }
+    if (!isValidNigerianPhone(form.customerPhone)) {
+      setSubmitError('Please enter a valid 10-digit Nigerian phone number.');
       return;
     }
 
@@ -385,11 +391,10 @@ export default function OrderPage() {
                     Phone number
                     {lockedFields.customerPhone && <span className="muted"> &middot; from your account</span>}
                   </label>
-                  <input
+                  <NigerianPhoneInput
                     id="customerPhone"
                     value={form.customerPhone}
-                    onChange={(e) => setForm((f) => ({ ...f, customerPhone: e.target.value }))}
-                    placeholder="e.g. 0801 234 5678"
+                    onChange={(customerPhone) => setForm((f) => ({ ...f, customerPhone }))}
                     readOnly={lockedFields.customerPhone}
                     required
                   />
