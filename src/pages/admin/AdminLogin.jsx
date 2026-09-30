@@ -4,6 +4,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import { ApiError } from '../../lib/api';
 import { consumeSessionExpired } from '../../lib/sessionEvents';
 import LogoMark from '../../components/LogoMark';
+import PasswordInput from '../../components/PasswordInput';
 
 export default function AdminLogin() {
   const { session, login } = useAdminAuth();
@@ -46,9 +47,8 @@ export default function AdminLogin() {
         </div>
         <div className="field">
           <label htmlFor="password">Password</label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required

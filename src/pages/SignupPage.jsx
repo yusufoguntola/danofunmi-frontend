@@ -5,6 +5,7 @@ import { ApiError } from '../lib/api';
 import { getRecaptchaToken } from '../lib/recaptcha';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 import LogoMark from '../components/LogoMark';
+import PasswordInput from '../components/PasswordInput';
 import './AuthPage.css';
 
 export default function SignupPage() {
@@ -78,9 +79,8 @@ export default function SignupPage() {
         </div>
         <div className="field">
           <label htmlFor="password">Password</label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
             minLength={8}
             value={form.password}
             onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}

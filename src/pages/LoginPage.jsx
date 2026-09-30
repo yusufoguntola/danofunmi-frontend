@@ -6,6 +6,7 @@ import { consumeSessionExpired } from '../lib/sessionEvents';
 import { getRecaptchaToken } from '../lib/recaptcha';
 import GoogleSignInButton from '../components/GoogleSignInButton';
 import LogoMark from '../components/LogoMark';
+import PasswordInput from '../components/PasswordInput';
 import './AuthPage.css';
 
 export default function LoginPage() {
@@ -67,9 +68,8 @@ export default function LoginPage() {
         </div>
         <div className="field">
           <label htmlFor="password">Password</label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
