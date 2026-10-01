@@ -84,15 +84,15 @@ export default function LandingPage() {
             <div className="hero__art" aria-hidden="true">
               <div className="stack">
                 <div className="food-card food-card--1">
-                  <span className="food-card__icon">🍲</span>
+                  <img className="food-card__photo" src="/buka-stew.jpg" alt="" />
                   <span className="food-card__label">Buka Stew</span>
                 </div>
                 <div className="food-card food-card--2">
-                  <span className="food-card__icon">🍛</span>
+                  <img className="food-card__photo" src="/jollof-rice.png" alt="" />
                   <span className="food-card__label">Party Jollof</span>
                 </div>
                 <div className="food-card food-card--3">
-                  <span className="food-card__icon">🥬</span>
+                  <img className="food-card__photo" src="/efo.png" alt="" />
                   <span className="food-card__label">Efo Riro</span>
                 </div>
               </div>
