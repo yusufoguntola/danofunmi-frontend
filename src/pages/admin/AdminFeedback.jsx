@@ -39,6 +39,16 @@ export default function AdminFeedback() {
     }
   }
 
+  async function toggleVisibility(f) {
+    setBusyId(f.id);
+    try {
+      const updated = await api.adminSetFeedbackVisibility(token, f.id, !f.visibleOnLanding);
+      setFeedback((prev) => prev.map((row) => (row.id === f.id ? { ...row, visibleOnLanding: updated.visibleOnLanding } : row)));
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total, start } = usePagination(feedback);
 
   return (
@@ -71,7 +81,10 @@ export default function AdminFeedback() {
                       <td className="muted">{formatDate(f.createdAt)}</td>
                       <td>{f.order?.narration || <span className="muted">General</span>}</td>
                       <td>{f.order?.customer?.name || f.customerName || <span className="muted">—</span>}</td>
-                      <td><Stars rating={f.rating} /></td>
+                      <td>
+                        <Stars rating={f.rating} />
+                        {!f.visibleOnLanding && <span className="muted"> &middot; Hidden</span>}
+                      </td>
                     </>
                   }
                   detail={
@@ -93,6 +106,13 @@ export default function AdminFeedback() {
                         </>
                       )}
                       <div className="detail-actions">
+                        <button
+                          className="btn btn--ghost btn--small"
+                          disabled={busyId === f.id}
+                          onClick={() => toggleVisibility(f)}
+                        >
+                          {f.visibleOnLanding ? 'Hide from landing' : 'Show on landing'}
+                        </button>
                         <button
                           className="btn btn--danger btn--small"
                           disabled={busyId === f.id}

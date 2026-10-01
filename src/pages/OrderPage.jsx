@@ -10,6 +10,7 @@ import GroupDetailsModal from '../components/GroupDetailsModal';
 import MenuIcon from '../components/MenuIcon';
 import LogoMark from '../components/LogoMark';
 import NigerianPhoneInput from '../components/NigerianPhoneInput';
+import OrderScheduleNotice from '../components/OrderScheduleNotice';
 import { isValidNigerianPhone } from '../lib/phone';
 import './OrderPage.css';
 
@@ -22,6 +23,7 @@ export default function OrderPage() {
   const [loadError, setLoadError] = useState(null);
 
   const [cart, setCart] = useState([]);
+  const [schedule, setSchedule] = useState(null);
   const [form, setForm] = useState({
     customerName: '',
     customerPhone: '',
@@ -61,13 +63,15 @@ export default function OrderPage() {
       const freshCustomer = session?.token ? await refresh() : null;
       const initialCustomer = freshCustomer || initialCustomerRef.current;
 
-      const [menuData, locationData, draft] = await Promise.all([
+      const [menuData, locationData, draft, scheduleData] = await Promise.all([
         api.getMenu(),
         api.getLocations(),
         db.cart.get('draft'),
+        api.getOrderSchedule().catch(() => null),
       ]);
       setMenu(menuData);
       setLocations(locationData);
+      setSchedule(scheduleData);
       setForm((f) => ({
         ...f,
         locationId: draft?.locationId || locationData[0]?.id || '',
@@ -178,6 +182,22 @@ export default function OrderPage() {
   const logisticsFee = selectedLocation ? Number(selectedLocation.logisticsFee) : 0;
   const total = subtotal + logisticsFee;
 
+  // A live preview of which month's batch this cart lands in — mirrors the
+  // same partitioning the backend actually applies at checkout (see
+  // lib/orderSchedule.js's partitionLineItemsByCutoff), so a cart that would
+  // split into two orders/deliveries/payments is flagged before submit, not
+  // only after.
+  const cartHasCombo = cart.some((l) => l.groupId);
+  const cartHasItems = cart.some((l) => l.optionId);
+  const cartSchedule = !schedule
+    ? null
+    : cartHasCombo && cartHasItems && schedule.comboOrderMonthLabel !== schedule.itemOrderMonthLabel
+      ? { split: true }
+      : {
+          split: false,
+          label: cartHasCombo && !cartHasItems ? schedule.comboOrderMonthLabel : schedule.itemOrderMonthLabel,
+        };
+
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitError(null);
@@ -216,13 +236,16 @@ export default function OrderPage() {
         session?.token
       );
       await db.cart.delete('draft');
-      await db.orderHistory.put({
-        orderId: data.order.id,
-        narration: data.order.narration,
-        orderNumber: data.order.orderNumber,
-        createdAt: new Date().toISOString(),
-      });
-      navigate(`/order/${data.order.id}`);
+      // Normally one order. Exactly two when the cart's combo and
+      // individual-item lines fell on opposite sides of the monthly cutoff
+      // (see backend's lib/orderCreation.js) — record both in local order
+      // history, then land on the first order's status page, which surfaces
+      // the other via its own `siblingOrders` (see OrderStatusPage.jsx).
+      const createdAt = new Date().toISOString();
+      for (const { order } of data.orders) {
+        await db.orderHistory.put({ orderId: order.id, narration: order.narration, orderNumber: order.orderNumber, createdAt });
+      }
+      navigate(`/order/${data.orders[0].order.id}`);
     } catch (err) {
       setSubmitError(err instanceof ApiError ? err.message : 'Something went wrong. Please try again.');
     } finally {
@@ -265,6 +288,7 @@ export default function OrderPage() {
             <div className="order-builder__menu">
               <h2 className="section-title">This month's menu</h2>
               <p className="muted">Pick any combination — tap a size to add it to your order.</p>
+              <OrderScheduleNotice />
 
               {categories.map((category) => (
                 <section key={category} className="menu-category">
@@ -370,6 +394,14 @@ export default function OrderPage() {
                   <div className="row--between"><span className="muted">Logistics</span><span>{formatNaira(logisticsFee)}</span></div>
                   <div className="row--between summary-total__grand"><span>Total</span><strong>{formatNaira(total)}</strong></div>
                 </div>
+
+                {cart.length > 0 && cartSchedule && (
+                  <p className="muted" style={{ fontSize: '0.82rem' }}>
+                    {cartSchedule.split
+                      ? '⚠️ Your combo and your individual items fall on opposite sides of this month\'s cutoff — checkout will create two separate orders, deliveries, and payments.'
+                      : `📅 This order is scheduled for ${cartSchedule.label}.`}
+                  </p>
+                )}
 
                 <h3>Delivery details</h3>
                 <div className="field">

@@ -1,0 +1,15 @@
+.order-schedule-notice {
+  display: inline-block;
+  margin: 10px 0 0;
+  padding: 10px 16px;
+  background: var(--green-50);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--green-900);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.order-schedule-notice strong {
+  font-weight: 700;
+}

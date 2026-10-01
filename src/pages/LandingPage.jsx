@@ -5,6 +5,7 @@ import { db } from '../lib/db';
 import SiteFooter from '../components/SiteFooter';
 import MenuGrid from '../components/MenuGrid';
 import LogoMark from '../components/LogoMark';
+import OrderScheduleNotice from '../components/OrderScheduleNotice';
 import './LandingPage.css';
 
 function reviewMonth(value) {
@@ -157,6 +158,7 @@ export default function LandingPage() {
           <div className="wrap">
             <h2 className="section-title">This month's menu</h2>
             <p className="section-sub">Pick any combination — every item is available in bulk.</p>
+            <OrderScheduleNotice />
 
             {menuError && <p className="form-error">{menuError}</p>}
 
@@ -171,7 +173,7 @@ export default function LandingPage() {
               Pick your meals, set quantities, and check out in minutes.
             </p>
             <Link to="/order" className="btn btn--primary">Start ordering &rarr;</Link>
-            <p className="order-cta__note">Next month's ordering window opens on the 1st.</p>
+            <p className="order-cta__note">Order anytime — individual items close on the 15th, combos on the 10th.</p>
           </div>
         </section>
 
@@ -233,7 +235,7 @@ export default function LandingPage() {
           <div className="wrap cta-banner__inner">
             <div>
               <h2>Ready to stock up?</h2>
-              <p>Ordering opens on the 1st of every month.</p>
+              <p>Individual items close on the 15th, combo deals on the 10th — order anytime before that.</p>
             </div>
             <Link to="/order" className="btn btn--onlight">Order now</Link>
           </div>

@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import MenuGrid from '../components/MenuGrid';
 import SiteFooter from '../components/SiteFooter';
 import LogoMark from '../components/LogoMark';
+import OrderScheduleNotice from '../components/OrderScheduleNotice';
 import './MenuPage.css';
 
 export default function MenuPage() {
@@ -33,6 +34,7 @@ export default function MenuPage() {
         <div>
           <h2 className="section-title">This month's menu</h2>
           <p className="section-sub">Pick any combination — every item is available in bulk.</p>
+          <OrderScheduleNotice />
         </div>
 
         {menuError && <p className="form-error">{menuError}</p>}

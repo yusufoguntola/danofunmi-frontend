@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
-import { formatNaira, formatDate, formatStatus } from '../../lib/format';
+import { formatNaira, formatDate, formatStatus, formatOrderMonth } from '../../lib/format';
 import { confirmAction, confirmWithSelect, confirmWithInput } from '../../lib/confirm';
 import { usePagination } from '../../lib/usePagination';
 import Pagination from '../../components/admin/Pagination';
@@ -20,6 +20,10 @@ const STATUS_FILTERS = [
   'CANCELLED',
 ];
 
+function monthKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+}
+
 const NEXT_STATUS = {
   PAYMENT_SUBMITTED: 'CONFIRMED',
   CONFIRMED: 'PACKED',
@@ -31,6 +35,8 @@ export default function AdminOrders() {
   const { session } = useAdminAuth();
   const token = session.token;
   const [statusFilter, setStatusFilter] = useState('');
+  const [monthFilter, setMonthFilter] = useState('');
+  const [months, setMonths] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState(null);
@@ -44,10 +50,10 @@ export default function AdminOrders() {
   const load = useCallback(() => {
     setLoading(true);
     api
-      .adminListOrders(token, statusFilter || undefined)
+      .adminListOrders(token, statusFilter || undefined, monthFilter || undefined)
       .then(setOrders)
       .finally(() => setLoading(false));
-  }, [token, statusFilter]);
+  }, [token, statusFilter, monthFilter]);
 
   useEffect(() => {
     load();
@@ -56,7 +62,8 @@ export default function AdminOrders() {
   useEffect(() => {
     api.getLocations().then(setLocations);
     api.getPaymentInfo().then(setPaymentInfo).catch(() => {});
-  }, []);
+    api.adminGetOrderMonths(token).then(setMonths);
+  }, [token]);
 
   const selected = orders.find((o) => o.id === selectedId);
   const { pageItems, page, setPage, pageSize, changePageSize, pageCount, total, start } = usePagination(orders);
@@ -216,6 +223,35 @@ export default function AdminOrders() {
     }
   }
 
+  // Admin override for which month's batch an order belongs to (e.g.
+  // pulling a combo that missed its 10th cutoff back into the current month
+  // instead of leaving it auto-batched for next — see lib/orderSchedule.js
+  // on the backend). Same DELIVERED/CANCELLED guard as location edits.
+  async function handleEditMonth(order) {
+    const now = new Date();
+    const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    const options = [...new Set([monthKey(now), monthKey(next), order.orderMonth, ...months])]
+      .sort()
+      .map((m) => ({ value: m, label: formatOrderMonth(m) }));
+
+    const orderMonth = await confirmWithSelect({
+      title: 'Change order month?',
+      text: `This re-categorizes which month's batch order ${order.narration} is processed/delivered in.`,
+      options,
+      defaultValue: order.orderMonth,
+      confirmButtonText: 'Update month',
+    });
+    if (!orderMonth || orderMonth === order.orderMonth) return;
+
+    setBusy(true);
+    try {
+      await api.adminUpdateOrderMonth(token, order.id, orderMonth);
+      load();
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleRejectReceipt(order, receiptId) {
     const ok = await confirmAction({
       title: 'Reject this receipt?',
@@ -230,17 +266,28 @@ export default function AdminOrders() {
     <div className="stack">
       <h2 className="section-title">Orders</h2>
 
-      <div className="chips">
-        {STATUS_FILTERS.map((s) => (
-          <button
-            key={s || 'all'}
-            type="button"
-            className={`chip ${statusFilter === s ? 'chip--selected' : ''}`}
-            onClick={() => setStatusFilter(s)}
-          >
-            {s ? formatStatus(s) : 'All'}
-          </button>
-        ))}
+      <div className="admin-orders__filters">
+        <div className="chips">
+          {STATUS_FILTERS.map((s) => (
+            <button
+              key={s || 'all'}
+              type="button"
+              className={`chip ${statusFilter === s ? 'chip--selected' : ''}`}
+              onClick={() => setStatusFilter(s)}
+            >
+              {s ? formatStatus(s) : 'All'}
+            </button>
+          ))}
+        </div>
+        <label className="admin-orders__month-filter">
+          <span>Month</span>
+          <select value={monthFilter} onChange={(e) => setMonthFilter(e.target.value)}>
+            <option value="">All months</option>
+            {months.map((m) => (
+              <option key={m} value={m}>{formatOrderMonth(m)}</option>
+            ))}
+          </select>
+        </label>
       </div>
 
       {/* On desktop the detail panel sits to the right and the table shrinks
@@ -261,6 +308,7 @@ export default function AdminOrders() {
                     <th>Customer</th>
                     <th>Total</th>
                     <th>Status</th>
+                    <th>Month</th>
                     <th>Status updated</th>
                     <th>Placed</th>
                   </tr>
@@ -278,12 +326,13 @@ export default function AdminOrders() {
                       <td>{order.customer?.name}<br /><span className="muted">{order.customer?.phone}</span></td>
                       <td>{formatNaira(order.total)}</td>
                       <td><span className={`badge badge--${order.status.toLowerCase()}`}>{formatStatus(order.status)}</span></td>
+                      <td className="muted">{formatOrderMonth(order.orderMonth)}</td>
                       <td className="muted">{formatDate(order.statusUpdatedAt)}</td>
                       <td className="muted">{formatDate(order.createdAt)}</td>
                     </tr>
                   ))}
                   {pageItems.length === 0 && (
-                    <tr><td colSpan={8} className="muted">No orders here yet.</td></tr>
+                    <tr><td colSpan={9} className="muted">No orders here yet.</td></tr>
                   )}
                 </tbody>
               </table>
@@ -318,6 +367,20 @@ export default function AdminOrders() {
               </div>
               <p className="muted" style={{ margin: 0, fontSize: '0.82rem' }}>
                 Status updated {formatDate(selected.statusUpdatedAt)}
+              </p>
+              <p className="muted" style={{ margin: 0, fontSize: '0.82rem' }}>
+                📅 {formatOrderMonth(selected.orderMonth)}&rsquo;s batch
+                {!['DELIVERED', 'CANCELLED'].includes(selected.status) && (
+                  <button
+                    className="btn btn--ghost btn--small"
+                    style={{ marginLeft: 8 }}
+                    disabled={busy}
+                    onClick={() => handleEditMonth(selected)}
+                  >
+                    Change
+                  </button>
+                )}
+                {selected.splitGroupId && <> &middot; part of a split checkout</>}
               </p>
 
               <div className="order-builder__summary">

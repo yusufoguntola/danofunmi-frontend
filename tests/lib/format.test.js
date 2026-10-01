@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { formatDate, formatNaira, formatStatus } from '../../src/lib/format';
+import { formatDate, formatNaira, formatOrderMonth, formatStatus } from '../../src/lib/format';
 
 describe('formatNaira', () => {
   test('formats a whole-number amount with the ₦ symbol, no decimals', () => {
@@ -41,5 +41,18 @@ describe('formatDate', () => {
     const formatted = formatDate('2026-09-30T12:00:00.000Z');
     expect(formatted).not.toBe('—');
     expect(formatted.length).toBeGreaterThan(0);
+  });
+});
+
+describe('formatOrderMonth', () => {
+  test('converts a YYYY-MM order month into a long month + year label', () => {
+    expect(formatOrderMonth('2026-10')).toBe('October 2026');
+    expect(formatOrderMonth('2026-01')).toBe('January 2026');
+  });
+
+  test('returns an em dash placeholder for a missing value', () => {
+    expect(formatOrderMonth(null)).toBe('—');
+    expect(formatOrderMonth(undefined)).toBe('—');
+    expect(formatOrderMonth('')).toBe('—');
   });
 });

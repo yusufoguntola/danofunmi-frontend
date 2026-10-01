@@ -114,6 +114,7 @@ export const api = {
     getLocations: () => request('/api/locations'),
     createOrder: (payload, token) => request('/api/orders', {method: 'POST', body: payload, token}),
     getOrder: (idOrNarration) => request(`/api/orders/${encodeURIComponent(idOrNarration)}`),
+    getOrderSchedule: () => request('/api/orders/schedule'),
     uploadReceipt: (orderId, file) => {
         const form = new FormData();
         form.append('receipt', file);
@@ -126,8 +127,14 @@ export const api = {
     adminLogin: (email, password) =>
         request('/api/admin/login', {method: 'POST', body: {email, password}}),
 
-    adminListOrders: (token, status) =>
-        request(`/api/orders/admin/all${status ? `?status=${status}` : ''}`, {token}),
+    adminListOrders: (token, status, month) => {
+        const params = new URLSearchParams();
+        if (status) params.set('status', status);
+        if (month) params.set('month', month);
+        const qs = params.toString();
+        return request(`/api/orders/admin/all${qs ? `?${qs}` : ''}`, {token});
+    },
+    adminGetOrderMonths: (token) => request('/api/orders/admin/months', {token}),
     adminUpdateOrderStatus: (token, orderId, status, riderContact) =>
         request(`/api/orders/admin/${orderId}/status`, {
             method: 'PATCH',
@@ -136,6 +143,8 @@ export const api = {
         }),
     adminUpdateOrderLocation: (token, orderId, locationId) =>
         request(`/api/orders/admin/${orderId}/location`, {method: 'PATCH', body: {locationId}, token}),
+    adminUpdateOrderMonth: (token, orderId, orderMonth) =>
+        request(`/api/orders/admin/${orderId}/month`, {method: 'PATCH', body: {orderMonth}, token}),
     adminUpdateReceiptStatus: (token, orderId, receiptId, status) =>
         request(`/api/orders/admin/${orderId}/receipts/${receiptId}`, {
             method: 'PATCH',
@@ -211,6 +220,8 @@ export const api = {
 
     adminListFeedback: (token) => request('/api/admin/feedback', {token}),
     adminDeleteFeedback: (token, id) => request(`/api/admin/feedback/${id}`, {method: 'DELETE', token}),
+    adminSetFeedbackVisibility: (token, id, visibleOnLanding) =>
+        request(`/api/admin/feedback/${id}`, {method: 'PATCH', body: {visibleOnLanding}, token}),
 
     adminListErrorLogs: (token) => request('/api/admin/error-logs', {token}),
     adminDeleteErrorLog: (token, id) => request(`/api/admin/error-logs/${id}`, {method: 'DELETE', token}),

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, ApiError, bustOrderCache } from '../lib/api';
-import { formatNaira, formatDate, formatStatus } from '../lib/format';
+import { formatNaira, formatDate, formatStatus, formatOrderMonth } from '../lib/format';
 import { pushSupported, subscribeToPush } from '../lib/push';
 import { receiptFileError, DEFAULT_RECEIPT_MAX_KB } from '../lib/receiptValidation';
 import { confirmAction } from '../lib/confirm';
@@ -183,6 +183,25 @@ export default function OrderStatusPage() {
             </div>
             <span className={`badge badge--${order.status.toLowerCase()}`}>{formatStatus(order.status)}</span>
           </div>
+
+          {order.orderMonth && (
+            <p className="muted" style={{ margin: 0, fontSize: '0.85rem' }}>
+              📅 Scheduled for <strong>{formatOrderMonth(order.orderMonth)}</strong>&rsquo;s batch.
+              {order.siblingOrders?.length > 0 && (
+                <>
+                  {' '}This checkout was split across two deliveries — the other order
+                  {order.siblingOrders.length > 1 ? 's' : ''}:{' '}
+                  {order.siblingOrders.map((sibling, i) => (
+                    <span key={sibling.id}>
+                      {i > 0 && ', '}
+                      <Link to={`/order/${sibling.id}`}>{sibling.narration}</Link> ({formatOrderMonth(sibling.orderMonth)})
+                    </span>
+                  ))}
+                  .
+                </>
+              )}
+            </p>
+          )}
 
           {!isCancelled && (
             <ol className="status-track">

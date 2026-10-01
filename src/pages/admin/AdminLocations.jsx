@@ -21,16 +21,23 @@ export default function AdminLocations() {
 
   useEffect(load, [token]);
 
-  function draftFor(loc) {
-    return drafts[loc.id] ?? { name: loc.name, logisticsFee: loc.logisticsFee, active: loc.active };
+  // Keyed by location id so draftFor(id) can always fall back to that row's
+  // real fetched values — not just whatever happens to already be in
+  // `drafts` — so that editing one field (e.g. name) on a row for the first
+  // time doesn't blow away its other, untouched fields (e.g. logisticsFee,
+  // active) to undefined.
+  function draftFor(id) {
+    if (drafts[id]) return drafts[id];
+    const loc = locations.find((l) => l.id === id);
+    return loc ? { name: loc.name, logisticsFee: loc.logisticsFee, active: loc.active } : { name: '', logisticsFee: '', active: false };
   }
 
   function setDraft(id, patch) {
-    setDrafts((prev) => ({ ...prev, [id]: { ...draftFor({ id, ...prev[id] }), ...patch } }));
+    setDrafts((prev) => ({ ...prev, [id]: { ...draftFor(id), ...patch } }));
   }
 
   async function saveLocation(loc) {
-    const draft = draftFor(loc);
+    const draft = draftFor(loc.id);
     await api.adminUpdateLocation(token, loc.id, draft);
     setDrafts((prev) => {
       const next = { ...prev };
@@ -81,7 +88,7 @@ export default function AdminLocations() {
             </thead>
             <tbody>
               {pageItems.map((loc, i) => {
-                const draft = draftFor(loc);
+                const draft = draftFor(loc.id);
                 const dirty = drafts[loc.id] != null;
                 return (
                   <tr key={loc.id}>

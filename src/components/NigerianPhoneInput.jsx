@@ -10,8 +10,7 @@ export default function NigerianPhoneInput({ id, value, onChange, readOnly, requ
   const digits = subscriberDigits(value);
 
   function handleChange(e) {
-    const typed = e.target.value.replace(/\D/g, '').slice(0, 10);
-    onChange(toNigerianPhone(typed));
+    onChange(toNigerianPhone(subscriberDigits(e.target.value)));
   }
 
   return (
