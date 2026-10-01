@@ -123,18 +123,34 @@
 }
 
 .landing .stack {
-  position: relative;
-  width: 320px;
-  height: 340px;
+  display: flex;
+  /* index.css defines a global `.stack { flex-direction: column }` utility
+     class (unrelated to this hero one, just an unlucky name collision) —
+     `.landing .stack` out-specifies it for every property this rule sets,
+     but never touching flex-direction here would silently inherit that
+     column value instead of the real default (row), stacking every card
+     into one column no matter how much horizontal room there is. */
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 16px;
+  /* A wrapping flex container used as someone else's flex item (.hero__art
+     here) has no reliable intrinsic width of its own — browsers fall back
+     to sizing it by its single widest child, collapsing it to one card wide
+     and forcing every card onto its own row even with room for 2+ across.
+     An explicit width (not just max-width) is what actually lets the wrap
+     kick in. */
+  width: 100%;
+  max-width: 420px;
 }
 
 .landing .food-card {
-  position: absolute;
-  width: 200px;
+  width: 140px;
   background: #fff;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 20px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -143,36 +159,24 @@
 }
 
 .landing .food-card__photo {
-  width: 110px;
-  height: 110px;
+  width: 84px;
+  height: 84px;
   object-fit: cover;
   border-radius: 50%;
 }
 
 .landing .food-card__label {
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--green-800);
+  text-align: center;
 }
 
 .landing .food-card--1 {
-  top: 0;
-  left: 0;
-  transform: rotate(-6deg);
   background: var(--green-100);
 }
 
-.landing .food-card--2 {
-  top: 60px;
-  left: 110px;
-  transform: rotate(4deg);
-  z-index: 2;
-}
-
 .landing .food-card--3 {
-  top: 190px;
-  left: 10px;
-  transform: rotate(-2deg);
   background: #fff3e9;
 }
 
@@ -486,17 +490,14 @@
     grid-template-columns: 1fr;
   }
 
-  .landing .stack {
-    width: 100%;
-    height: 300px;
-  }
-
   .landing .food-card {
-    width: 160px;
+    width: 110px;
+    padding: 12px;
   }
 
-  .landing .food-card--2 {
-    left: 60%;
+  .landing .food-card__photo {
+    width: 64px;
+    height: 64px;
   }
 
   .landing .order-cta__panel {
