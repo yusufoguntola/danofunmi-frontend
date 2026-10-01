@@ -19,7 +19,12 @@ precacheAndRoute(manifest);
 if (manifest && manifest.length > 0) {
   registerRoute(
     new NavigationRoute(createHandlerBoundToURL('index.html'), {
-      denylist: [/^\/api/, /^\/uploads/],
+      // `?launch=` only ever appears in the go-live announcement email's link
+      // (see backend/src/lib/email.js) — denying it here means that
+      // navigation always goes to the network instead of the precached
+      // shell, so someone who had the old "coming soon" build cached from
+      // before launch actually gets the new one instead of a stale page.
+      denylist: [/^\/api/, /^\/uploads/, /[?&]launch=/],
     })
   );
 }
