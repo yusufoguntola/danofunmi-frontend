@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { formatDate, formatNaira, formatStatus } from './format';
+import { formatDate, formatNaira, formatStatus } from '../../src/lib/format';
 
 describe('formatNaira', () => {
   test('formats a whole-number amount with the ₦ symbol, no decimals', () => {

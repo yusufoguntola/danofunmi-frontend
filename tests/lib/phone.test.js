@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { isValidNigerianPhone, subscriberDigits, toNigerianPhone } from './phone';
+import { isValidNigerianPhone, subscriberDigits, toNigerianPhone } from '../../src/lib/phone';
 
 describe('subscriberDigits', () => {
   test('strips a leading local "0"', () => {

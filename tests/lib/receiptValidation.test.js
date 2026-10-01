@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { DEFAULT_RECEIPT_MAX_KB, receiptFileError } from './receiptValidation';
+import { DEFAULT_RECEIPT_MAX_KB, receiptFileError } from '../../src/lib/receiptValidation';
 
 function fileOfSize(bytes) {
   return { size: bytes };

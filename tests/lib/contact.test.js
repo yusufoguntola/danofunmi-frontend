@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { toWhatsappNumber, whatsappLink, whatsappLinkTo } from './contact';
+import { toWhatsappNumber, whatsappLink, whatsappLinkTo } from '../../src/lib/contact';
 
 describe('toWhatsappNumber', () => {
   test('swaps a leading local "0" for "234"', () => {
