@@ -3,6 +3,7 @@ import { AdminAuthProvider } from './context/AdminAuthContext';
 import { CustomerAuthProvider } from './context/CustomerAuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import SessionWatcher from './components/SessionWatcher';
+import StagingBanner from './components/StagingBanner';
 import InstallPrompt from './components/InstallPrompt';
 import MobileNav from './components/MobileNav';
 import ChatWidget from './components/chat/ChatWidget';
@@ -100,6 +101,7 @@ export default function App() {
     <AdminAuthProvider>
       <CustomerAuthProvider>
         <BrowserRouter>
+          <StagingBanner />
           <SessionWatcher />
           <Routes>
             {COMING_SOON ? (

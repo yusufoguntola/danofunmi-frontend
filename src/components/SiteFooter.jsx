@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import LogoMark from './LogoMark';
+import StagingBanner from './StagingBanner';
 import { PHONE_DISPLAY, INSTAGRAM_HANDLE, INSTAGRAM_URL, whatsappLink } from '../lib/contact';
 import './SiteFooter.css';
 
@@ -41,6 +42,7 @@ export default function SiteFooter() {
       </div>
       <div className="wrap footer__legal">
         <span>&copy; 2026 dánọ́fúnmi.</span>
+        <StagingBanner variant="footer" />
       </div>
     </footer>
   );

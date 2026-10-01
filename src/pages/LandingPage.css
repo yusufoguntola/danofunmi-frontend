@@ -123,30 +123,23 @@
 }
 
 /* Restored the original fanned/cascading photo-stack look (see
-   idea_pad/old_hero.png) — card 2 diagonally overlapping card 1's corner,
-   card 3 cascading below-left of both, each rotated a few degrees. The
-   previous absolute-position offsets (top/left in px) were tuned for the
-   old emoji-icon cards (~114px tall); these are recalculated for the
-   current photo cards' own size, at the *same* proportions (offset as a
-   fraction of card width/height) the original design used, rather than
-   reused verbatim — reusing old flat pixel offsets was exactly what broke
-   this twice before, against taller cards the offsets were never updated
-   for. Card 3 sits closer under card 1/2 (slightly overlapping card 2's
-   bottom edge) than a plain proportional carry-over would give, per
-   old_hero.png and a follow-up request to tighten that gap. The whole
-   stack's footprint is only ~252×376px, comfortably under even a narrow
-   phone's content width, so this needs no separate mobile layout — unlike
-   the pre-cascade absolute version, which was tuned tight enough to
-   overflow once bigger photos landed. */
+   idea_pad/old_hero.png and idea_pad/old_hero_mobile.jpeg — same cascade
+   on mobile, just narrower). Card 2 diagonally overlaps card 1's corner;
+   card 3 cascades below-left of both, slightly overlapping card 2's bottom
+   edge. Offsets are recalculated proportionally whenever the card size
+   changes (see project memory) rather than reusing old flat pixel values
+   against a new size — that's what broke this repeatedly before. The
+   whole stack's footprint is only ~290×408px, comfortably under even a
+   narrow phone's content width, so this needs no separate mobile layout. */
 .landing .stack {
   position: relative;
-  width: 252px;
-  height: 376px;
+  width: 290px;
+  height: 408px;
 }
 
 .landing .food-card {
   position: absolute;
-  width: 160px;
+  width: 182px;
   background: #fff;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -159,15 +152,15 @@
 }
 
 .landing .food-card__photo {
-  width: 96px;
-  height: 96px;
+  width: 112px;
+  height: 112px;
   object-fit: cover;
   border-radius: 50%;
 }
 
 .landing .food-card__label {
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--green-800);
   text-align: center;
 }
@@ -180,15 +173,15 @@
 }
 
 .landing .food-card--2 {
-  top: 83px;
-  left: 88px;
+  top: 89px;
+  left: 100px;
   transform: rotate(4deg);
   z-index: 2;
 }
 
 .landing .food-card--3 {
-  top: 215px;
-  left: 8px;
+  top: 232px;
+  left: 9px;
   transform: rotate(-2deg);
   background: #fff3e9;
 }
