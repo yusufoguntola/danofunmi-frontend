@@ -122,31 +122,31 @@
   justify-content: center;
 }
 
+/* Restored the original fanned/cascading photo-stack look (see
+   idea_pad/old_hero.png) — card 2 diagonally overlapping card 1's corner,
+   card 3 cascading below-left of both, each rotated a few degrees. The
+   previous absolute-position offsets (top/left in px) were tuned for the
+   old emoji-icon cards (~114px tall); these are recalculated for the
+   current photo cards' own size, at the *same* proportions (offset as a
+   fraction of card width/height) the original design used, rather than
+   reused verbatim — reusing old flat pixel offsets was exactly what broke
+   this twice before, against taller cards the offsets were never updated
+   for. Card 3 sits closer under card 1/2 (slightly overlapping card 2's
+   bottom edge) than a plain proportional carry-over would give, per
+   old_hero.png and a follow-up request to tighten that gap. The whole
+   stack's footprint is only ~252×376px, comfortably under even a narrow
+   phone's content width, so this needs no separate mobile layout — unlike
+   the pre-cascade absolute version, which was tuned tight enough to
+   overflow once bigger photos landed. */
 .landing .stack {
-  display: flex;
-  /* index.css defines a global `.stack { flex-direction: column }` utility
-     class (unrelated to this hero one, just an unlucky name collision) —
-     `.landing .stack` out-specifies it for every property this rule sets,
-     but never touching flex-direction here would silently inherit that
-     column value instead of the real default (row), stacking every card
-     into one column no matter how much horizontal room there is. */
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 16px;
-  /* A wrapping flex container used as someone else's flex item (.hero__art
-     here) has no reliable intrinsic width of its own — browsers fall back
-     to sizing it by its single widest child, collapsing it to one card wide
-     and forcing every card onto its own row even with room for 2+ across.
-     An explicit width (not just max-width) is what actually lets the wrap
-     kick in. */
-  width: 100%;
-  max-width: 420px;
+  position: relative;
+  width: 252px;
+  height: 376px;
 }
 
 .landing .food-card {
-  width: 140px;
+  position: absolute;
+  width: 160px;
   background: #fff;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -159,8 +159,8 @@
 }
 
 .landing .food-card__photo {
-  width: 84px;
-  height: 84px;
+  width: 96px;
+  height: 96px;
   object-fit: cover;
   border-radius: 50%;
 }
@@ -173,10 +173,23 @@
 }
 
 .landing .food-card--1 {
+  top: 0;
+  left: 0;
+  transform: rotate(-6deg);
   background: var(--green-100);
 }
 
+.landing .food-card--2 {
+  top: 83px;
+  left: 88px;
+  transform: rotate(4deg);
+  z-index: 2;
+}
+
 .landing .food-card--3 {
+  top: 215px;
+  left: 8px;
+  transform: rotate(-2deg);
   background: #fff3e9;
 }
 
@@ -488,16 +501,6 @@
 
   .landing .reviews__grid {
     grid-template-columns: 1fr;
-  }
-
-  .landing .food-card {
-    width: 110px;
-    padding: 12px;
-  }
-
-  .landing .food-card__photo {
-    width: 64px;
-    height: 64px;
   }
 
   .landing .order-cta__panel {
