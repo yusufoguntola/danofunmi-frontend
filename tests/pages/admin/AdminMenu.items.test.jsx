@@ -20,6 +20,7 @@ vi.mock('../../../src/lib/api', () => ({
   api: {
     BASE_URL: 'http://localhost:4000',
     adminListMenu: vi.fn(),
+    adminListGroups: vi.fn(),
     adminListCategories: vi.fn(),
     adminCreateCategory: vi.fn(),
     adminUpdateCategory: vi.fn(),
@@ -106,6 +107,7 @@ beforeEach(() => {
   localStorage.clear();
   api.adminListCategories.mockResolvedValue(CATEGORIES);
   api.adminListMenu.mockResolvedValue(baseItems());
+  api.adminListGroups.mockResolvedValue([]);
 });
 
 describe('AdminMenu items', () => {

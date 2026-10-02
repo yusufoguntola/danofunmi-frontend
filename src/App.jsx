@@ -3,6 +3,7 @@ import { AdminAuthProvider } from './context/AdminAuthContext';
 import { CustomerAuthProvider } from './context/CustomerAuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import SessionWatcher from './components/SessionWatcher';
+import ScrollToTop from './components/ScrollToTop';
 import StagingBanner from './components/StagingBanner';
 import InstallPrompt from './components/InstallPrompt';
 import MobileNav from './components/MobileNav';
@@ -101,6 +102,7 @@ export default function App() {
     <AdminAuthProvider>
       <CustomerAuthProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <StagingBanner />
           <SessionWatcher />
           <Routes>

@@ -36,6 +36,9 @@ vi.mock('../src/components/StagingBanner', () => ({ default: () => null }));
 beforeEach(() => {
   vi.resetModules();
   localStorage.clear();
+  // App.jsx renders the global ScrollToTop component, which calls this on
+  // every route — jsdom doesn't implement it, so stub it to avoid noise.
+  window.scrollTo = vi.fn();
 });
 
 afterEach(() => {

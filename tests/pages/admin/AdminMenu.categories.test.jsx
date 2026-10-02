@@ -20,6 +20,7 @@ vi.mock('../../../src/lib/api', () => ({
   api: {
     BASE_URL: 'http://localhost:4000',
     adminListMenu: vi.fn(),
+    adminListGroups: vi.fn(),
     adminListCategories: vi.fn(),
     adminCreateCategory: vi.fn(),
     adminUpdateCategory: vi.fn(),
@@ -88,15 +89,20 @@ const MENU_ITEMS = [
   },
 ];
 
+// "Drinks" (cat2) has zero plain items but one combo — proves the count
+// includes combos, not just items.
+const MENU_GROUPS = [{ id: 'grp1', name: 'Drink Combo', categoryId: 'cat2' }];
+
 beforeEach(() => {
   vi.clearAllMocks();
   localStorage.clear();
   api.adminListMenu.mockResolvedValue(MENU_ITEMS);
+  api.adminListGroups.mockResolvedValue(MENU_GROUPS);
   api.adminListCategories.mockResolvedValue(CATEGORIES);
 });
 
 describe('AdminMenu categories', () => {
-  test('renders the category list with item counts', async () => {
+  test('renders the category list with combined item+combo counts', async () => {
     seedSession();
     renderPage();
 
@@ -105,7 +111,31 @@ describe('AdminMenu categories', () => {
     const soupsRow = within(table).getByText('Soups').closest('tr');
     expect(soupsRow).toHaveTextContent('1'); // Soups has one item (Egusi Soup)
     const drinksRow = within(table).getByText('Drinks').closest('tr');
-    expect(drinksRow).toHaveTextContent('0'); // Drinks has zero items
+    expect(drinksRow).toHaveTextContent('1'); // Drinks has zero items but one combo
+  });
+
+  // Regression test — a real bug found and fixed: the per-category count
+  // only ever counted plain menu items, never combos, so a category holding
+  // only a combo (e.g. one accidentally saved under "Promotions") silently
+  // showed "0 items" here — hiding the real problem from the admin.
+  test('a category with only a combo (zero plain items) is not miscounted as empty', async () => {
+    seedSession();
+    api.adminListMenu.mockResolvedValue([]);
+    renderPage();
+
+    const table = await categoriesTable();
+    const drinksRow = within(table).getByText('Drinks').closest('tr');
+    expect(drinksRow).toHaveTextContent('1');
+  });
+
+  test('a category with zero items and zero combos still shows in the admin table (not hidden)', async () => {
+    seedSession();
+    api.adminListCategories.mockResolvedValue([...CATEGORIES, { id: 'cat3', name: 'Empty Category' }]);
+    renderPage();
+
+    const table = await categoriesTable();
+    const emptyRow = within(table).getByText('Empty Category').closest('tr');
+    expect(emptyRow).toHaveTextContent('0');
   });
 
   test('shows an empty state when there are no categories', async () => {

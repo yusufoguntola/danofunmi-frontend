@@ -17,14 +17,6 @@ export default function OrderConfirmationPage() {
   const location = useLocation();
   const [order, setOrder] = useState(location.state || null);
 
-  // The navigate() that lands here can happen from anywhere on the (often
-  // long) OrderStatusPage — React Router doesn't reset scroll position on
-  // its own, so without this the customer can land mid-page, or even on the
-  // footer, instead of seeing the confirmation they were just sent to.
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   useEffect(() => {
     if (order) return;
     api.getOrder(id).then((data) => setOrder({ orderNumber: data.orderNumber, narration: data.narration })).catch(() => {});

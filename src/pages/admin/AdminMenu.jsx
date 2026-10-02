@@ -42,6 +42,7 @@ export default function AdminMenu() {
   const navigate = useNavigate();
 
   const [items, setItems] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -61,9 +62,10 @@ export default function AdminMenu() {
 
   function load() {
     setLoading(true);
-    Promise.all([api.adminListMenu(token), api.adminListCategories(token)])
-      .then(([menuItems, cats]) => {
+    Promise.all([api.adminListMenu(token), api.adminListGroups(token), api.adminListCategories(token)])
+      .then(([menuItems, menuGroups, cats]) => {
         setItems(menuItems);
+        setGroups(menuGroups);
         setCategories(cats);
         setNewItem((f) => (f.categoryId ? f : { ...f, categoryId: defaultCategoryId(cats) }));
       })
@@ -188,7 +190,21 @@ export default function AdminMenu() {
     }
   }
 
-  const categoriesPage = usePagination(categories);
+  // Combined item+combo count per category — a category with only a combo
+  // (no plain items) previously showed as "0 items" here, since this count
+  // never factored in combos at all. The admin table always lists every
+  // category regardless of count (unlike the public site, where a category
+  // with nothing in it naturally never appears — see LandingPage/MenuPage/
+  // OrderPage, which derive their category list from the fetched menu
+  // itself rather than a separate category fetch).
+  const categoriesWithCounts = categories.map((cat) => ({
+    ...cat,
+    itemCount:
+      items.filter((it) => it.categoryId === cat.id).length +
+      groups.filter((g) => g.categoryId === cat.id).length,
+  }));
+
+  const categoriesPage = usePagination(categoriesWithCounts);
   const itemsPage = usePagination(items);
 
   return (
@@ -229,12 +245,11 @@ export default function AdminMenu() {
               </thead>
               <tbody>
                 {categoriesPage.pageItems.map((cat, i) => {
-                  const itemCount = items.filter((it) => it.categoryId === cat.id).length;
                   return (
                     <tr key={cat.id}>
                       <td className="muted">{categoriesPage.start + i + 1}</td>
                       <td style={{ fontWeight: 700 }}>{cat.name}</td>
-                      <td className="muted">{itemCount}</td>
+                      <td className="muted">{cat.itemCount}</td>
                       <td>
                         <div className="row" style={{ gap: 8, justifyContent: 'flex-end' }}>
                           <button className="btn btn--ghost btn--small" disabled={busy} onClick={() => openEditCategory(cat)}>

@@ -20,15 +20,9 @@ function renderPage({ id = 'order1', state } = {}) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  window.scrollTo = vi.fn();
 });
 
 describe('OrderConfirmationPage', () => {
-  test('scrolls to top on mount', () => {
-    renderPage({ state: { orderNumber: 'DFM-000123', narration: 'DFM-ABCDEF' } });
-    expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
-  });
-
   test('renders order details from router location.state without calling the API', async () => {
     api.getOrder.mockResolvedValue({ orderNumber: 'DFM-999', narration: 'DFM-ZZZZZZ' });
 

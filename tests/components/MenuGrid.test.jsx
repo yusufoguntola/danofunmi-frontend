@@ -119,3 +119,78 @@ describe('MenuGrid', () => {
     vi.useRealTimers();
   });
 });
+
+describe('MenuGrid — limit (preview mode)', () => {
+  const manyItems = Array.from({ length: 5 }, (_, i) => ({
+    id: `item${i}`,
+    type: 'item',
+    category: 'Soups',
+    name: `Item ${i}`,
+    description: '',
+    icon: '🍲',
+    options: [{ id: `o${i}`, size: '1L' }],
+  }));
+  const oneGroup = {
+    id: 'group1',
+    type: 'group',
+    category: 'Combos',
+    name: 'Party Pack',
+    description: 'Feeds 4',
+    icon: '🎉',
+    total: 9000,
+    items: [],
+  };
+  const bigMenu = [...manyItems, oneGroup]; // 6 entries total: 5 items + 1 group
+
+  function renderWithLimit(menuOverride, limit, extraProps = {}) {
+    return render(
+      <MemoryRouter>
+        <MenuGrid menu={menuOverride} categories={['Soups', 'Combos']} limit={limit} {...extraProps} />
+      </MemoryRouter>
+    );
+  }
+
+  test('prioritizes groups (combos) first, then items, up to the limit', () => {
+    renderWithLimit(bigMenu, 3);
+
+    // The group is last in the source array but should be the highlighted
+    // first entry in the flat preview, followed by items up to the limit.
+    expect(screen.getByText('Party Pack')).toBeInTheDocument();
+    expect(screen.getByText('Item 0')).toBeInTheDocument();
+    expect(screen.getByText('Item 1')).toBeInTheDocument();
+    expect(screen.queryByText('Item 2')).not.toBeInTheDocument();
+  });
+
+  test('does not render category column headers in preview mode', () => {
+    renderWithLimit(bigMenu, 3);
+    expect(screen.queryByText('Soups')).not.toBeInTheDocument();
+    expect(screen.queryByText('Combos')).not.toBeInTheDocument();
+  });
+
+  test('shows a "View full menu" link when there are more entries than the limit', () => {
+    renderWithLimit(bigMenu, 3);
+    expect(screen.getByRole('link', { name: /View full menu/ })).toHaveAttribute('href', '/menu');
+  });
+
+  test('uses a custom menuPageHref when given', () => {
+    renderWithLimit(bigMenu, 3, { menuPageHref: '/custom-menu' });
+    expect(screen.getByRole('link', { name: /View full menu/ })).toHaveAttribute('href', '/custom-menu');
+  });
+
+  test('hides the "View full menu" link when everything already fits within the limit', () => {
+    renderWithLimit(bigMenu, bigMenu.length);
+    expect(screen.queryByRole('link', { name: /View full menu/ })).not.toBeInTheDocument();
+  });
+
+  test('omitting limit preserves the full category-grouped behavior', () => {
+    render(
+      <MemoryRouter>
+        <MenuGrid menu={bigMenu} categories={['Soups', 'Combos']} />
+      </MemoryRouter>
+    );
+    expect(screen.getByText('Soups')).toBeInTheDocument();
+    expect(screen.getByText('Combos')).toBeInTheDocument();
+    expect(screen.getByText('Item 4')).toBeInTheDocument(); // nothing truncated
+    expect(screen.queryByRole('link', { name: /View full menu/ })).not.toBeInTheDocument();
+  });
+});

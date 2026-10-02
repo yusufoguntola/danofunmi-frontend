@@ -1,5 +1,5 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import LandingPage from '../../src/pages/LandingPage';
 import { api } from '../../src/lib/api';
@@ -31,7 +31,7 @@ beforeEach(() => {
 });
 
 describe('LandingPage — menu', () => {
-  test('fetches the menu on mount and renders it via MenuGrid, grouped by category', async () => {
+  test('fetches the menu on mount and renders a short preview via MenuGrid (limit={6}), not the full category-grouped grid', async () => {
     api.getMenu.mockResolvedValue([
       { id: 'i1', type: 'item', name: 'Buka Stew', category: 'Soups', icon: '🍲', options: [{ id: 'o1', size: '1L', price: 4500 }] },
     ]);
@@ -41,7 +41,41 @@ describe('LandingPage — menu', () => {
     renderPage();
 
     expect(await screen.findByText('Buka Stew')).toBeInTheDocument();
-    expect(screen.getByText('Soups')).toBeInTheDocument();
+    // limit mode renders a flat preview grid, not category column headers.
+    expect(screen.queryByText('Soups')).not.toBeInTheDocument();
+  });
+
+  test('shows a "View full menu" link to /menu when there are more items than the preview limit', async () => {
+    api.getMenu.mockResolvedValue(
+      Array.from({ length: 8 }, (_, i) => ({
+        id: `i${i}`,
+        type: 'item',
+        name: `Item ${i}`,
+        category: 'Soups',
+        icon: '🍲',
+        options: [{ id: `o${i}`, size: '1L', price: 4500 }],
+      }))
+    );
+    api.getFeedback.mockResolvedValue([]);
+    db.cart.get.mockResolvedValue(undefined);
+
+    renderPage();
+
+    await screen.findByText('Item 0');
+    expect(screen.getByRole('link', { name: /View full menu/ })).toHaveAttribute('href', '/menu');
+  });
+
+  test('top nav "Menu" is a real link to /menu, not an in-page anchor', async () => {
+    api.getMenu.mockResolvedValue([]);
+    api.getFeedback.mockResolvedValue([]);
+    db.cart.get.mockResolvedValue(undefined);
+
+    renderPage();
+    await screen.findByText("This month's menu");
+
+    // SiteFooter has its own separate "Menu" anchor link — scope to the top nav.
+    const topNav = document.querySelector('nav.nav__links');
+    expect(within(topNav).getByRole('link', { name: 'Menu' })).toHaveAttribute('href', '/menu');
   });
 });
 

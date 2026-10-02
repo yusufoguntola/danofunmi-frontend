@@ -8,6 +8,10 @@ import LogoMark from '../components/LogoMark';
 import OrderScheduleNotice from '../components/OrderScheduleNotice';
 import './LandingPage.css';
 
+// Just a taste of the menu, not the whole thing — the rest is a click away
+// via MenuGrid's "View full menu" link (see MenuGrid.jsx's `limit` prop).
+const MENU_PREVIEW_LIMIT = 4;
+
 function reviewMonth(value) {
   try {
     return new Date(value).toLocaleDateString('en-NG', { month: 'short', year: 'numeric' });
@@ -41,7 +45,7 @@ export default function LandingPage() {
             dánọ́fúnmi
           </a>
           <nav className="nav__links">
-            <a href="#menu">Menu</a>
+            <Link to="/menu">Menu</Link>
             <a href="#how">How it works</a>
             <a href="#why">Why us</a>
             {feedback.length > 0 && <a href="#reviews">Reviews</a>}
@@ -162,7 +166,7 @@ export default function LandingPage() {
 
             {menuError && <p className="form-error">{menuError}</p>}
 
-            <MenuGrid menu={menu} categories={categories} showOrderLinks={false} />
+            <MenuGrid menu={menu} categories={categories} showOrderLinks={false} limit={MENU_PREVIEW_LIMIT} />
           </div>
         </section>
 
