@@ -12,14 +12,6 @@ import Pagination from '../../components/admin/Pagination';
 
 const emptyNewItem = { name: '', categoryId: '', description: '', icon: '', size: '', price: '' };
 
-// Mirrors backend's lib/menuCatalog.js HIDDEN_CATEGORIES — "Promotions" is
-// for internal/admin-triggered items only (e.g. "First Taste") and never
-// appears in the public catalog. Defaulting a new item's category to it
-// would silently make that item invisible everywhere customer-facing.
-function defaultCategoryId(cats) {
-  return cats.find((c) => c.name !== 'Promotions')?.id || cats[0]?.id || '';
-}
-
 function priceRange(options) {
   if (!options || options.length === 0) return '—';
   const prices = options.map((o) => Number(o.price));
@@ -67,7 +59,7 @@ export default function AdminMenu() {
         setItems(menuItems);
         setGroups(menuGroups);
         setCategories(cats);
-        setNewItem((f) => (f.categoryId ? f : { ...f, categoryId: defaultCategoryId(cats) }));
+        setNewItem((f) => (f.categoryId ? f : { ...f, categoryId: cats[0]?.id || '' }));
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -139,6 +131,19 @@ export default function AdminMenu() {
     setBusy(true);
     try {
       await api.adminUpdateMenuItem(token, item.id, { active: !item.active });
+      load();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // Independent of `active` — lets an item stay orderable (e.g. for the
+  // internal "First Taste" flow — see backend's lib/firstTaste.js) without
+  // appearing in the public menu/order pages or the AI chat's catalog.
+  async function toggleHiddenFromCatalog(item) {
+    setBusy(true);
+    try {
+      await api.adminUpdateMenuItem(token, item.id, { hiddenFromCatalog: !item.hiddenFromCatalog });
       load();
     } finally {
       setBusy(false);
@@ -307,7 +312,10 @@ export default function AdminMenu() {
                     <>
                       <td className="muted">{itemsPage.start + i + 1}</td>
                       <td><IconThumb icon={item.icon} /></td>
-                      <td style={{ fontWeight: 700 }}>{item.name}</td>
+                      <td style={{ fontWeight: 700 }}>
+                        {item.name}
+                        {item.hiddenFromCatalog && <span className="muted"> &middot; Hidden</span>}
+                      </td>
                       <td className="muted">{item.category}</td>
                       <td>{priceRange(item.options)}</td>
                       <td>
@@ -323,6 +331,20 @@ export default function AdminMenu() {
                       <div className="detail-field">
                         <span className="detail-field__label">Sizes</span>
                         <span className="detail-field__value">{item.options.length}</span>
+                      </div>
+                      <div className="detail-field">
+                        <span className="detail-field__label">Visible on public menu</span>
+                        <span className="detail-field__value">
+                          <label className="toggle" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="checkbox"
+                              checked={!item.hiddenFromCatalog}
+                              disabled={busy}
+                              onChange={() => toggleHiddenFromCatalog(item)}
+                            />
+                            <span className="toggle__track" />
+                          </label>
+                        </span>
                       </div>
                       <div className="detail-actions">
                         <button className="btn btn--ghost btn--small" onClick={() => navigate(`/restricted-path/menu/${item.id}`)}>

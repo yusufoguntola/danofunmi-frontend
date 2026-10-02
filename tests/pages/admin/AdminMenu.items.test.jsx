@@ -161,6 +161,73 @@ describe('AdminMenu items', () => {
     );
   });
 
+  test('expanding a visible item shows the "Visible on public menu" toggle checked, with no "Hidden" badge', async () => {
+    const user = userEvent.setup();
+    seedSession();
+    renderPage();
+    await screen.findByText('Egusi Soup');
+
+    const row = screen.getByText('Egusi Soup').closest('tr');
+    expect(within(row).queryByText(/Hidden/)).not.toBeInTheDocument();
+
+    await user.click(screen.getByText('Egusi Soup'));
+
+    const visibleField = screen.getByText('Visible on public menu').closest('.detail-field');
+    expect(within(visibleField).getByRole('checkbox')).toBeChecked();
+  });
+
+  test('a hidden item shows the "Hidden" badge and an unchecked visibility toggle', async () => {
+    seedSession();
+    const user = userEvent.setup();
+    const items = baseItems();
+    items[0].hiddenFromCatalog = true;
+    api.adminListMenu.mockResolvedValue(items);
+    renderPage();
+    await screen.findByText('Egusi Soup');
+
+    const row = screen.getByText('Egusi Soup').closest('tr');
+    expect(within(row).getByText(/Hidden/)).toBeInTheDocument();
+
+    await user.click(screen.getByText('Egusi Soup'));
+    const visibleField = screen.getByText('Visible on public menu').closest('.detail-field');
+    expect(within(visibleField).getByRole('checkbox')).not.toBeChecked();
+  });
+
+  test('toggling visibility off calls adminUpdateMenuItem with hiddenFromCatalog: true', async () => {
+    const user = userEvent.setup();
+    const token = seedSession();
+    api.adminUpdateMenuItem.mockResolvedValue({});
+    renderPage();
+    await screen.findByText('Egusi Soup');
+
+    await user.click(screen.getByText('Egusi Soup'));
+    const visibleField = screen.getByText('Visible on public menu').closest('.detail-field');
+    await user.click(within(visibleField).getByRole('checkbox'));
+
+    await waitFor(() =>
+      expect(api.adminUpdateMenuItem).toHaveBeenCalledWith(token, 'item1', { hiddenFromCatalog: true })
+    );
+  });
+
+  test('toggling visibility back on calls adminUpdateMenuItem with hiddenFromCatalog: false', async () => {
+    const user = userEvent.setup();
+    const token = seedSession();
+    const items = baseItems();
+    items[0].hiddenFromCatalog = true;
+    api.adminListMenu.mockResolvedValue(items);
+    api.adminUpdateMenuItem.mockResolvedValue({});
+    renderPage();
+    await screen.findByText('Egusi Soup');
+
+    await user.click(screen.getByText('Egusi Soup'));
+    const visibleField = screen.getByText('Visible on public menu').closest('.detail-field');
+    await user.click(within(visibleField).getByRole('checkbox'));
+
+    await waitFor(() =>
+      expect(api.adminUpdateMenuItem).toHaveBeenCalledWith(token, 'item1', { hiddenFromCatalog: false })
+    );
+  });
+
   test('expanding a row shows its size count and edit/delete actions', async () => {
     const user = userEvent.setup();
     seedSession();
@@ -244,14 +311,11 @@ describe('AdminMenu items', () => {
     expect(screen.getByRole('button', { name: '+ Add menu item' })).toBeDisabled();
   });
 
-  // Regression test — a real bug found and fixed: the "Add menu item" form
-  // used to default its Category select to whichever category the API
-  // returned first. "Promotions" (internal/admin-only, hidden from the
-  // public catalog — see backend's lib/menuCatalog.js HIDDEN_CATEGORIES)
-  // happens to sort first alphabetically, so a new item created without the
-  // admin noticing/changing that default silently became invisible on the
-  // landing page and order page.
-  test('defaults the new-item category to the first non-"Promotions" category, not whatever the API returns first', async () => {
+  // "Promotions" is just an ordinary category now — visibility is per-item
+  // (hiddenFromCatalog), not category-wide — so defaulting a new item's
+  // category to whatever the API returns first (even "Promotions") is fine;
+  // the new item still defaults to visible unless the admin hides it.
+  test('defaults the new-item category to whatever the API returns first', async () => {
     const user = userEvent.setup();
     seedSession();
     api.adminListCategories.mockResolvedValue([
@@ -263,7 +327,7 @@ describe('AdminMenu items', () => {
 
     await user.click(screen.getByRole('button', { name: '+ Add menu item' }));
 
-    expect(screen.getByLabelText('Category')).toHaveValue('cat-rice');
+    expect(screen.getByLabelText('Category')).toHaveValue('cat-promo');
   });
 
   test('creating a menu item sends name/category/description/icon + one starting option, and navigates to its edit page', async () => {
