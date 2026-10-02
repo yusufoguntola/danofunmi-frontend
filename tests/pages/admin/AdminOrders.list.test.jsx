@@ -1,5 +1,5 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import AdminOrders from '../../../src/pages/admin/AdminOrders';
@@ -96,13 +96,16 @@ describe('AdminOrders — list render', () => {
     renderPage();
 
     expect(screen.getByText(/Loading orders/)).toBeInTheDocument();
-    expect(await screen.findByText('ON-1001')).toBeInTheDocument();
+    const narrationCell = await screen.findByText('ON-1001');
+    const row = narrationCell.closest('tr');
     expect(screen.getByText('Jollof Combo')).toBeInTheDocument();
     expect(screen.getByText('Ada Lovelace')).toBeInTheDocument();
     expect(screen.getByText('+2348011111111')).toBeInTheDocument();
     expect(screen.getByText('₦12,000')).toBeInTheDocument();
-    expect(screen.getByText('CONFIRMED')).toBeInTheDocument();
-    expect(screen.getByText('October 2026')).toBeInTheDocument();
+    // "CONFIRMED" also appears as a status-filter chip, and "October 2026"
+    // also appears as a month-filter <option> — scope both to the row.
+    expect(within(row).getByText('CONFIRMED')).toBeInTheDocument();
+    expect(within(row).getByText('October 2026')).toBeInTheDocument();
   });
 
   test('shows an empty state when there are no orders', async () => {

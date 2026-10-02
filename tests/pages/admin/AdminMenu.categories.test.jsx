@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import AdminMenu from '../../../src/pages/admin/AdminMenu';
 import { AdminAuthProvider } from '../../../src/context/AdminAuthContext';
 import { api, ApiError } from '../../../src/lib/api';
-import { confirmAction, confirmDelete } from '../../../src/lib/confirm';
+import { confirmDelete } from '../../../src/lib/confirm';
 import { fakeJwt } from '../../helpers/fakeJwt';
 
 const STORAGE_KEY = 'danofunmi_admin_session';
@@ -52,6 +52,15 @@ function seedSession() {
   return token;
 }
 
+// "Soups" (and any other category name shared with an item's category label)
+// appears both in the categories table and in the items table's category
+// column — scope lookups to the categories table (the first <table>) to
+// avoid ambiguous-match errors. Async because the table doesn't exist until
+// the category fetch resolves.
+async function categoriesTable() {
+  return (await screen.findAllByRole('table'))[0];
+}
+
 function renderPage() {
   return render(
     <MemoryRouter>
@@ -92,12 +101,10 @@ describe('AdminMenu categories', () => {
     renderPage();
 
     await screen.findByText('Drinks');
-    // "Soups" also appears in the items table's category column (Egusi Soup),
-    // so scope to the categories table specifically — it's the first <table>.
-    const categoriesTable = screen.getAllByRole('table')[0];
-    const soupsRow = within(categoriesTable).getByText('Soups').closest('tr');
+    const table = await categoriesTable();
+    const soupsRow = within(table).getByText('Soups').closest('tr');
     expect(soupsRow).toHaveTextContent('1'); // Soups has one item (Egusi Soup)
-    const drinksRow = within(categoriesTable).getByText('Drinks').closest('tr');
+    const drinksRow = within(table).getByText('Drinks').closest('tr');
     expect(drinksRow).toHaveTextContent('0'); // Drinks has zero items
   });
 
@@ -130,7 +137,7 @@ describe('AdminMenu categories', () => {
     const user = userEvent.setup();
     seedSession();
     renderPage();
-    await screen.findByText('Soups');
+    await within(await categoriesTable()).findByText('Soups');
 
     await user.click(screen.getByRole('button', { name: '+ Add category' }));
     await user.click(screen.getByRole('button', { name: 'Add category' }));
@@ -144,7 +151,7 @@ describe('AdminMenu categories', () => {
     seedSession();
     api.adminCreateCategory.mockRejectedValue(new ApiError('Category already exists', 400, null));
     renderPage();
-    await screen.findByText('Soups');
+    await within(await categoriesTable()).findByText('Soups');
 
     await user.click(screen.getByRole('button', { name: '+ Add category' }));
     await user.type(screen.getByLabelText('Name'), 'Soups');
@@ -158,9 +165,10 @@ describe('AdminMenu categories', () => {
     const token = seedSession();
     api.adminUpdateCategory.mockResolvedValue({});
     renderPage();
-    await screen.findByText('Soups');
+    const table = await categoriesTable();
+    await within(table).findByText('Soups');
 
-    const row = screen.getByText('Soups').closest('tr');
+    const row = within(table).getByText('Soups').closest('tr');
     await user.click(within(row).getByRole('button', { name: 'Edit' }));
 
     const input = screen.getByDisplayValue('Soups');
@@ -177,9 +185,10 @@ describe('AdminMenu categories', () => {
     const user = userEvent.setup();
     seedSession();
     renderPage();
-    await screen.findByText('Soups');
+    const table = await categoriesTable();
+    await within(table).findByText('Soups');
 
-    const row = screen.getByText('Soups').closest('tr');
+    const row = within(table).getByText('Soups').closest('tr');
     await user.click(within(row).getByRole('button', { name: 'Edit' }));
 
     const input = screen.getByDisplayValue('Soups');
@@ -195,9 +204,10 @@ describe('AdminMenu categories', () => {
     seedSession();
     api.adminUpdateCategory.mockRejectedValue(new ApiError('Name already in use', 400, null));
     renderPage();
-    await screen.findByText('Soups');
+    const table = await categoriesTable();
+    await within(table).findByText('Soups');
 
-    const row = screen.getByText('Soups').closest('tr');
+    const row = within(table).getByText('Soups').closest('tr');
     await user.click(within(row).getByRole('button', { name: 'Edit' }));
     await user.click(screen.getByRole('button', { name: 'Save changes' }));
 

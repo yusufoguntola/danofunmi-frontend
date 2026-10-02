@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import AdminMenu from '../../../src/pages/admin/AdminMenu';
 import { AdminAuthProvider } from '../../../src/context/AdminAuthContext';
 import { api, ApiError } from '../../../src/lib/api';
-import { confirmAction, confirmDelete } from '../../../src/lib/confirm';
+import { confirmAction } from '../../../src/lib/confirm';
 import { fakeJwt } from '../../helpers/fakeJwt';
 
 const STORAGE_KEY = 'danofunmi_admin_session';
@@ -50,6 +50,14 @@ function seedSession() {
   const token = fakeJwt({ type: 'admin', exp: Math.floor(Date.now() / 1000) + 3600 });
   localStorage.setItem(STORAGE_KEY, JSON.stringify({ token, admin: { email: 'admin@test.com' } }));
   return token;
+}
+
+// The expanded item's "Edit"/"Delete" action buttons share labels with the
+// categories table's own per-row Edit/Delete buttons — scope to the
+// ExpandableRow's detail panel (class `detail-row`, see ExpandableRow.jsx)
+// to disambiguate.
+function detailPanel() {
+  return document.querySelector('.detail-row');
 }
 
 function renderPage() {
@@ -161,8 +169,8 @@ describe('AdminMenu items', () => {
 
     const sizesField = screen.getByText('Sizes').closest('.detail-field');
     expect(within(sizesField).getByText('2')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
+    expect(within(detailPanel()).getByRole('button', { name: 'Edit' })).toBeInTheDocument();
+    expect(within(detailPanel()).getByRole('button', { name: 'Delete' })).toBeInTheDocument();
   });
 
   test('clicking Edit on an expanded item navigates to its edit page', async () => {
@@ -172,7 +180,7 @@ describe('AdminMenu items', () => {
     await screen.findByText('Egusi Soup');
 
     await user.click(screen.getByText('Egusi Soup'));
-    await user.click(screen.getByRole('button', { name: 'Edit' }));
+    await user.click(within(detailPanel()).getByRole('button', { name: 'Edit' }));
 
     expect(mockNavigate).toHaveBeenCalledWith('/restricted-path/menu/item1');
   });
@@ -186,7 +194,7 @@ describe('AdminMenu items', () => {
     await screen.findByText('Egusi Soup');
 
     await user.click(screen.getByText('Egusi Soup'));
-    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(within(detailPanel()).getByRole('button', { name: 'Delete' }));
 
     expect(confirmAction).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'Delete "Egusi Soup"?', danger: true })
@@ -202,7 +210,7 @@ describe('AdminMenu items', () => {
     await screen.findByText('Egusi Soup');
 
     await user.click(screen.getByText('Egusi Soup'));
-    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(within(detailPanel()).getByRole('button', { name: 'Delete' }));
 
     expect(api.adminDeleteMenuItem).not.toHaveBeenCalled();
   });
@@ -217,7 +225,7 @@ describe('AdminMenu items', () => {
     await screen.findByText('Egusi Soup');
 
     await user.click(screen.getByText('Egusi Soup'));
-    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(within(detailPanel()).getByRole('button', { name: 'Delete' }));
 
     await waitFor(() => expect(window.alert).toHaveBeenCalledWith('Item is used in a combo'));
   });
@@ -226,7 +234,10 @@ describe('AdminMenu items', () => {
     seedSession();
     api.adminListCategories.mockResolvedValue([]);
     renderPage();
-    await screen.findByText('No menu items yet — add one above.');
+    // baseItems() (the default mocked item list) still has items here — only
+    // categories are empty — so wait for those to render rather than an
+    // empty-items state that won't appear.
+    await screen.findByText('Egusi Soup');
 
     expect(screen.getByRole('button', { name: '+ Add menu item' })).toBeDisabled();
   });
