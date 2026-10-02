@@ -13,6 +13,14 @@ import Pagination from '../../components/admin/Pagination';
 
 const emptyNewGroup = { name: '', categoryId: '', description: '', icon: '', menuItemOptionId: '' };
 
+// Mirrors backend's lib/menuCatalog.js HIDDEN_CATEGORIES — "Promotions" is
+// for internal/admin-triggered items only and never appears in the public
+// catalog. Defaulting a new combo's category to it would silently make the
+// combo invisible everywhere customer-facing (landing page, order page).
+function defaultCategoryId(cats) {
+  return cats.find((c) => c.name !== 'Promotions')?.id || cats[0]?.id || '';
+}
+
 function discountLabel(discount) {
   if (!discount) return '—';
   return discount.type === 'PERCENTAGE' ? `${discount.value}%` : formatNaira(discount.value);
@@ -50,7 +58,7 @@ export default function AdminMenuGroups() {
         setGroups(groupData);
         setItems(menuItems);
         setCategories(cats);
-        setNewGroup((f) => ({ ...f, categoryId: f.categoryId || cats[0]?.id || '' }));
+        setNewGroup((f) => ({ ...f, categoryId: f.categoryId || defaultCategoryId(cats) }));
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));

@@ -12,6 +12,14 @@ import Pagination from '../../components/admin/Pagination';
 
 const emptyNewItem = { name: '', categoryId: '', description: '', icon: '', size: '', price: '' };
 
+// Mirrors backend's lib/menuCatalog.js HIDDEN_CATEGORIES — "Promotions" is
+// for internal/admin-triggered items only (e.g. "First Taste") and never
+// appears in the public catalog. Defaulting a new item's category to it
+// would silently make that item invisible everywhere customer-facing.
+function defaultCategoryId(cats) {
+  return cats.find((c) => c.name !== 'Promotions')?.id || cats[0]?.id || '';
+}
+
 function priceRange(options) {
   if (!options || options.length === 0) return '—';
   const prices = options.map((o) => Number(o.price));
@@ -57,7 +65,7 @@ export default function AdminMenu() {
       .then(([menuItems, cats]) => {
         setItems(menuItems);
         setCategories(cats);
-        setNewItem((f) => (f.categoryId ? f : { ...f, categoryId: cats[0]?.id || '' }));
+        setNewItem((f) => (f.categoryId ? f : { ...f, categoryId: defaultCategoryId(cats) }));
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));

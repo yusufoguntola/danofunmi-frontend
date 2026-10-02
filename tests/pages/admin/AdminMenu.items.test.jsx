@@ -242,6 +242,28 @@ describe('AdminMenu items', () => {
     expect(screen.getByRole('button', { name: '+ Add menu item' })).toBeDisabled();
   });
 
+  // Regression test — a real bug found and fixed: the "Add menu item" form
+  // used to default its Category select to whichever category the API
+  // returned first. "Promotions" (internal/admin-only, hidden from the
+  // public catalog — see backend's lib/menuCatalog.js HIDDEN_CATEGORIES)
+  // happens to sort first alphabetically, so a new item created without the
+  // admin noticing/changing that default silently became invisible on the
+  // landing page and order page.
+  test('defaults the new-item category to the first non-"Promotions" category, not whatever the API returns first', async () => {
+    const user = userEvent.setup();
+    seedSession();
+    api.adminListCategories.mockResolvedValue([
+      { id: 'cat-promo', name: 'Promotions' },
+      { id: 'cat-rice', name: 'Rice bowls' },
+    ]);
+    renderPage();
+    await screen.findByText('Egusi Soup');
+
+    await user.click(screen.getByRole('button', { name: '+ Add menu item' }));
+
+    expect(screen.getByLabelText('Category')).toHaveValue('cat-rice');
+  });
+
   test('creating a menu item sends name/category/description/icon + one starting option, and navigates to its edit page', async () => {
     const user = userEvent.setup();
     const token = seedSession();

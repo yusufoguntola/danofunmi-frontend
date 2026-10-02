@@ -161,6 +161,29 @@ describe('AdminMenuGroups', () => {
     ]);
   });
 
+  // Regression test — a real bug found and fixed: the "Add combo" form used
+  // to default its Category select to whichever category the API returned
+  // first. "Promotions" (internal/admin-only, hidden from the public
+  // catalog — see backend's lib/menuCatalog.js HIDDEN_CATEGORIES) happens to
+  // sort first alphabetically, so a new combo created without the admin
+  // noticing/changing that default silently became invisible on the landing
+  // page and order page.
+  test('defaults the new-combo category to the first non-"Promotions" category, not whatever the API returns first', async () => {
+    const user = userEvent.setup();
+    seedSession();
+    api.adminListGroups.mockResolvedValue([]);
+    api.adminListCategories.mockResolvedValue([
+      { id: 'cat-promo', name: 'Promotions' },
+      { id: 'cat-combos', name: 'Combos' },
+    ]);
+
+    renderPage();
+    await waitFor(() => expect(screen.getByRole('button', { name: '+ Add combo' })).not.toBeDisabled());
+    await user.click(screen.getByRole('button', { name: '+ Add combo' }));
+
+    expect(screen.getByLabelText('Category')).toHaveValue('cat-combos');
+  });
+
   test('creating a combo calls adminCreateGroup and navigates to its edit page', async () => {
     const user = userEvent.setup();
     const token = seedSession();
