@@ -15,6 +15,7 @@ vi.mock('../src/lib/api', () => ({
     getMenu: vi.fn(() => new Promise(() => {})),
     getFeedback: vi.fn(() => new Promise(() => {})),
     getOrderSchedule: vi.fn(() => new Promise(() => {})),
+    getOrderTimeline: vi.fn(() => new Promise(() => {})),
     getInterestStatus: vi.fn(() => new Promise(() => {})),
   },
 }));

@@ -273,7 +273,7 @@ export default function OrderPage() {
             <div className="order-builder__menu">
               <h2 className="section-title">This month's menu</h2>
               <p className="muted">Pick any combination — tap a size to add it to your order.</p>
-              <OrderScheduleNotice />
+              <OrderScheduleNotice exact />
 
               {categories.map((category) => (
                 <section key={category} className="menu-category">

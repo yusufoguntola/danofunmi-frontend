@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { api } from '../../lib/api';
+import { formatDate } from '../../lib/format';
 import { formatTimelineDate, formatDeliveryRange } from '../../lib/orderTimeline';
 
 const EMPTY = { opensOn: '', closesOn: '', deliveryStartsOn: '', deliveryEndsOn: '' };
@@ -16,12 +17,19 @@ function validate(t) {
   return null;
 }
 
-/** Edit the current run's ordering timeline — drives the site's order-window
- * flyer and the delivery window quoted in order-confirmation notifications. */
+function toDraft({ opensOn, closesOn, deliveryStartsOn, deliveryEndsOn }) {
+  return { opensOn, closesOn, deliveryStartsOn, deliveryEndsOn };
+}
+
+/** Set the current run's ordering timeline — drives the site's order-window
+ * flyer, which month's run new orders are filed under, and the delivery
+ * window quoted in order-confirmation notifications. Each save is kept:
+ * the history below lists every timeline, newest (current) first. */
 export default function AdminOrderTimeline() {
   const { session } = useAdminAuth();
   const token = session.token;
   const [draft, setDraft] = useState(EMPTY);
+  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -29,12 +37,10 @@ export default function AdminOrderTimeline() {
 
   useEffect(() => {
     api
-      .adminGetOrderTimeline(token)
-      .then((t) => {
-        if (t) {
-          const { opensOn, closesOn, deliveryStartsOn, deliveryEndsOn } = t;
-          setDraft({ opensOn, closesOn, deliveryStartsOn, deliveryEndsOn });
-        }
+      .adminGetOrderTimelineHistory(token)
+      .then((rows) => {
+        setHistory(rows);
+        if (rows[0]) setDraft(toDraft(rows[0]));
       })
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
@@ -52,7 +58,8 @@ export default function AdminOrderTimeline() {
     if (problem) return;
     setSaving(true);
     try {
-      await api.adminUpdateOrderTimeline(token, draft);
+      const created = await api.adminSaveOrderTimeline(token, draft);
+      setHistory((prev) => [created, ...prev]);
       setSaved(true);
     } catch (err) {
       setError(err.message);
@@ -68,7 +75,8 @@ export default function AdminOrderTimeline() {
       <h2 className="section-title">Order timeline</h2>
       <p className="muted" style={{ marginTop: -8 }}>
         When ordering opens and closes for this month&rsquo;s run, and when it&rsquo;s delivered. Shown on the
-        site&rsquo;s order flyer and in the order-confirmation email.
+        site&rsquo;s order flyer and in the order-confirmation email, and decides which month new orders are
+        filed under. Saving adds a new timeline; earlier ones are kept in the history below.
       </p>
 
       {loading ? (
@@ -122,6 +130,59 @@ export default function AdminOrderTimeline() {
             </button>
           </div>
         </form>
+      )}
+
+      {history.length > 0 && (
+        <>
+          <h3 style={{ margin: '8px 0 0' }}>History</h3>
+          <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Saved</th>
+                  <th>By</th>
+                  <th>Ordering opens</th>
+                  <th>Ordering closes</th>
+                  <th>Delivery</th>
+                  <th aria-label="Actions" />
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((t, i) => (
+                  <tr key={t.id}>
+                    <td>
+                      {formatDate(t.createdAt)}
+                      {i === 0 && (
+                        <span className="badge" style={{ marginLeft: 8 }}>
+                          Current
+                        </span>
+                      )}
+                    </td>
+                    <td>{t.createdByName || '—'}</td>
+                    <td>{formatTimelineDate(t.opensOn)}</td>
+                    <td>{formatTimelineDate(t.closesOn)}</td>
+                    <td>{formatDeliveryRange(t)}</td>
+                    <td>
+                      {i > 0 && (
+                        <button
+                          type="button"
+                          className="btn btn--ghost btn--small"
+                          onClick={() => {
+                            setDraft(toDraft(t));
+                            setSaved(false);
+                            setError(null);
+                          }}
+                        >
+                          Use these dates
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

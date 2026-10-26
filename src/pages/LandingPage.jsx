@@ -163,7 +163,7 @@ export default function LandingPage() {
           <div className="wrap">
             <h2 className="section-title">This month's menu</h2>
             <p className="section-sub">Pick any combination — every item is available in bulk.</p>
-            <OrderScheduleNotice />
+            <OrderScheduleNotice exact />
 
             {menuError && <p className="form-error">{menuError}</p>}
 

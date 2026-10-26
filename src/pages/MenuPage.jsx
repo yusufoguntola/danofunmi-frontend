@@ -34,7 +34,7 @@ export default function MenuPage() {
         <div>
           <h2 className="section-title">This month's menu</h2>
           <p className="section-sub">Pick any combination — every item is available in bulk.</p>
-          <OrderScheduleNotice />
+          <OrderScheduleNotice exact />
         </div>
 
         {menuError && <p className="form-error">{menuError}</p>}

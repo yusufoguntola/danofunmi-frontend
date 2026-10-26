@@ -6,9 +6,13 @@ import { api } from '../../src/lib/api';
 
 // MenuPage renders OrderScheduleNotice (a real child, not mocked here — this
 // test only cares that MenuPage's own fetch/error logic works, and that the
-// page composes without crashing), which also calls getOrderSchedule.
+// page composes without crashing), which also calls getOrderTimeline.
 vi.mock('../../src/lib/api', () => ({
-  api: { getMenu: vi.fn(), getOrderSchedule: vi.fn(() => new Promise(() => {})) },
+  api: {
+    getMenu: vi.fn(),
+    getOrderSchedule: vi.fn(() => new Promise(() => {})),
+    getOrderTimeline: vi.fn(() => new Promise(() => {})),
+  },
 }));
 
 function renderPage() {

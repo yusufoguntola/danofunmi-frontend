@@ -9,7 +9,7 @@ import { db } from '../../src/lib/db';
 // (all independently tested elsewhere) — only their dependencies are mocked
 // here, not the components themselves.
 vi.mock('../../src/lib/api', () => ({
-  api: { getMenu: vi.fn(), getFeedback: vi.fn(), getOrderSchedule: vi.fn() },
+  api: { getMenu: vi.fn(), getFeedback: vi.fn(), getOrderSchedule: vi.fn(), getOrderTimeline: vi.fn() },
 }));
 
 vi.mock('../../src/lib/db', () => ({
@@ -28,6 +28,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   // Keep OrderScheduleNotice (a real child) quiet — it has its own tests.
   api.getOrderSchedule.mockReturnValue(new Promise(() => {}));
+  api.getOrderTimeline.mockReturnValue(new Promise(() => {}));
 });
 
 describe('LandingPage — menu', () => {

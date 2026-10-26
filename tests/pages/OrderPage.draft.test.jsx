@@ -17,6 +17,7 @@ vi.mock('../../src/lib/api', () => ({
     getMenu: vi.fn(),
     getLocations: vi.fn(),
     getOrderSchedule: vi.fn(),
+    getOrderTimeline: vi.fn(() => new Promise(() => {})),
     createOrder: vi.fn(),
   },
   ApiError: class ApiError extends Error {

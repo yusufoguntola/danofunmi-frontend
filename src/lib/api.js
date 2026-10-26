@@ -244,9 +244,9 @@ export const api = {
     adminMarkAllInterestRead: (token) => request('/api/admin/interest/read-all', {method: 'PATCH', token}),
     adminMarkInterestRead: (token, id, read = true) =>
         request(`/api/admin/interest/${id}`, {method: 'PATCH', body: {read}, token}),
-    adminGetOrderTimeline: (token) => request('/api/admin/order-timeline', {token}),
-    adminUpdateOrderTimeline: (token, timeline) =>
-        request('/api/admin/order-timeline', {method: 'PUT', body: timeline, token}),
+    adminGetOrderTimelineHistory: (token) => request('/api/admin/order-timeline/history', {token}),
+    adminSaveOrderTimeline: (token, timeline) =>
+        request('/api/admin/order-timeline', {method: 'POST', body: timeline, token}),
     adminGetInterestSettings: (token) => request('/api/admin/interest/settings', {token}),
     adminUpdateInterestSettings: (token, firstTasteSlots) =>
         request('/api/admin/interest/settings', {method: 'PATCH', body: {firstTasteSlots}, token}),
