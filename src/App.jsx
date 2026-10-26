@@ -6,6 +6,7 @@ import SessionWatcher from './components/SessionWatcher';
 import ScrollToTop from './components/ScrollToTop';
 import StagingBanner from './components/StagingBanner';
 import InstallPrompt from './components/InstallPrompt';
+import OrderWindowFlyer from './components/OrderWindowFlyer';
 import MobileNav from './components/MobileNav';
 import ChatWidget from './components/chat/ChatWidget';
 
@@ -42,13 +43,14 @@ import AdminCustomerDetail from './pages/admin/AdminCustomerDetail';
 // leaving the back-office admin dashboard reachable, via VITE_COMING_SOON.
 const COMING_SOON = import.meta.env.VITE_COMING_SOON === 'true';
 
-// Customer-facing chrome (install banner, mobile nav, chat widget) — hidden
+// Customer-facing chrome (order flyer, install banner, mobile nav, chat widget) — hidden
 // on the back-office admin dashboard and while the coming-soon gate is up.
 function CustomerChrome() {
   const { pathname } = useLocation();
   if (pathname.startsWith('/restricted-path') || COMING_SOON) return null;
   return (
     <>
+      <OrderWindowFlyer />
       <InstallPrompt />
       <ChatWidget />
       <MobileNav />

@@ -28,6 +28,7 @@ vi.mock('../src/lib/db', () => ({
 // with a visible marker so this file can assert CustomerChrome's
 // show/hide logic without depending on their own internals.
 vi.mock('../src/components/chat/ChatWidget', () => ({ default: () => <div data-testid="chat-widget" /> }));
+vi.mock('../src/components/OrderWindowFlyer', () => ({ default: () => null }));
 vi.mock('../src/components/InstallPrompt', () => ({ default: () => <div data-testid="install-prompt" /> }));
 vi.mock('../src/components/MobileNav', () => ({ default: () => <div data-testid="mobile-nav" /> }));
 vi.mock('../src/components/SessionWatcher', () => ({ default: () => null }));

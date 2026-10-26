@@ -6,6 +6,7 @@ import SiteFooter from '../components/SiteFooter';
 import MenuGrid from '../components/MenuGrid';
 import LogoMark from '../components/LogoMark';
 import OrderScheduleNotice from '../components/OrderScheduleNotice';
+import { ORDERING_WINDOW, DELIVERY_WINDOW } from '../lib/orderTimeline';
 import './LandingPage.css';
 
 // Just a taste of the menu, not the whole thing — the rest is a click away
@@ -125,18 +126,18 @@ export default function LandingPage() {
               <li className="step">
                 <div className="step__head">
                   <span className="step__num">1</span>
-                  <span className="step__icon" aria-hidden="true">🗓️</span>
-                </div>
-                <h3>Pick your month</h3>
-                <p>Ordering opens once a month — mark your calendar so you don't miss the window.</p>
-              </li>
-              <li className="step">
-                <div className="step__head">
-                  <span className="step__num">2</span>
                   <span className="step__icon" aria-hidden="true">📝</span>
                 </div>
                 <h3>Choose your meals</h3>
                 <p>Mix and match soups and rice, any type or combination, in the bulk quantity you need.</p>
+              </li>
+              <li className="step">
+                <div className="step__head">
+                  <span className="step__num">2</span>
+                  <span className="step__icon" aria-hidden="true">🗓️</span>
+                </div>
+                <h3>Submit your order</h3>
+                <p>Get it in before ordering closes for the month. {ORDERING_WINDOW}</p>
               </li>
               <li className="step">
                 <div className="step__head">
@@ -152,7 +153,7 @@ export default function LandingPage() {
                   <span className="step__icon" aria-hidden="true">🚚</span>
                 </div>
                 <h3>Delivered to your door</h3>
-                <p>Stocked, packed, and delivered exactly as requested — ready for your freezer.</p>
+                <p>{DELIVERY_WINDOW} Packed and delivered exactly as requested, ready for your freezer.</p>
               </li>
             </ol>
           </div>
@@ -177,7 +178,7 @@ export default function LandingPage() {
               Pick your meals, set quantities, and check out in minutes.
             </p>
             <Link to="/order" className="btn btn--primary">Start ordering &rarr;</Link>
-            <p className="order-cta__note">Order anytime — individual items close on the 15th, combos on the 10th.</p>
+            <p className="order-cta__note">Submit your order before ordering closes. {ORDERING_WINDOW}</p>
           </div>
         </section>
 
@@ -239,7 +240,7 @@ export default function LandingPage() {
           <div className="wrap cta-banner__inner">
             <div>
               <h2>Ready to stock up?</h2>
-              <p>Individual items close on the 15th, combo deals on the 10th — order anytime before that.</p>
+              <p>{ORDERING_WINDOW} {DELIVERY_WINDOW}</p>
             </div>
             <Link to="/order" className="btn btn--onlight">Order now</Link>
           </div>
