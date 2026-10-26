@@ -29,6 +29,7 @@ import AdminMenuItemEdit from './pages/admin/AdminMenuItemEdit';
 import AdminMenuGroups from './pages/admin/AdminMenuGroups';
 import AdminMenuGroupEdit from './pages/admin/AdminMenuGroupEdit';
 import AdminLocations from './pages/admin/AdminLocations';
+import AdminOrderTimeline from './pages/admin/AdminOrderTimeline';
 import AdminCosts from './pages/admin/AdminCosts';
 import AdminReports from './pages/admin/AdminReports';
 import AdminFeedback from './pages/admin/AdminFeedback';
@@ -86,6 +87,7 @@ const adminRoutes = (
       <Route path="menu/groups/:id" element={<AdminMenuGroupEdit />} />
       <Route path="menu/:id" element={<AdminMenuItemEdit />} />
       <Route path="locations" element={<AdminLocations />} />
+      <Route path="order-timeline" element={<AdminOrderTimeline />} />
       <Route path="costs" element={<AdminCosts />} />
       <Route path="reports" element={<AdminReports />} />
       <Route path="feedback" element={<AdminFeedback />} />

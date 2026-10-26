@@ -82,7 +82,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   api.getMenu.mockResolvedValue(menu);
   api.getLocations.mockResolvedValue(locations);
-  api.getOrderSchedule.mockResolvedValue({ itemOrderMonthLabel: 'October 2026', comboOrderMonthLabel: 'October 2026' });
+  api.getOrderSchedule.mockResolvedValue({ orderMonth: '2026-10', orderMonthLabel: 'October 2026' });
   db.cart.get.mockResolvedValue(undefined);
   useCustomerAuth.mockReturnValue({ session: null, refresh: vi.fn() });
 });
@@ -181,47 +181,24 @@ describe('OrderPage — cart-aware schedule preview', () => {
     expect(screen.queryByText(/opposite sides/)).not.toBeInTheDocument();
   });
 
-  test('item-only cart shows the item order-month label', async () => {
-    api.getOrderSchedule.mockResolvedValue({ itemOrderMonthLabel: 'October 2026', comboOrderMonthLabel: 'November 2026' });
+  test('shows the month the backend says this order lands in', async () => {
+    api.getOrderSchedule.mockResolvedValue({ orderMonth: '2026-11', orderMonthLabel: 'November 2026' });
     const user = userEvent.setup();
     renderPage();
 
     await user.click(await screen.findByRole('button', { name: `1L · ${formatNaira(4500)}` }));
-    expect(await screen.findByText(/This order is scheduled for October 2026/)).toBeInTheDocument();
-  });
-
-  test('combo-only cart shows the combo order-month label', async () => {
-    api.getOrderSchedule.mockResolvedValue({ itemOrderMonthLabel: 'October 2026', comboOrderMonthLabel: 'November 2026' });
-    const user = userEvent.setup();
-    renderPage();
-
-    await user.click(await screen.findByRole('button', { name: `Add combo · ${formatNaira(15000)}` }));
     expect(await screen.findByText(/This order is scheduled for November 2026/)).toBeInTheDocument();
   });
 
-  test('mixed cart with matching months shows a single label', async () => {
-    api.getOrderSchedule.mockResolvedValue({ itemOrderMonthLabel: 'October 2026', comboOrderMonthLabel: 'October 2026' });
+  test('a cart mixing a combo and individual items shows one month, never a split warning', async () => {
+    api.getOrderSchedule.mockResolvedValue({ orderMonth: '2026-11', orderMonthLabel: 'November 2026' });
     const user = userEvent.setup();
     renderPage();
 
     await user.click(await screen.findByRole('button', { name: `1L · ${formatNaira(4500)}` }));
     await user.click(await screen.findByRole('button', { name: `Add combo · ${formatNaira(15000)}` }));
 
-    expect(await screen.findByText(/This order is scheduled for October 2026/)).toBeInTheDocument();
+    expect(await screen.findByText(/This order is scheduled for November 2026/)).toBeInTheDocument();
     expect(screen.queryByText(/opposite sides/)).not.toBeInTheDocument();
-  });
-
-  test('mixed cart with differing months shows the split-checkout warning instead of a label', async () => {
-    api.getOrderSchedule.mockResolvedValue({ itemOrderMonthLabel: 'October 2026', comboOrderMonthLabel: 'November 2026' });
-    const user = userEvent.setup();
-    renderPage();
-
-    await user.click(await screen.findByRole('button', { name: `1L · ${formatNaira(4500)}` }));
-    await user.click(await screen.findByRole('button', { name: `Add combo · ${formatNaira(15000)}` }));
-
-    expect(
-      await screen.findByText(/combo and your individual items fall on opposite sides/)
-    ).toBeInTheDocument();
-    expect(screen.queryByText(/This order is scheduled for/)).not.toBeInTheDocument();
   });
 });

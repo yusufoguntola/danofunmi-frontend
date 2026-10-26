@@ -182,21 +182,6 @@ export default function OrderPage() {
   const logisticsFee = selectedLocation ? Number(selectedLocation.logisticsFee) : 0;
   const total = subtotal + logisticsFee;
 
-  // A live preview of which month's batch this cart lands in — mirrors the
-  // same partitioning the backend actually applies at checkout (see
-  // lib/orderSchedule.js's partitionLineItemsByCutoff), so a cart that would
-  // split into two orders/deliveries/payments is flagged before submit, not
-  // only after.
-  const cartHasCombo = cart.some((l) => l.groupId);
-  const cartHasItems = cart.some((l) => l.optionId);
-  const cartSchedule = !schedule
-    ? null
-    : cartHasCombo && cartHasItems && schedule.comboOrderMonthLabel !== schedule.itemOrderMonthLabel
-      ? { split: true }
-      : {
-          split: false,
-          label: cartHasCombo && !cartHasItems ? schedule.comboOrderMonthLabel : schedule.itemOrderMonthLabel,
-        };
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -395,11 +380,12 @@ export default function OrderPage() {
                   <div className="row--between summary-total__grand"><span>Total</span><strong>{formatNaira(total)}</strong></div>
                 </div>
 
-                {cart.length > 0 && cartSchedule && (
+                {/* Which month's run the order lands in — the backend's own
+                    timeline-based answer (GET /api/orders/schedule, see
+                    backend/src/lib/orderTimeline.js), so no date math here. */}
+                {cart.length > 0 && schedule && (
                   <p className="muted" style={{ fontSize: '0.82rem' }}>
-                    {cartSchedule.split
-                      ? '⚠️ Your combo and your individual items fall on opposite sides of this month\'s cutoff — checkout will create two separate orders, deliveries, and payments.'
-                      : `📅 This order is scheduled for ${cartSchedule.label}.`}
+                    📅 This order is scheduled for {schedule.orderMonthLabel}.
                   </p>
                 )}
 

@@ -4,6 +4,17 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 
 const orderHistory = [];
+const TIMELINE = {
+  opensOn: '2026-10-25',
+  closesOn: '2026-11-13',
+  deliveryStartsOn: '2026-11-16',
+  deliveryEndsOn: '2026-11-18',
+};
+let timeline = TIMELINE;
+
+vi.mock('../../src/lib/api', () => ({
+  api: { getOrderTimeline: async () => timeline },
+}));
 vi.mock('../../src/lib/db', () => ({
   db: {
     orderHistory: {
@@ -24,7 +35,7 @@ async function renderFlyer({ dev = false, staging = 'false' } = {}) {
       <OrderWindowFlyer />
     </MemoryRouter>,
   );
-  // Production visibility waits on the async order-history check.
+  // Visibility waits on the async timeline fetch and order-history check.
   await new Promise((r) => setTimeout(r, 0));
   return result;
 }
@@ -35,6 +46,7 @@ beforeEach(() => {
   vi.resetModules();
   localStorage.clear();
   orderHistory.length = 0;
+  timeline = TIMELINE;
   vi.useFakeTimers({ toFake: ['Date'] });
   vi.setSystemTime(new Date(2026, 9, 26));
 });
@@ -48,6 +60,7 @@ describe('OrderWindowFlyer (production)', () => {
   test('shows the ordering and delivery dates to a new visitor', async () => {
     await renderFlyer();
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText('November orders open')).toBeInTheDocument();
     expect(screen.getByText(/submit your order before ordering closes/i)).toBeInTheDocument();
     expect(screen.getByText('25th of October')).toBeInTheDocument();
     expect(screen.getByText('13th of November')).toBeInTheDocument();
@@ -99,6 +112,33 @@ describe('OrderWindowFlyer (production)', () => {
 
   test('still shows when the only orders predate this month\'s window', async () => {
     orderHistory.push({ orderId: 'o0', createdAt: new Date(2026, 8, 30).toISOString() });
+    await renderFlyer();
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+  });
+
+  test('uses whatever dates admin has set', async () => {
+    timeline = { opensOn: '2026-10-20', closesOn: '2026-11-30', deliveryStartsOn: '2026-12-01', deliveryEndsOn: '2026-12-03' };
+    await renderFlyer();
+    expect(await screen.findByText('December orders open')).toBeInTheDocument();
+    expect(screen.getByText('20th of October')).toBeInTheDocument();
+    expect(screen.getByText('30th of November')).toBeInTheDocument();
+    expect(screen.getByText('1st – 3rd of December')).toBeInTheDocument();
+  });
+
+  test('renders nothing when no timeline is set', async () => {
+    timeline = null;
+    const { container } = await renderFlyer();
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  test('renders nothing before ordering opens', async () => {
+    vi.setSystemTime(new Date(2026, 9, 24, 23, 59));
+    const { container } = await renderFlyer();
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  test('still shows on the closing day itself', async () => {
+    vi.setSystemTime(new Date(2026, 10, 13, 23, 0));
     await renderFlyer();
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
   });

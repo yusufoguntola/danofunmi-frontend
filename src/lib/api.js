@@ -115,6 +115,7 @@ export const api = {
     createOrder: (payload, token) => request('/api/orders', {method: 'POST', body: payload, token}),
     getOrder: (idOrNarration) => request(`/api/orders/${encodeURIComponent(idOrNarration)}`),
     getOrderSchedule: () => request('/api/orders/schedule'),
+    getOrderTimeline: () => request('/api/order-timeline'),
     uploadReceipt: (orderId, file) => {
         const form = new FormData();
         form.append('receipt', file);
@@ -243,6 +244,9 @@ export const api = {
     adminMarkAllInterestRead: (token) => request('/api/admin/interest/read-all', {method: 'PATCH', token}),
     adminMarkInterestRead: (token, id, read = true) =>
         request(`/api/admin/interest/${id}`, {method: 'PATCH', body: {read}, token}),
+    adminGetOrderTimeline: (token) => request('/api/admin/order-timeline', {token}),
+    adminUpdateOrderTimeline: (token, timeline) =>
+        request('/api/admin/order-timeline', {method: 'PUT', body: timeline, token}),
     adminGetInterestSettings: (token) => request('/api/admin/interest/settings', {token}),
     adminUpdateInterestSettings: (token, firstTasteSlots) =>
         request('/api/admin/interest/settings', {method: 'PATCH', body: {firstTasteSlots}, token}),

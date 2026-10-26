@@ -85,7 +85,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   api.getMenu.mockResolvedValue(menu);
   api.getLocations.mockResolvedValue(locations);
-  api.getOrderSchedule.mockResolvedValue({ itemOrderMonthLabel: 'October 2026', comboOrderMonthLabel: 'October 2026' });
+  api.getOrderSchedule.mockResolvedValue({ orderMonth: '2026-10', orderMonthLabel: 'October 2026' });
   db.cart.get.mockResolvedValue(undefined);
   useCustomerAuth.mockReturnValue({ session: null, refresh: vi.fn() });
   getRecaptchaToken.mockResolvedValue(null);

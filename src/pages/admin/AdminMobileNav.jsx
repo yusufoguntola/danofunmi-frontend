@@ -92,6 +92,7 @@ const GROUPS = [
     label: 'Setup',
     Icon: SetupIcon,
     items: [
+      { to: '/restricted-path/order-timeline', label: 'Timeline' },
       { to: '/restricted-path/locations', label: 'Locations' },
       { to: '/restricted-path/notifications', label: 'Notifications' },
       { to: '/restricted-path/costs', label: 'Costs' },
